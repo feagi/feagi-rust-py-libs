@@ -4,6 +4,8 @@ mod byte_structures;
 mod cortical_data;
 mod miscellaneous_types;
 mod neuron_data;
+mod io_processing;
+mod genomic_structures;
 
 use numpy::ndarray::AssignElem;
 use pyo3::prelude::*;
