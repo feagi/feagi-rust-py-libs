@@ -10,6 +10,12 @@ pub struct PySingleChannelDimensions {
     pub(crate) inner: SingleChannelDimensions
 }
 
+impl From<PySingleChannelDimensions> for SingleChannelDimensions {
+    fn from(p: PySingleChannelDimensions) -> Self {
+        p.inner
+    }
+}
+
 #[pymethods]
 impl PySingleChannelDimensions {
     #[new]

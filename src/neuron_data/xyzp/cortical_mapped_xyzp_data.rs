@@ -15,6 +15,12 @@ pub struct PyCorticalMappedXYZPNeuronData { // HashMap<CorticalID, NeuronYXCPArr
     pub inner: CorticalMappedXYZPNeuronData
 }
 
+impl From<CorticalMappedXYZPNeuronData> for PyCorticalMappedXYZPNeuronData {
+    fn from(inner: CorticalMappedXYZPNeuronData) -> Self {
+        PyCorticalMappedXYZPNeuronData { inner }
+    }
+}
+
 #[pymethods]
 impl PyCorticalMappedXYZPNeuronData {
     
@@ -110,10 +116,9 @@ impl PyCorticalMappedXYZPNeuronData {
         
         Ok(PyCorticalMappedXYZPNeuronDataEasyIter { items, index: 0 })
     }
-    
-    
-
 }
+
+
 
 
 #[pyclass]

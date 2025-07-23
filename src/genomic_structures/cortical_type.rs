@@ -18,6 +18,12 @@ impl From<CorticalType> for PyCorticalType {
     }
 }
 
+impl From<PyCorticalType> for CorticalType {
+    fn from(p: PyCorticalType) -> Self {
+        p.inner
+    }
+}
+
 #[pymethods]
 impl PyCorticalType {
     #[new]

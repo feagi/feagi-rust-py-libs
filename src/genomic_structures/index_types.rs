@@ -10,6 +10,12 @@ pub struct PyCorticalGroupingIndex {
     pub(crate) inner: CorticalGroupingIndex,
 }
 
+impl From<PyCorticalGroupingIndex> for CorticalGroupingIndex {
+    fn from(p: PyCorticalGroupingIndex) -> Self {
+        p.inner
+    }
+}
+
 #[pymethods]
 impl PyCorticalGroupingIndex {
     #[new]
@@ -27,6 +33,12 @@ impl PyCorticalGroupingIndex {
 #[pyo3(name = "CorticalIOChannelIndex")]
 pub struct PyCorticalIOChannelIndex {
     pub(crate) inner: CorticalIOChannelIndex,
+}
+
+impl From<PyCorticalIOChannelIndex> for CorticalIOChannelIndex {
+    fn from(p: PyCorticalIOChannelIndex) -> Self {
+        p.inner
+    }
 }
 
 #[pymethods]

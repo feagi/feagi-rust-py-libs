@@ -22,20 +22,19 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "feagi-data-processing"
-version = "0.0.35"
+version = "0.0.36"
 dependencies = [
  "feagi_core_data_structures_and_processing",
  "ndarray",
  "numpy",
  "pyo3",
- "serde_json",
 ]
 
 [[package]]
 name = "feagi_core_data_structures_and_processing"
-version = "0.0.45"
+version = "0.0.49"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a76f6a54ad558b89fcc63b74712c4d258c6ec34913c476ea09ab1d9430d9b071"
+checksum = "8e4627f12946f18736ef21af3a9286c49ecce21a68a49bb596592810403715fb"
 dependencies = [
  "byteorder",
  "ndarray",
