@@ -7,6 +7,7 @@ use feagi_core_data_structures_and_processing::neuron_data::xyzp::CorticalMapped
 use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex, PyCorticalType, PySingleChannelDimensions};
 use crate::io_data::{try_get_as_io_type_variant, try_wrap_as_io_type_data};
 use crate::io_processing::stream_cache_processors::{PyIdentityLinearFloatCacheProcessor, PyStreamCacheProcessor};
+use crate::io_processing::byte_structures::PyFeagiByteStructureCompatible;
 use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
 
 #[pyclass]
@@ -69,14 +70,16 @@ impl PySensorCache {
         
     }
 
-    pub fn encode_to_neurons(&mut self) -> PyResult<PyCorticalMappedXYZPNeuronData> {
+    pub fn encode_to_neurons<'py>(&mut self, py: Python<'py>) -> PyResult<PyObject> {
         // TODO pass in instant? Review how to handle this
         let mut mapped_data: CorticalMappedXYZPNeuronData = CorticalMappedXYZPNeuronData::new();
         let result = self.inner.encode_to_neurons(Instant::now(), &mut mapped_data);
         match result {
             Ok(()) => {
-                let output: PyCorticalMappedXYZPNeuronData = mapped_data.into();
-                return Ok(output);
+                let child = PyCorticalMappedXYZPNeuronData::from(mapped_data);
+                let parent = PyFeagiByteStructureCompatible::new();
+                let py_obj = Py::new(py, (child, parent))?;
+                Ok(py_obj.into())
             },
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
