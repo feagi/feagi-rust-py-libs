@@ -1,3 +1,3 @@
 pub mod byte_structures;
-mod io_caches;
-mod stream_cache_processors;
+pub mod io_caches;
+pub mod stream_cache_processors;

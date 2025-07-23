@@ -84,9 +84,12 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalIOChannelIndex);
     add_python_class!(py, m, "genome", genomic_structures::PySingleChannelDimensions);
 
-    //add_python_class!(py, m, "io_data", io_data::);
+    add_python_class!(py, m, "io_data", io_data::PyIOTypeVariant);
+    add_python_class!(py, m, "io_data", io_data::PyNormalized0To1F32);
 
     add_python_class!(py, m, "io_processing.bytes", io_processing::byte_structures::PyFeagiByteStructure);
+    add_python_class!(py, m, "io_processing.processors.floats", io_processing::stream_cache_processors::PyIdentityLinearFloatCacheProcessor);
+    add_python_class!(py, m, "io_processing.cache", io_processing::io_caches::PySensorCache);
 
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyCorticalMappedXYZPNeuronData);
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZPArrays);
