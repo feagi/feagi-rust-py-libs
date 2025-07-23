@@ -14,10 +14,15 @@ pub struct PyIdentityLinearFloatCacheProcessor {
 #[pymethods]
 impl PyIdentityLinearFloatCacheProcessor {
     #[new]
-    pub fn new<'py>(py: Python<'_>, initial_value: PyObject) -> PyResult<Self> {
+    pub fn new<'py>(py: Python<'py>, initial_value: PyObject) -> PyResult<Py<Self>> {
         let result = try_wrap_as_io_type_data(py, initial_value);
         match result {
-            Ok(inner) => Ok(PyIdentityLinearFloatCacheProcessor {inner: IdentityLinearFloatCacheProcessor::new(inner).unwrap()}),
+            Ok(inner) => {
+                let child = PyIdentityLinearFloatCacheProcessor {inner: IdentityLinearFloatCacheProcessor::new(inner).unwrap()};
+                let parent = PyStreamCacheProcessor {};
+                let py_obj = Py::new(py, (child, parent))?;
+                Ok(py_obj)
+            },
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
     }
