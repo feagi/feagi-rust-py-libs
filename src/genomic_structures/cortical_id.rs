@@ -43,6 +43,7 @@ impl PyCorticalID {
             Err(err) => Err(PyValueError::new_err(err.to_string()))
         }
     }
+    /*
 
     pub fn new_core_cortical_area_id(desired_id_string: String) -> PyResult<Self> {
         let result = CorticalID::new_core_cortical_area_id(desired_id_string);
@@ -52,6 +53,8 @@ impl PyCorticalID {
         }
     }
     
+     */
+    
     pub fn new_sensor_cortical_area_id(desired_id_string: String) -> PyResult<Self> {
         let result = CorticalID::new_sensor_cortical_area_id(desired_id_string);
         match result {
@@ -60,6 +63,7 @@ impl PyCorticalID {
         }
     }
 
+    /*
     pub fn new_motor_cortical_area_id(desired_id_string: String) -> PyResult<Self> {
         let result = CorticalID::new_motor_cortical_area_id(desired_id_string);
         match result {
@@ -67,6 +71,8 @@ impl PyCorticalID {
             Err(err) => Err(PyValueError::new_err(err.to_string()))
         }
     }
+    
+     */
     
     
     
