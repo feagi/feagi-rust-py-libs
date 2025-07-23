@@ -1,13 +1,12 @@
-use feagi_core_data_structures_and_processing::byte_structures::{FeagiByteStructureCompatible, FeagiByteStructureType};
 use pyo3::{pyclass, pymethods, PyResult, Py};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use numpy::PyArray1;
-use feagi_core_data_structures_and_processing::neuron_data::neuron_mappings::*;
-use crate::byte_structures::feagi_byte_structure::PyFeagiByteStructure;
-use crate::byte_structures::{PyFeagiByteStructureCompatible, PyFeagiByteStructureType};
-use crate::cortical_data::{PyCorticalID};
-use super::neuron_arrays::{PyNeuronXYZPArrays, tuple_nd_array_to_tuple_np_array};
+use feagi_core_data_structures_and_processing::neuron_data::xyzp::{CorticalMappedXYZPNeuronData};
+use feagi_core_data_structures_and_processing::io_processing::byte_structures::{FeagiByteStructureCompatible};
+use crate::io_processing::byte_structures::{PyFeagiByteStructure, PyFeagiByteStructureCompatible, PyFeagiByteStructureType};
+use crate::genomic_structures::{PyCorticalID};
+use super::neuron_xyzp_arrays::{PyNeuronXYZPArrays, tuple_nd_array_to_tuple_np_array};
 
 #[pyclass(extends=PyFeagiByteStructureCompatible)]
 #[derive(Clone)]
@@ -64,7 +63,7 @@ impl PyCorticalMappedXYZPNeuronData {
     }
 
     pub fn insert(&mut self, cortical_id: PyCorticalID, data: PyNeuronXYZPArrays) -> PyResult<()> {
-        if self.inner.contains(cortical_id.inner.clone()) { // TODO fix clone
+        if self.inner.contains(&cortical_id.inner) {
             return Err(PyValueError::new_err(format!("Cortical ID of {} already exists in this CorticalMappedNeuronData object!", cortical_id.as_str())));
         }
         self.inner.insert(cortical_id.inner, data.inner);
@@ -72,7 +71,7 @@ impl PyCorticalMappedXYZPNeuronData {
     }
 
     pub fn contains(&self, cortical_id: PyCorticalID) -> PyResult<bool> {
-        Ok(self.inner.contains(cortical_id.inner))
+        Ok(self.inner.contains(&cortical_id.inner))
     }
     
     pub fn get(&self, cortical_id: PyCorticalID) -> PyResult<PyNeuronXYZPArrays> {
@@ -97,7 +96,7 @@ impl PyCorticalMappedXYZPNeuronData {
         let mut items: Vec<(String, (Py<PyArray1<u32>>, Py<PyArray1<u32>>, Py<PyArray1<u32>>, Py<PyArray1<f32>>))> = Vec::new();
         
         for (k, v) in self.inner.mappings.iter() {
-            let cortical_id_str = k.as_str().to_string();
+            let cortical_id_str = k.to_string();
             let nd_arrays = v.copy_as_tuple_of_nd_arrays();
             let bound_arrays = tuple_nd_array_to_tuple_np_array(nd_arrays, py)?;
             let np_arrays = (

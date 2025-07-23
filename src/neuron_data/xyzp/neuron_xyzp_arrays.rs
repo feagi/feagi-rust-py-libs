@@ -1,18 +1,18 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
+use pyo3::types::{PyList};
 use numpy::{PyArray1, PyReadonlyArray1};
-use feagi_core_data_structures_and_processing::neuron_data::neuron_arrays::*;
 use ndarray::Array1;
-use pyo3::types::{PyBytes, PyList, PyTuple};
-use super::neurons::PyNeuronXYZP;
+use feagi_core_data_structures_and_processing::neuron_data::xyzp::{NeuronXYZPArrays};
+use super::neuron_xyzp::PyNeuronXYZP;
 
 
 #[pyclass]
 #[derive(Clone)]
 #[pyo3(name = "NeuronXYZPArrays")]
 pub struct PyNeuronXYZPArrays {
-    pub inner: NeuronXYZPArrays,
+    pub(crate) inner: NeuronXYZPArrays,
 }
 
 #[pymethods]

@@ -9,12 +9,12 @@ use feagi_core_data_structures_and_processing::genomic_structures::{CorticalType
 #[derive(PartialEq, Clone)]
 #[pyo3(name = "CorticalType")]
 pub struct PyCorticalType {
-    cortical_type: CorticalType,
+    pub(crate) inner: CorticalType,
 }
 
 impl From<CorticalType> for PyCorticalType {
     fn from(c: CorticalType) -> Self {
-        PyCorticalType { cortical_type : c }
+        PyCorticalType { inner : c }
     }
 }
 
@@ -22,12 +22,12 @@ impl From<CorticalType> for PyCorticalType {
 impl PyCorticalType {
     #[new]
     pub fn new(core_type: PyCorticalCoreTypeVariant) -> Self {
-        PyCorticalType{cortical_type: CorticalType::from(core_type)}
+        PyCorticalType{inner: CorticalType::from(core_type)}
     }
     
     #[staticmethod]
     pub fn new_sensor(sensor_type: PyCorticalSensorTypeVariant) -> Self {
-        PyCorticalType{cortical_type: CorticalType::from(sensor_type)}
+        PyCorticalType{inner: CorticalType::from(sensor_type)}
     }
 }
 
@@ -69,6 +69,19 @@ impl From<SensorCorticalType> for PyCorticalSensorTypeVariant {
     }
 }
 
+impl From<PyCorticalSensorTypeVariant> for SensorCorticalType {
+    fn from(type_: PyCorticalSensorTypeVariant) -> Self {
+        //TODO
+        SensorCorticalType::Proximity
+    }
+}
+
+impl From<PyCorticalSensorTypeVariant> for CorticalType {
+    fn from(type_: PyCorticalSensorTypeVariant) -> Self {
+        CorticalType::Sensory(type_.into())
+    }
+}
+
 impl TryFrom<CorticalType> for PyCorticalSensorTypeVariant {
     type Error = PyErr;
     fn try_from(type_: CorticalType) -> PyResult<Self> {
@@ -87,12 +100,18 @@ pub enum PyCorticalCoreTypeVariant {
     Power
 }
 
-impl From<PyCorticalCoreTypeVariant> for CorticalType {
+impl From<PyCorticalCoreTypeVariant> for CoreCorticalType {
     fn from(type_: PyCorticalCoreTypeVariant) -> Self {
         match type_ { 
-            PyCorticalCoreTypeVariant::Death => CorticalType::Core(CoreCorticalType::Death),
-            PyCorticalCoreTypeVariant::Power => CorticalType::Core(CoreCorticalType::Power),
+            PyCorticalCoreTypeVariant::Death => CoreCorticalType::Death,
+            PyCorticalCoreTypeVariant::Power => CoreCorticalType::Power
         }
+    }
+}
+
+impl From<PyCorticalCoreTypeVariant> for CorticalType {
+    fn from(type_: PyCorticalCoreTypeVariant) -> Self {
+        CorticalType::Core(type_.into())
     }
 }
 

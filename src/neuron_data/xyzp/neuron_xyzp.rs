@@ -1,7 +1,6 @@
-use feagi_core_data_structures_and_processing::neuron_data::neuron_arrays::NeuronXYZPArrays;
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
-use feagi_core_data_structures_and_processing::neuron_data::neurons::NeuronXYZP;
+use feagi_core_data_structures_and_processing::neuron_data::xyzp::NeuronXYZP;
 
 #[pyclass]
 #[derive(Clone)]

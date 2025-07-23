@@ -1,9 +1,9 @@
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_core_data_structures_and_processing::brain_input::vision::image_frame::ImageFrame;
-use feagi_core_data_structures_and_processing::brain_input::vision::descriptors::*;
-use crate::brain_input::vision::descriptors::*;
+use feagi_core_data_structures_and_processing::io_data::ImageFrame;
+use feagi_core_data_structures_and_processing::io_data::descriptors::*;
+use crate::io_data::image::descriptors::*;
 
 #[pyclass]
 #[pyo3(name = "ImageFrame")]

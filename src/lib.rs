@@ -1,11 +1,8 @@
-mod brain_input;
-mod brain_output;
-mod byte_structures;
-mod cortical_data;
 mod miscellaneous_types;
 mod neuron_data;
 mod io_processing;
 mod genomic_structures;
+mod io_data;
 
 use numpy::ndarray::AssignElem;
 use pyo3::prelude::*;
@@ -82,11 +79,11 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     add_python_class!(py, m, "cortical_data", cortical_data::PyCorticalID);
     
-    add_python_class!(py, m, "neuron_data.neuron_arrays", neuron_data::neuron_arrays::PyNeuronXYZPArrays);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronData);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronDataFullIter);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronDataEasyIter);
-    add_python_class!(py, m, "neuron_data.neurons", neuron_data::neurons::PyNeuronXYZP);
+    add_python_class!(py, m, "neuron_data.neuron_arrays", neuron_data::neuron_xyzp_arrays::PyNeuronXYZPArrays);
+    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::cortical_mapped_xyzp_data::PyCorticalMappedXYZPNeuronData);
+    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::cortical_mapped_xyzp_data::PyCorticalMappedXYZPNeuronDataFullIter);
+    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::cortical_mapped_xyzp_data::PyCorticalMappedXYZPNeuronDataEasyIter);
+    add_python_class!(py, m, "neuron_data.neurons", neuron_data::neuron_xyzp::PyNeuronXYZP);
 
     add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyChannelFormat);
     add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionTargetResolutions);

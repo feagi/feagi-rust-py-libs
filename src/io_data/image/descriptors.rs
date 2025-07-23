@@ -1,7 +1,7 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_core_data_structures_and_processing::brain_input::vision::descriptors::*;
+use feagi_core_data_structures_and_processing::io_data::descriptors::*;
 
 
 #[pyclass]
@@ -197,101 +197,94 @@ impl From<PyMemoryOrderLayout> for MemoryOrderLayout {
     }
 }
 
-
 #[pyclass]
 #[derive(Clone)]
-#[pyo3(name = "SegmentedVisionFrameSourceCroppingPointGrouping")]
-pub struct PySegmentedVisionFrameSourceCroppingPointGrouping {
-    pub inner: SegmentedVisionFrameSourceCroppingPointGrouping,
+#[pyo3(name = "SegmentedFrameCenterProperties")]
+pub struct PySegmentedFrameCenterProperties{
+    pub inner: SegmentedFrameCenterProperties,
 }
 
 #[pymethods]
-impl PySegmentedVisionFrameSourceCroppingPointGrouping {
-    #[getter]
-    fn lower_left(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.lower_left }
-    }
-
-    #[getter]
-    fn middle_left(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.middle_left }
-    }
-
-    #[getter]
-    fn upper_left(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.upper_left }
-    }
-
-    #[getter]
-    fn upper_middle(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.upper_middle }
-    }
-
-    #[getter]
-    fn upper_right(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.upper_right }
-    }
-
-    #[getter]
-    fn middle_right(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.middle_right }
-    }
-
-    #[getter]
-    fn lower_right(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.lower_right }
-    }
-
-    #[getter]
-    fn lower_middle(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.lower_middle }
-    }
-
-    #[getter]
-    fn center(&self) -> PyCornerPoints {
-        PyCornerPoints { inner: self.inner.center }
-    }
-}
-
-#[pyclass]
-#[derive(Clone)]
-#[pyo3(name = "SegmentedVisionCenterProperties")]
-pub struct PySegmentedVisionCenterProperties{
-    pub inner: SegmentedVisionCenterProperties,
-}
-
-#[pymethods]
-impl PySegmentedVisionCenterProperties {
+impl PySegmentedFrameCenterProperties {
     #[new]
     fn new_row_major_where_origin_top_left(center_coordinates_normalized_yx: (f32, f32), center_size_normalized_yx: (f32, f32)) -> PyResult<Self> {
-        let result = SegmentedVisionCenterProperties::new_row_major_where_origin_top_left(center_coordinates_normalized_yx, center_size_normalized_yx);
+        let result = SegmentedFrameCenterProperties::new_row_major_where_origin_top_left(center_coordinates_normalized_yx, center_size_normalized_yx);
         match result {
-            Ok(inner) => Ok(PySegmentedVisionCenterProperties { inner }),
+            Ok(inner) => Ok(PySegmentedFrameCenterProperties { inner }),
             Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string())),
         }
     }
 
     #[staticmethod]
     fn cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy: (f32, f32), center_size_normalized_xy: (f32, f32)) -> PyResult<Self> {
-        let result = SegmentedVisionCenterProperties::cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy, center_size_normalized_xy);
+        let result = SegmentedFrameCenterProperties::cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy, center_size_normalized_xy);
         match result {
-            Ok(inner) => Ok(PySegmentedVisionCenterProperties { inner }),
+            Ok(inner) => Ok(PySegmentedFrameCenterProperties { inner }),
             Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string())),
         }
     }
 
     #[staticmethod]
     fn create_default_centered() -> Self {
-        PySegmentedVisionCenterProperties {
-            inner: SegmentedVisionCenterProperties::create_default_centered(),
+        PySegmentedFrameCenterProperties {
+            inner: SegmentedFrameCenterProperties::create_default_centered(),
         }
     }
+}
 
-    fn calculate_source_corner_points_for_segemented_video_frame(&self, source_frame_width_height: (usize, usize)) -> PyResult<PySegmentedVisionFrameSourceCroppingPointGrouping> {
-        match self.inner.calculate_source_corner_points_for_segemented_video_frame(source_frame_width_height) {
-            Ok(grouping) => Ok(PySegmentedVisionFrameSourceCroppingPointGrouping { inner: grouping }),
-            Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
-        }
+
+#[pyclass]
+#[derive(Clone)]
+#[pyo3(name = "SegmentedFrameTargetResolutions")]
+pub struct PySegmentedFrameTargetResolutions {
+    pub inner: SegmentedFrameTargetResolutions,
+}
+
+#[pymethods]
+impl PySegmentedFrameTargetResolutions {
+    #[getter]
+    fn lower_left(&self) -> (usize, usize) {
+        self.inner.lower_left
+    }
+
+    #[getter]
+    fn middle_left(&self) -> (usize, usize) {
+        self.inner.middle_left
+    }
+
+    #[getter]
+    fn upper_left(&self) -> (usize, usize) {
+        self.inner.upper_left
+    }
+
+    #[getter]
+    fn upper_middle(&self) -> (usize, usize) {
+        self.inner.upper_middle
+    }
+
+    #[getter]
+    fn upper_right(&self) -> (usize, usize) {
+        self.inner.upper_right
+    }
+
+    #[getter]
+    fn middle_right(&self) -> (usize, usize) {
+        self.inner.middle_right
+    }
+
+    #[getter]
+    fn lower_right(&self) -> (usize, usize) {
+        self.inner.lower_right
+    }
+
+    #[getter]
+    fn lower_middle(&self) -> (usize, usize) {
+        self.inner.lower_middle
+    }
+
+    #[getter]
+    fn center(&self) -> (usize, usize) {
+        self.inner.center
     }
 }
 
@@ -299,7 +292,7 @@ impl PySegmentedVisionCenterProperties {
 #[derive(Clone)]
 #[pyo3(name = "SegmentedVisionTargetResolutions")]
 pub struct PySegmentedVisionTargetResolutions{
-    pub inner: SegmentedVisionTargetResolutions,
+    pub inner: SegmentedFrameTargetResolutions,
 }
 
 #[pymethods]
@@ -315,7 +308,7 @@ impl PySegmentedVisionTargetResolutions {
                        lower_middle: (usize, usize),
                        center: (usize, usize)
     ) -> PyResult<Self> {
-        let result = SegmentedVisionTargetResolutions::new(lower_left, middle_left, upper_left, upper_middle, upper_right, middle_right, lower_right, lower_middle, center);
+        let result = SegmentedFrameTargetResolutions::new(lower_left, middle_left, upper_left, upper_middle, upper_right, middle_right, lower_right, lower_middle, center);
         match result {
             Ok(inner) => Ok(PySegmentedVisionTargetResolutions { inner }),
             Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string()))
@@ -324,7 +317,7 @@ impl PySegmentedVisionTargetResolutions {
 
     #[staticmethod]
     fn create_with_same_sized_peripheral(center_width_height: (usize, usize), peripheral_width_height: (usize, usize)) -> PyResult<Self> {
-        let result = SegmentedVisionTargetResolutions::create_with_same_sized_peripheral(center_width_height, peripheral_width_height);
+        let result = SegmentedFrameTargetResolutions::create_with_same_sized_peripheral(center_width_height, peripheral_width_height);
         match result {
             Ok(inner) => Ok(PySegmentedVisionTargetResolutions { inner }),
             Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string()))

@@ -6,7 +6,7 @@ use feagi_core_data_structures_and_processing::genomic_structures::CorticalID;
 #[derive(PartialEq, Clone)]
 #[pyo3(name = "CorticalID")]
 pub struct PyCorticalID {
-    pub inner: CorticalID,
+    pub(crate) inner: CorticalID,
 }
 
 #[pymethods]
