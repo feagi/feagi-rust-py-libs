@@ -65,7 +65,7 @@ impl From<CorticalType> for PyCorticalTypeVariant {
 #[derive(PartialEq, Clone)]
 #[pyo3(name = "CorticalSensorTypeVariant")]
 pub enum PyCorticalSensorTypeVariant {
-    Proximity
+    Proximity,
 }
 
 impl From<SensorCorticalType> for PyCorticalSensorTypeVariant {
@@ -100,7 +100,7 @@ impl TryFrom<CorticalType> for PyCorticalSensorTypeVariant {
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
-#[pyo3(name = "CorticalSensorTypeVariant")]
+#[pyo3(name = "CorticalCoreTypeVariant")]
 pub enum PyCorticalCoreTypeVariant {
     Death,
     Power

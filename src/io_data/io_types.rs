@@ -4,7 +4,7 @@ use pyo3::{pyclass, pymethods, Bound, PyAny, PyErr, PyObject, PyResult, Python};
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant};
 use pyo3::prelude::PyAnyMethods;
-use crate::io_data::ranged_floats::PyNormalized0To1F32;
+use crate::io_data::ranged_floats::PyNormalizedM1To1F32;
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
@@ -43,7 +43,7 @@ impl From<PyIOTypeVariant> for IOTypeVariant {
 
 
 pub(crate) fn try_get_as_io_type_variant<'py>(py: Python<'_>, any: PyObject) -> Result<IOTypeVariant, FeagiDataProcessingError> {
-    let normalized_0_1 = py.get_type::<PyNormalized0To1F32>();
+    let normalized_0_1 = py.get_type::<PyNormalizedM1To1F32>();
     
     // TODO finish
     
@@ -59,8 +59,8 @@ pub(crate) fn try_wrap_as_io_type_data<'py>(py: Python<'_>, any: PyObject) -> Re
     // TODO finish
     // TODO this is likely unoptimized!
     
-    if let Ok(normalized_0_1) = any.extract::<PyNormalized0To1F32>(py) {
-        return Ok(IOTypeData::Linear0to1NormalizedF32(normalized_0_1.inner))
+    if let Ok(normalized_m1_1) = any.extract::<PyNormalizedM1To1F32>(py) {
+        return Ok(IOTypeData::LinearM1to1NormalizedF32(normalized_m1_1.inner))
     }
     
     Err(IODataError::InvalidParameters("Unknown Data Type!".into()).into())

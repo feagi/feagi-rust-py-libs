@@ -1,4 +1,4 @@
-use feagi_core_data_structures_and_processing::io_data::Normalized0To1F32;
+use feagi_core_data_structures_and_processing::io_data::NormalizedM1To1F32;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 
@@ -10,46 +10,42 @@ use pyo3::exceptions::PyValueError;
 
 
 
-
-
-
-
 #[pyclass]
-#[pyo3(name = "Normalized0To1F32")]
+#[pyo3(name = "NormalizedM1To1F32")]
 #[derive(Debug, Clone, Copy)]
-pub struct PyNormalized0To1F32 {
-    pub(crate) inner: Normalized0To1F32,
+pub struct PyNormalizedM1To1F32 {
+    pub(crate) inner: NormalizedM1To1F32,
 }
 
-impl From<PyNormalized0To1F32> for Normalized0To1F32 {
-    fn from(inner: PyNormalized0To1F32) -> Self {
+impl From<PyNormalizedM1To1F32> for NormalizedM1To1F32 {
+    fn from(inner: PyNormalizedM1To1F32) -> Self {
         inner.inner
     }
 }
 
-impl From<Normalized0To1F32> for PyNormalized0To1F32 {
-    fn from(inner: Normalized0To1F32) -> Self {
-        PyNormalized0To1F32{ inner }
+impl From<NormalizedM1To1F32> for PyNormalizedM1To1F32 {
+    fn from(inner: NormalizedM1To1F32) -> Self {
+        PyNormalizedM1To1F32{ inner }
     }
 }
 
 
 #[pymethods]
-impl PyNormalized0To1F32 {
+impl PyNormalizedM1To1F32 {
     #[new]
     fn new(float: f32) -> PyResult<Self> {
-        let result = Normalized0To1F32::new(float);
+        let result = NormalizedM1To1F32::new(float);
         match result {
-            Ok(inner) => Ok(PyNormalized0To1F32 { inner: inner }),
+            Ok(inner) => Ok(PyNormalizedM1To1F32 { inner: inner }),
             Err(e) => Err(PyValueError::new_err(e.to_string())),
         }
     }
     
     #[staticmethod]
     fn new_clamped(float: f32) -> PyResult<Self> {
-        let result = Normalized0To1F32::new_with_clamp(float);
+        let result = NormalizedM1To1F32::new_with_clamp(float);
         match result {
-            Ok(inner) => Ok(PyNormalized0To1F32 { inner: inner }),
+            Ok(inner) => Ok(PyNormalizedM1To1F32 { inner: inner }),
             Err(e) => Err(PyValueError::new_err(e.to_string())),
         }
     }

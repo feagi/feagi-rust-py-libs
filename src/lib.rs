@@ -77,6 +77,7 @@ macro_rules! add_python_function {
 fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalTypeVariant);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalSensorTypeVariant);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalCoreTypeVariant);
@@ -85,7 +86,7 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "genome", genomic_structures::PySingleChannelDimensions);
 
     add_python_class!(py, m, "io_data", io_data::PyIOTypeVariant);
-    add_python_class!(py, m, "io_data", io_data::PyNormalized0To1F32);
+    add_python_class!(py, m, "io_data", io_data::PyNormalizedM1To1F32);
 
     add_python_class!(py, m, "io_processing.bytes", io_processing::byte_structures::PyFeagiByteStructure);
     add_python_class!(py, m, "io_processing.processors.floats", io_processing::stream_cache_processors::PyIdentityLinearFloatCacheProcessor);
