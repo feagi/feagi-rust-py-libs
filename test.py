@@ -5,21 +5,22 @@ import numpy as np
 print("start")
 
 sensor_cache = fdp.io_processing.cache.SensorCache()
-cortical_type = fdp.genome.CorticalType.new_sensor(fdp.genome.CorticalSensorTypeVariant.Proximity)
-cortical_grouping_index = fdp.genome.CorticalGroupingIndex(0)
-number_channels = 5
+cortical_type = fdp.genome.SensorCorticalType.Proximity
+cortical_grouping_index = 1
+number_channels = 3
 channel_dimensions = fdp.genome.SingleChannelDimensions(1, 1, 10)
-channel = fdp.genome.CorticalIOChannelIndex(2)
-initial_value = fdp.io_data.NormalizedM1To1F32(0.2)
-input_processor = fdp.io_processing.processors.floats.IdentityLinearFloatCacheProcessor(initial_value)
+channel = 2
+input_processors = [
+    fdp.io_processing.processors.LinearAverageRollingWindowProcessor(5, 0.0), # 5 values, starting all at 0
+    fdp.io_processing.processors.LinearScaleTo0And1(0.0, 50.0, 25.0) # bounds 0.0 -> 50.0, initial value 25.0
+]
 allow_sending_stale_data = True
 
 sensor_cache.register_single_cortical_area(cortical_type, cortical_grouping_index, number_channels, channel_dimensions)
-sensor_cache.register_channel(cortical_type, cortical_grouping_index, channel, input_processor, allow_sending_stale_data)
+sensor_cache.register_single_channel(cortical_type, cortical_grouping_index, channel, input_processors, allow_sending_stale_data)
 
-proximity_value = 0.5
-proximity_value_wrapped = fdp.io_data.NormalizedM1To1F32(proximity_value)
-sensor_cache.update_value_by_channel(proximity_value_wrapped, cortical_type, cortical_grouping_index, channel)
+proximity_value = 25.0
+sensor_cache.update_value_by_channel(proximity_value, cortical_type, cortical_grouping_index, channel)
 
 neuron_output = sensor_cache.encode_to_neurons()
 feagi_byte_structure = neuron_output.as_new_feagi_byte_structure()
