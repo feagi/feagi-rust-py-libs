@@ -7,6 +7,7 @@ use feagi_core_data_structures_and_processing::neuron_data::xyzp::CorticalMapped
 use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex, PyCorticalSensorType, PyCorticalType, PySingleChannelDimensions};
 use crate::io_data::{try_get_as_io_type_variant, try_wrap_as_io_type_data};
 use crate::io_processing::byte_structures::PyFeagiByteStructureCompatible;
+use crate::io_processing::PyStreamCacheProcessor;
 use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
 
 #[pyclass]
@@ -22,29 +23,45 @@ impl PySensorCache {
         PySensorCache {inner: SensorCache::new()}
     }
     
-    pub fn register_single_cortical_area(&mut self, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyCorticalGroupingIndex, number_supported_channels: u32, channel_dimensions: PySingleChannelDimensions) -> PyResult<()> {
-        let cortical_type: CorticalType = cortical_type.into();
-        let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
-        let channel_dimensions: SingleChannelDimensions = channel_dimensions.into();
+    pub fn register_single_cortical_area<'py>(&mut self, py: Python<'_>, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyObject, number_supported_channels: u32, channel_dimensions: PySingleChannelDimensions) -> PyResult<()> {
         
-        let result = self.inner.register_single_cortical_area(cortical_type, cortical_grouping_index, number_supported_channels, channel_dimensions);
+        let cortical_group_index_result = PyCorticalGroupingIndex::try_from_python(py, cortical_grouping_index);
+        if cortical_group_index_result.is_err() {
+            return Err(PyValueError::new_err(cortical_group_index_result.unwrap_err().to_string()));
+        }
+        let cortical_grouping_index: CorticalGroupingIndex = cortical_group_index_result.unwrap();
+        
+        let channel_dimensions: SingleChannelDimensions = channel_dimensions.into(); // TODO can we make this automatic?
+        
+        
+        let result = self.inner.register_single_cortical_area(cortical_sensor_type.into(), cortical_grouping_index, number_supported_channels, channel_dimensions);
         match result {
             Ok(()) => Ok(()),
             Err(e) => Err(PyValueError::new_err(e.to_string())),
         }
     }
     
-    pub fn register_channel(&mut self, cortical_type: PyCorticalType, cortical_grouping_index: PyCorticalGroupingIndex,
-                            channel: PyCorticalIOChannelIndex, sensory_processor: PyIdentityLinearFloatCacheProcessor, should_sensor_allow_sending_stale_data: bool) -> PyResult<()> {
+    pub fn register_single_channel<'py>(&mut self, py: Python<'_>, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyObject,
+                            channel: PyObject, sensory_processors: Vec<Py<PyStreamCacheProcessor>>, should_sensor_allow_sending_stale_data: bool) -> PyResult<()> {
 
-        let cortical_type: CorticalType = cortical_type.into();
-        let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
-        let channel: CorticalIOChannelIndex = channel.into();
+        let cortical_group_index_result = PyCorticalGroupingIndex::try_from_python(py, cortical_grouping_index);
+        if cortical_group_index_result.is_err() {
+            return Err(PyValueError::new_err(cortical_group_index_result.unwrap_err().to_string()));
+        }
+        let cortical_grouping_index: CorticalGroupingIndex = cortical_group_index_result.unwrap();
+
+        let cortical_channel_index_result = PyCorticalIOChannelIndex::try_from_python(py, channel);
+        if cortical_channel_index_result.is_err() {
+            return Err(PyValueError::new_err(cortical_channel_index_result.unwrap_err().to_string()));
+        }
+        let cortical_channel_index: CorticalIOChannelIndex = cortical_channel_index_result.unwrap();
         
-        //let cache_processor: Box<dyn StreamCacheProcessor> = sensory_processor.into();
-        let sensory_processor = Box::new(sensory_processor.inner);
+        let mut sensory_processors_unwrapped: Vec<Box<dyn StreamCacheProcessor + Sync + Send>> = Vec::with_capacity(sensory_processors.len());
+        for py_processor_parent_class in sensory_processors {
+            sensory_processors_unwrapped.push(Box::<dyn StreamCacheProcessor + Sync + Send>::new(py_processor.into()));
+        }
         
-        let result = self.inner.register_channel(cortical_type, cortical_grouping_index, channel, sensory_processor, should_sensor_allow_sending_stale_data);
+        let result = self.inner.register_single_channel(cortical_sensor_type.into(), cortical_grouping_index, cortical_channel_index, sensory_processors_unwrapped, should_sensor_allow_sending_stale_data);
         match result {
             Ok(()) => Ok(()),
             Err(e) => Err(PyValueError::new_err(e.to_string())),

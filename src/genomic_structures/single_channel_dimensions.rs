@@ -1,3 +1,4 @@
+use feagi_core_data_structures_and_processing::error::FeagiDataProcessingError;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
