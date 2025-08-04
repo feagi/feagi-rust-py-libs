@@ -79,7 +79,7 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalTypeVariant);
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalSensorTypeVariant);
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalSensorType);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalCoreTypeVariant);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalGroupingIndex);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalIOChannelIndex);

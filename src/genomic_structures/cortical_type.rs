@@ -5,7 +5,7 @@ use feagi_core_data_structures_and_processing::genomic_structures::{CorticalType
 use feagi_core_data_structures_and_processing::sensor_definition;
 
 // creating 2 near identical macros cause screw it
-macro_rules! define_input_cortical_types_py { 
+macro_rules! define_input_cortical_types_py {
     (
         $cortical_io_type_enum_name:ident {
             $(
@@ -18,17 +18,17 @@ macro_rules! define_input_cortical_types_py {
             ),* $(,)?
         }
     ) => {
-        
+
         #[pyclass]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         #[pyo3(name = "SensorCorticalType")]
-        pub enum PyCorticalSensorTypeVariant {
+        pub enum PyCorticalSensorType {
             $(
                 $cortical_type_key_name
             ),*
         }
-        
-        impl From<SensorCorticalType> for PyCorticalSensorTypeVariant {
+
+        impl From<SensorCorticalType> for PyCorticalSensorType {
             fn from(inner: SensorCorticalType) -> Self {
                 match inner {
                 $(
@@ -37,17 +37,17 @@ macro_rules! define_input_cortical_types_py {
                 }
             }
         }
-        
-        impl From<PyCorticalSensorTypeVariant> for SensorCorticalType {
-            fn from(inner: PyCorticalSensorTypeVariant) -> Self {
+
+        impl From<PyCorticalSensorType> for SensorCorticalType {
+            fn from(inner: PyCorticalSensorType) -> Self {
                 match inner {
                 $(
-                     PyCorticalSensorTypeVariant::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name,
+                     PyCorticalSensorType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name,
                 ),*
                 }
             }
         }
-        
+
         // TODO expose to_cortical_id, get_type_from_bytes, get_channel_dimension_range
     }
 }
@@ -78,30 +78,30 @@ impl PyCorticalType {
     pub fn new(core_type: PyCoreCorticalType) -> Self {
         PyCorticalType{inner: CorticalType::from(core_type)}
     }
-    
+
     #[staticmethod]
     pub fn new_core(core_type: PyCoreCorticalType) -> Self {
         PyCorticalType{inner: CorticalType::from(core_type)}
     }
-    
+
     #[staticmethod]
-    pub fn new_sensor(sensor_type: PyCorticalSensorTypeVariant) -> Self {
+    pub fn new_sensor(sensor_type: PyCorticalSensorType) -> Self {
         let sensor_type: SensorCorticalType = sensor_type.into();
         PyCorticalType{inner: CorticalType::from(sensor_type)}
     }
-    
+
     // TODO motor
 
     #[staticmethod]
     pub fn new_custom() -> Self {
         PyCorticalType {inner: CorticalType::Custom}
     }
-    
+
     #[staticmethod]
     pub fn new_memory() -> Self {
         PyCorticalType {inner: CorticalType::Memory}
     }
-    
+
     pub fn get_type_variant(&self) -> PyCorticalTypeVariant{
         match self.inner {
             CorticalType::Custom => PyCorticalTypeVariant::Custom,
@@ -111,7 +111,7 @@ impl PyCorticalType {
             CorticalType::Motor(_) => PyCorticalTypeVariant::Motor,
         }
     }
-    
+
     //TODO expose to_cortical_id, is_type_x, try_get_channel_size_boundaries, get_type_from_bytes
 }
 

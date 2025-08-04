@@ -4,9 +4,8 @@ use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_processing::{SensorCache, StreamCacheProcessor};
 use feagi_core_data_structures_and_processing::genomic_structures::{CorticalGroupingIndex, CorticalIOChannelIndex, CorticalType, SingleChannelDimensions};
 use feagi_core_data_structures_and_processing::neuron_data::xyzp::CorticalMappedXYZPNeuronData;
-use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex, PyCorticalType, PySingleChannelDimensions};
+use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex, PyCorticalSensorType, PyCorticalType, PySingleChannelDimensions};
 use crate::io_data::{try_get_as_io_type_variant, try_wrap_as_io_type_data};
-use crate::io_processing::stream_cache_processors::{PyIdentityLinearFloatCacheProcessor, PyStreamCacheProcessor};
 use crate::io_processing::byte_structures::PyFeagiByteStructureCompatible;
 use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
 
@@ -23,7 +22,7 @@ impl PySensorCache {
         PySensorCache {inner: SensorCache::new()}
     }
     
-    pub fn register_single_cortical_area(&mut self, cortical_type: PyCorticalType, cortical_grouping_index: PyCorticalGroupingIndex, number_supported_channels: u32, channel_dimensions: PySingleChannelDimensions) -> PyResult<()> {
+    pub fn register_single_cortical_area(&mut self, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyCorticalGroupingIndex, number_supported_channels: u32, channel_dimensions: PySingleChannelDimensions) -> PyResult<()> {
         let cortical_type: CorticalType = cortical_type.into();
         let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
         let channel_dimensions: SingleChannelDimensions = channel_dimensions.into();
