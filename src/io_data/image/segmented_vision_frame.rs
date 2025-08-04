@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_core_data_structures_and_processing::io_data::descriptors::*;
+use feagi_core_data_structures_and_processing::io_data::image_descriptors::*;
 use feagi_core_data_structures_and_processing::io_data::SegmentedImageFrame;
 use feagi_core_data_structures_and_processing::genomic_structures::CorticalID;
 
@@ -25,7 +25,7 @@ impl PySegmentedImageFrame {
     #[new]
     pub fn new(
         segment_resolutions: &PySegmentedVisionTargetResolutions,
-        segment_color_channels: PyChannelFormat,
+        segment_color_channels: PyChannelLayout,
         segment_color_space: PyColorSpace,
         input_frames_source_width_height: (usize, usize)
     ) -> PyResult<Self> {
@@ -72,12 +72,12 @@ impl PySegmentedImageFrame {
     }
 
     #[getter]
-    pub fn color_channels(&self) -> PyChannelFormat {
-        match self.inner.get_color_channels() {
-            ChannelFormat::GrayScale => PyChannelFormat::GrayScale,
-            ChannelFormat::RG => PyChannelFormat::RG,
-            ChannelFormat::RGB => PyChannelFormat::RGB,
-            ChannelFormat::RGBA => PyChannelFormat::RGBA,
+    pub fn center_channel_layout(&self) -> PyChannelLayout {
+        match self.inner.get_center_channel_layout() {
+            ChannelLayout::GrayScale => PyChannelLayout::GrayScale,
+            ChannelLayout::RG => PyChannelLayout::RG,
+            ChannelLayout::RGB => PyChannelLayout::RGB,
+            ChannelLayout::RGBA => PyChannelLayout::RGBA,
         }
     }
     //endregion

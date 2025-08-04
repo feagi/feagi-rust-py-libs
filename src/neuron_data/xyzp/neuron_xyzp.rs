@@ -28,8 +28,8 @@ impl From<&NeuronXYZP> for PyNeuronXYZP {
 }
 
 impl From<&PyNeuronXYZP> for NeuronXYZP {
-    fn from(neuron: PyNeuronXYZP) -> Self {
-        neuron.inner
+    fn from(neuron: &PyNeuronXYZP) -> Self {
+        neuron.clone().inner
     }
 }
 

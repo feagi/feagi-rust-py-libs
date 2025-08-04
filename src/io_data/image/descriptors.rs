@@ -1,7 +1,7 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_core_data_structures_and_processing::io_data::descriptors::*;
+use feagi_core_data_structures_and_processing::io_data::image_descriptors::*;
 
 
 #[pyclass]
@@ -153,21 +153,21 @@ impl From<PyColorSpace> for ColorSpace {
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
-#[pyo3(name = "ChannelFormat")]
-pub enum PyChannelFormat {
+#[pyo3(name = "ChannelLayout")]
+pub enum PyChannelLayout {
     GrayScale,
     RG,
     RGB,
     RGBA
 }
 
-impl From<PyChannelFormat> for ChannelFormat {
-    fn from(py_channel_format: PyChannelFormat) -> Self {
+impl From<PyChannelLayout> for ChannelLayout {
+    fn from(py_channel_format: PyChannelLayout) -> Self {
         match py_channel_format {
-            PyChannelFormat::GrayScale => ChannelFormat::GrayScale,
-            PyChannelFormat::RG => ChannelFormat::RG,
-            PyChannelFormat::RGB => ChannelFormat::RGB,
-            PyChannelFormat::RGBA => ChannelFormat::RGBA,
+            PyChannelLayout::GrayScale => ChannelLayout::GrayScale,
+            PyChannelLayout::RG => ChannelLayout::RG,
+            PyChannelLayout::RGB => ChannelLayout::RGB,
+            PyChannelLayout::RGBA => ChannelLayout::RGBA,
         }
     }
 }

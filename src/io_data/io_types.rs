@@ -4,7 +4,6 @@ use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyFloat, PyInt};
 use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant};
 use pyo3::prelude::PyAnyMethods;
-use crate::io_data::ranged_floats::PyNormalizedM1To1F32;
 use crate::io_data::image::image_frame::PyImageFrame;
 use crate::io_data::image::segmented_vision_frame::PySegmentedImageFrame;
 
