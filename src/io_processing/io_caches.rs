@@ -103,8 +103,9 @@ impl PySensorCache {
                 Ok(())
             }
         }
-        
     }
+    
+    //  TODO get way to query current channel data?
 
     pub fn encode_to_neurons<'py>(&mut self, py: Python<'py>) -> PyResult<PyObject> {
         // TODO pass in instant? Review how to handle this
