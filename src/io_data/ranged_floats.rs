@@ -4,12 +4,6 @@ use pyo3::exceptions::PyValueError;
 
 
 
-
-
-
-
-
-
 #[pyclass]
 #[pyo3(name = "NormalizedM1To1F32")]
 #[derive(Debug, Clone, Copy)]

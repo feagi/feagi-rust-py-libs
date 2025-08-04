@@ -1,18 +1,20 @@
-use std::any::Any;
 use feagi_core_data_structures_and_processing::error::{FeagiDataProcessingError, IODataError};
 use pyo3::{pyclass, pymethods, Bound, PyAny, PyErr, PyObject, PyResult, Python};
 use pyo3::exceptions::PyValueError;
+use pyo3::types::{PyFloat, PyInt};
 use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant};
 use pyo3::prelude::PyAnyMethods;
 use crate::io_data::ranged_floats::PyNormalizedM1To1F32;
+use crate::io_data::image::image_frame::PyImageFrame;
+use crate::io_data::image::segmented_vision_frame::PySegmentedImageFrame;
 
 #[pyclass(eq, eq_int)]
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Hash)]
 #[pyo3(name = "IOTypeVariant")]
 pub enum PyIOTypeVariant {
-    NormalizedM1to1F32,
-    Normalized0to1F32,
-    BoundedF32,
+    F32,
+    F32Normalized0To1,
+    F32NormalizedM1To1,
     ImageFrame,
     SegmentedImageFrame,
 }
@@ -20,9 +22,9 @@ pub enum PyIOTypeVariant {
 impl From<IOTypeVariant> for PyIOTypeVariant {
     fn from(io_type: IOTypeVariant) -> Self {
         match io_type {
-            IOTypeVariant::NormalizedM1to1F32 => Self::NormalizedM1to1F32,
-            IOTypeVariant::Normalized0to1F32 => Self::Normalized0to1F32,
-            IOTypeVariant::BoundedF32 => Self::BoundedF32,
+            IOTypeVariant::F32 => Self::F32,
+            IOTypeVariant::F32Normalized0To1 => Self::F32Normalized0To1,
+            IOTypeVariant::F32NormalizedM1To1 => Self::F32NormalizedM1To1,
             IOTypeVariant::ImageFrame => Self::ImageFrame,
             IOTypeVariant::SegmentedImageFrame => Self::SegmentedImageFrame,
         }
@@ -32,9 +34,9 @@ impl From<IOTypeVariant> for PyIOTypeVariant {
 impl From<PyIOTypeVariant> for IOTypeVariant {
     fn from(io_type: PyIOTypeVariant) -> Self {
         match io_type {
-            PyIOTypeVariant::NormalizedM1to1F32 => Self::NormalizedM1to1F32,
-            PyIOTypeVariant::Normalized0to1F32 => Self::Normalized0to1F32,
-            PyIOTypeVariant::BoundedF32 => Self::BoundedF32,
+            PyIOTypeVariant::F32 => Self::F32,
+            PyIOTypeVariant::F32Normalized0To1 => Self::F32Normalized0To1,
+            PyIOTypeVariant::F32NormalizedM1To1 => Self::F32NormalizedM1To1,
             PyIOTypeVariant::ImageFrame => Self::ImageFrame,
             PyIOTypeVariant::SegmentedImageFrame => Self::SegmentedImageFrame,
         }
@@ -43,25 +45,47 @@ impl From<PyIOTypeVariant> for IOTypeVariant {
 
 
 pub(crate) fn try_get_as_io_type_variant<'py>(py: Python<'_>, any: PyObject) -> Result<IOTypeVariant, FeagiDataProcessingError> {
-    let normalized_0_1 = py.get_type::<PyNormalizedM1To1F32>();
+    let bound = any.bind(py);
     
-    // TODO finish
-    
-    if any.is(&normalized_0_1) {
-        return Ok(IOTypeVariant::Normalized0to1F32);
+    match () {
+        _ if bound.is_instance_of::<PyImageFrame>() => Ok(IOTypeVariant::ImageFrame),
+        
+        _ if bound.is_instance_of::<PySegmentedImageFrame>() => Ok(IOTypeVariant::SegmentedImageFrame),
+        
+        _ if bound.is_instance_of::<PyFloat>() => Ok(IOTypeVariant::F32),
+        
+        // NOTE: specifically not treating ints as floats
+        
+        _ => Err(IODataError::InvalidParameters("Unknown Data Type!".into()).into())
     }
-    
-    Err(IODataError::InvalidParameters("Unknown Data Type!".into()).into())
 }
 
 pub(crate) fn try_wrap_as_io_type_data<'py>(py: Python<'_>, any: PyObject) -> Result<IOTypeData, FeagiDataProcessingError> {
+    let bound = any.bind(py);
     
-    // TODO finish
-    // TODO this is likely unoptimized!
-    
-    if let Ok(normalized_m1_1) = any.extract::<PyNormalizedM1To1F32>(py) {
-        return Ok(IOTypeData::LinearM1to1NormalizedF32(normalized_m1_1.inner))
+    // Use type introspection for efficiency, then extract data when type matches
+    match () {
+        
+        _ if bound.is_instance_of::<PyImageFrame>() => {
+            let image_frame = any.extract::<PyImageFrame>(py)
+                .map_err(|_| IODataError::InvalidParameters("Failed to extract PyImageFrame".into()))?;
+            Ok(IOTypeData::ImageFrame(image_frame.inner))
+        },
+        
+        _ if bound.is_instance_of::<PySegmentedImageFrame>() => {
+            let segmented_frame = any.extract::<PySegmentedImageFrame>(py)
+                .map_err(|_| IODataError::InvalidParameters("Failed to extract PySegmentedImageFrame".into()))?;
+            Ok(IOTypeData::SegmentedImageFrame(segmented_frame.inner))
+        },
+        
+        // Handle basic Python float last
+        _ if bound.is_instance_of::<PyFloat>() => {
+            let float_val = any.extract::<f32>(py)
+                .map_err(|_| IODataError::InvalidParameters("Failed to extract float value".into()))?;
+            Ok(IOTypeData::F32(float_val))
+        },
+
+        // If nothing matches, return error
+        _ => Err(IODataError::InvalidParameters("Unknown Data Type!".into()).into())
     }
-    
-    Err(IODataError::InvalidParameters("Unknown Data Type!".into()).into())
 }

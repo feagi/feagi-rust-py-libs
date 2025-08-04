@@ -9,6 +9,30 @@ pub struct PyNeuronXYZP {
     pub inner: NeuronXYZP,
 }
 
+impl From<NeuronXYZP> for PyNeuronXYZP {
+    fn from(neuron: NeuronXYZP) -> Self {
+        PyNeuronXYZP{inner: neuron}
+    }
+}
+
+impl From<PyNeuronXYZP> for NeuronXYZP {
+    fn from(neuron: PyNeuronXYZP) -> Self {
+        neuron.inner
+    }
+}
+
+impl From<&NeuronXYZP> for PyNeuronXYZP {
+    fn from(neuron: &NeuronXYZP) -> Self {
+        PyNeuronXYZP{inner: neuron.clone()}
+    }
+}
+
+impl From<&PyNeuronXYZP> for NeuronXYZP {
+    fn from(neuron: PyNeuronXYZP) -> Self {
+        neuron.inner
+    }
+}
+
 #[pymethods]
 impl PyNeuronXYZP {
     #[new]

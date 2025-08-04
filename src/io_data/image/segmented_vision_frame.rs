@@ -13,8 +13,9 @@ use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
 
 #[pyclass]
 #[pyo3(name = "SegmentedImageFrame")]
+#[derive(Clone)]
 pub struct PySegmentedImageFrame{
-    inner: SegmentedImageFrame,
+    pub(crate) inner: SegmentedImageFrame,
 }
 
 #[pymethods]
