@@ -16,6 +16,17 @@ impl From<PySingleChannelDimensions> for SingleChannelDimensions {
     }
 }
 
+impl TryFrom<(u32, u32, u32)> for PySingleChannelDimensions { // TODO have this implemented in the core lib instead
+    type Error = PyErr;
+    fn try_from(p: (u32, u32, u32)) -> Result<Self, Self::Error> {
+        let result = PySingleChannelDimensions::new(p.0, p.1, p.2);
+        match result { 
+            Ok(p) => Ok(p),
+            Err(e) => Err(PyErr::from(e))
+        }
+    }
+}
+
 #[pymethods]
 impl PySingleChannelDimensions {
     #[new]

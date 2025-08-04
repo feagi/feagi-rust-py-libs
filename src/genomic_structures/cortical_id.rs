@@ -9,6 +9,12 @@ pub struct PyCorticalID {
     pub(crate) inner: CorticalID,
 }
 
+impl From<CorticalID> for PyCorticalID {
+    fn from(inner: CorticalID) -> Self {
+        PyCorticalID{inner: inner}
+    }
+}
+
 #[pymethods]
 impl PyCorticalID {
     #[new]
