@@ -22,6 +22,9 @@ proximity_value_wrapped = fdp.io_data.NormalizedM1To1F32(proximity_value)
 sensor_cache.update_value_by_channel(proximity_value_wrapped, cortical_type, cortical_grouping_index, channel)
 
 neuron_output = sensor_cache.encode_to_neurons()
+feagi_byte_structure = neuron_output.as_new_feagi_byte_structure()
+byte = feagi_byte_structure.copy_out_as_byte_vector()
+
 print("pause")
 
 
