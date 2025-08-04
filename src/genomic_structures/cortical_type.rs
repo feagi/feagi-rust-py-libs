@@ -111,6 +111,8 @@ impl PyCorticalType {
             CorticalType::Motor(_) => PyCorticalTypeVariant::Motor,
         }
     }
+    
+    //TODO expose to_cortical_id, is_type_x, try_get_channel_size_boundaries, get_type_from_bytes
 }
 
 

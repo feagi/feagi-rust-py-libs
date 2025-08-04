@@ -12,6 +12,12 @@ pub struct PyImageFrame {
     pub inner: ImageFrame,
 }
 
+impl From<PyImageFrame> for ImageFrame {
+    fn from(inner: PyImageFrame) -> Self {
+        inner.inner
+    }
+}
+
 #[pymethods]
 impl PyImageFrame {
     

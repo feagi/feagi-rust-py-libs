@@ -42,6 +42,8 @@ impl From<PyIOTypeVariant> for IOTypeVariant {
     }
 }
 
+// NOTE: PyIOTypeData does not exist and should never exist! There is no need to wrap python data!
+// Instead, make use of the below functions to handle casting!
 
 pub(crate) fn try_get_as_io_type_variant<'py>(py: Python<'_>, any: PyObject) -> Result<IOTypeVariant, FeagiDataProcessingError> {
     let bound = any.bind(py);
