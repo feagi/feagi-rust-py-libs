@@ -32,7 +32,7 @@ macro_rules! define_input_cortical_types_py {
             fn from(inner: SensorCorticalType) -> Self {
                 match inner {
                 $(
-                     SensorCorticalType::$cortical_type_key_name => Self::$cortical_type_key_name,
+                     SensorCorticalType::$cortical_type_key_name => Self::$cortical_type_key_name
                 ),*
                 }
             }
@@ -42,7 +42,7 @@ macro_rules! define_input_cortical_types_py {
             fn from(inner: PyCorticalSensorType) -> Self {
                 match inner {
                 $(
-                     PyCorticalSensorType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name,
+                     PyCorticalSensorType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name
                 ),*
                 }
             }

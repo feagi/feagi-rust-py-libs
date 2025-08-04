@@ -80,17 +80,20 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalTypeVariant);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalSensorType);
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalCoreTypeVariant);
+    add_python_class!(py, m, "genome", genomic_structures::PyCoreCorticalType); // TODO misnamed!
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalGroupingIndex);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalIOChannelIndex);
     add_python_class!(py, m, "genome", genomic_structures::PySingleChannelDimensions);
 
     add_python_class!(py, m, "io_data", io_data::PyIOTypeVariant);
-    add_python_class!(py, m, "io_data", io_data::PyNormalizedM1To1F32);
 
     add_python_class!(py, m, "io_processing.bytes", io_processing::byte_structures::PyFeagiByteStructure);
-    add_python_class!(py, m, "io_processing.processors.floats", io_processing::stream_cache_processors::PyIdentityLinearFloatCacheProcessor);
-    add_python_class!(py, m, "io_processing.cache", io_processing::io_caches::PySensorCache);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearAverageRollingWindowProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityFloatProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityImageFrameProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleToM1And1);
+    add_python_class!(py, m, "io_processing.cache", io_processing::PySensorCache);
 
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyCorticalMappedXYZPNeuronData);
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZPArrays);
