@@ -2,6 +2,7 @@ use pyo3::{pyclass};
 use pyo3::prelude::*;
 use feagi_core_data_structures_and_processing::neuron_data::xyzp::NeuronCoderVariantType;
 
+// TODO slated for removal
 
 #[pyclass(eq, eq_int)]
 #[derive(Clone, Hash, PartialEq)]
