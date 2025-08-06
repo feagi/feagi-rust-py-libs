@@ -15,9 +15,13 @@ pub struct PyCorticalMappedXYZPNeuronData { // HashMap<CorticalID, NeuronYXCPArr
     pub inner: CorticalMappedXYZPNeuronData
 }
 
-impl From<CorticalMappedXYZPNeuronData> for PyCorticalMappedXYZPNeuronData {
-    fn from(inner: CorticalMappedXYZPNeuronData) -> Self {
-        PyCorticalMappedXYZPNeuronData { inner }
+impl PyCorticalMappedXYZPNeuronData {
+    /// Create the object with proper inheritance in python
+    pub(crate) fn instantiate_inherited_cortical_data(py: Python, cortical_mapped_data: CorticalMappedXYZPNeuronData) -> PyResult<PyObject> where Self: Sized {
+        let child = PyCorticalMappedXYZPNeuronData { inner: cortical_mapped_data };
+        let parent = PyFeagiByteStructureCompatible::new();
+        let py_obj = Py::new(py, (child, parent))?;
+        Ok(py_obj.into())
     }
 }
 
@@ -27,21 +31,26 @@ impl PyCorticalMappedXYZPNeuronData {
     //region Definitions for base class
 
     #[getter]
-    pub fn struct_type(&self) -> PyFeagiByteStructureType {
+    pub fn byte_structure_type(&self) -> PyFeagiByteStructureType {
         PyFeagiByteStructureType::NeuronCategoricalXYZP
     }
-
-    pub fn version(&self) -> u8 { self.inner.get_version() } // This is a overridden placeholder
+    
+    #[getter]
+    pub fn byte_structure_version(&self) -> u8 { self.inner.get_version() } // This is a overridden placeholder
+    
+    // overwrite_feagi_byte_structure_slice skipped
+    
+    #[getter]
+    pub fn max_number_bytes_needed(&self) -> usize {
+        self.inner.max_number_bytes_needed()
+    }
 
     #[staticmethod]
     pub fn new_from_feagi_byte_structure<'py>(py: Python<'py>, byte_structure: PyFeagiByteStructure) -> PyResult<PyObject> where Self: Sized {
         let result = CorticalMappedXYZPNeuronData::new_from_feagi_byte_structure(&byte_structure.inner);
         match result {
             Ok(inner) => {
-                let child = PyCorticalMappedXYZPNeuronData { inner };
-                let parent = PyFeagiByteStructureCompatible::new();
-                let py_obj = Py::new(py, (child, parent))?;
-                Ok(py_obj.into()) // TODO we need to implement this as a proper function
+                Self::instantiate_inherited_cortical_data(py, inner)
             },
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
@@ -59,33 +68,66 @@ impl PyCorticalMappedXYZPNeuronData {
     
     
     #[new]
-    pub fn new() -> (PyCorticalMappedXYZPNeuronData, PyFeagiByteStructureCompatible) {
-        (
-            PyCorticalMappedXYZPNeuronData {
-                inner: CorticalMappedXYZPNeuronData::new()
-            },
-            PyFeagiByteStructureCompatible::new()
-        )
+    pub fn new() -> PyCorticalMappedXYZPNeuronData {
+        PyCorticalMappedXYZPNeuronData {inner: CorticalMappedXYZPNeuronData::new()}
     }
 
-    pub fn insert(&mut self, cortical_id: PyCorticalID, data: PyNeuronXYZPArrays) -> PyResult<()> {
-        if self.inner.contains(&cortical_id.inner) {
-            return Err(PyValueError::new_err(format!("Cortical ID of {} already exists in this CorticalMappedNeuronData object!", cortical_id.as_str())));
-        }
-        self.inner.insert(cortical_id.inner, data.inner);
-        Ok(())
+    //region HashMap like implementation
+    
+    #[staticmethod]
+    pub fn new_with_capacity(py: Python, capacity: usize) -> PyResult<PyObject> {
+        Self::instantiate_inherited_cortical_data(py, CorticalMappedXYZPNeuronData::new_with_capacity(capacity))
+    }
+    
+    
+    
+    pub fn len(&self) -> PyResult<usize> {
+        Ok(self.inner.len())
+    }
+    
+    pub fn is_empty(&self) -> PyResult<bool> {
+        Ok(self.inner.is_empty())
+    }
+    
+    pub fn capacity(&self) -> PyResult<usize> {
+        Ok(self.inner.capacity())
+    }
+    
+    pub fn reserve(&mut self, additional_capacity: usize) {
+        self.inner.reserve(additional_capacity);
+    }
+    
+    pub fn shrink_to_fit(&mut self) {
+        self.inner.shrink_to_fit();
+    }
+    
+    pub fn get_neurons_of(&self, cortical_id: PyCorticalID) -> PyResult<Option<PyNeuronXYZPArrays>> {
+        let result = self.inner.get_neurons_of(&cortical_id.inner);
+        Ok(result.map(|arrays| PyNeuronXYZPArrays { inner: arrays.clone() }))
+    }
+    
+    pub fn contains_cortical_id(&self, cortical_id: PyCorticalID) -> PyResult<bool> {
+        Ok(self.inner.contains_cortical_id(&cortical_id.inner))
+    }
+    
+    pub fn remove(&mut self, cortical_id: PyCorticalID) -> PyResult<Option<PyNeuronXYZPArrays>> {
+        let result = self.inner.remove(cortical_id.inner);
+        Ok(result.map(|arrays| PyNeuronXYZPArrays { inner: arrays }))
+    }
+    
+    pub fn clear(&mut self) {
+        self.inner.clear();
+    }
+    
+    //endregion
+
+    pub fn insert(&mut self, cortical_id: PyCorticalID, data: PyNeuronXYZPArrays) -> PyResult<Option<PyNeuronXYZPArrays>> {
+        let result = self.inner.insert(cortical_id.inner, data.inner);
+        Ok(result.map(|old_data| PyNeuronXYZPArrays { inner: old_data }))
     }
 
     pub fn contains(&self, cortical_id: PyCorticalID) -> PyResult<bool> {
-        Ok(self.inner.contains(&cortical_id.inner))
-    }
-    
-    pub fn get(&self, cortical_id: PyCorticalID) -> PyResult<PyNeuronXYZPArrays> {
-        let result = self.inner.borrow(&cortical_id.inner);
-        if result.is_none() {
-            return Err(PyValueError::new_err(format!("Cortical ID {} does not have a mapping to neuron XYZP data!", cortical_id.as_str()))); 
-        }
-        Ok(PyNeuronXYZPArrays {inner: result.unwrap().clone()})
+        Ok(self.inner.contains_cortical_id(&cortical_id.inner))
     }
     
     fn __iter__(&self) -> PyResult<PyCorticalMappedXYZPNeuronDataFullIter> {
@@ -98,7 +140,7 @@ impl PyCorticalMappedXYZPNeuronData {
         Ok(PyCorticalMappedXYZPNeuronDataFullIter { items, index: 0 })
     }
 
-    fn iter_easy(&self, py: Python<'_>) -> PyResult<PyCorticalMappedXYZPNeuronDataEasyIter> {
+    fn iter_full(&self, py: Python<'_>) -> PyResult<PyCorticalMappedXYZPNeuronDataEasyIter> {
         let mut items: Vec<(String, (Py<PyArray1<u32>>, Py<PyArray1<u32>>, Py<PyArray1<u32>>, Py<PyArray1<f32>>))> = Vec::new();
         
         for (k, v) in self.inner.mappings.iter() {
@@ -116,9 +158,52 @@ impl PyCorticalMappedXYZPNeuronData {
         
         Ok(PyCorticalMappedXYZPNeuronDataEasyIter { items, index: 0 })
     }
+    
+    /// Returns an iterator over just the cortical IDs (keys).
+    ///
+    /// # Examples
+    /// ```python
+    /// data = CorticalMappedXYZPNeuronData.new()
+    /// for cortical_id in data.keys():
+    ///     print(f"Found cortical area: {cortical_id}")
+    /// ```
+    fn keys(&self) -> PyResult<PyCorticalMappedXYZPNeuronDataKeysIter> {
+        let items: Vec<PyCorticalID> = self
+            .inner
+            .mappings
+            .keys()
+            .map(|k| PyCorticalID { inner: k.clone() })
+            .collect();
+        Ok(PyCorticalMappedXYZPNeuronDataKeysIter { items, index: 0 })
+    }
+    
+    /// Returns an iterator over just the neuron arrays (values).
+    ///
+    /// # Examples
+    /// ```python
+    /// data = CorticalMappedXYZPNeuronData.new()
+    /// for neuron_arrays in data.values():
+    ///     print(f"Found {len(neuron_arrays)} neurons")
+    /// ```
+    fn values(&self) -> PyResult<PyCorticalMappedXYZPNeuronDataValuesIter> {
+        let items: Vec<PyNeuronXYZPArrays> = self
+            .inner
+            .mappings
+            .values()
+            .map(|v| PyNeuronXYZPArrays { inner: v.clone() })
+            .collect();
+        Ok(PyCorticalMappedXYZPNeuronDataValuesIter { items, index: 0 })
+    }
 }
 
 
+
+
+impl From<PyCorticalMappedXYZPNeuronData> for CorticalMappedXYZPNeuronData {
+    fn from(inner: PyCorticalMappedXYZPNeuronData) -> Self {
+        inner.inner
+    }
+}
 
 
 #[pyclass]
@@ -162,6 +247,52 @@ impl PyCorticalMappedXYZPNeuronDataEasyIter {
         } else {
             let pair = self.items.swap_remove(self.index);
             Some(pair)
+        }
+    }
+}
+
+#[pyclass]
+pub struct PyCorticalMappedXYZPNeuronDataKeysIter {
+    items: Vec<PyCorticalID>,
+    index: usize,
+}
+
+#[pymethods]
+impl PyCorticalMappedXYZPNeuronDataKeysIter {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    fn __next__(&mut self) -> Option<PyCorticalID> {
+        if self.index >= self.items.len() {
+            None
+        } else {
+            let item = self.items[self.index].clone();
+            self.index += 1;
+            Some(item)
+        }
+    }
+}
+
+#[pyclass]
+pub struct PyCorticalMappedXYZPNeuronDataValuesIter {
+    items: Vec<PyNeuronXYZPArrays>,
+    index: usize,
+}
+
+#[pymethods]
+impl PyCorticalMappedXYZPNeuronDataValuesIter {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    fn __next__(&mut self) -> Option<PyNeuronXYZPArrays> {
+        if self.index >= self.items.len() {
+            None
+        } else {
+            let item = self.items[self.index].clone();
+            self.index += 1;
+            Some(item)
         }
     }
 }
