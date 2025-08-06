@@ -1,0 +1,11 @@
+# XYZP Neuron Implementation
+The XYZP format is a simple way of encoding a neurons coordinate in XYZ u32 coordinates relative to the cortical area, and its potential p as a float. With each neuron being 16 bytes and requiring little processing overhead to manage and transmit, its currently the basis of many operations.
+
+This module contains python wrappers for the NeuronXYZP Structure, and its array and cortical mapped hashmap collections for easy use in Python, while bridging the gap to Rust's fast processing of these data types.
+
+- [NeuronXYZP](neuron_xyzp.rs)
+  - Base level single neuron implementation. Represents a single neuron with its u32 XYZ coordinates and f32 potential. Immutable
+- [NeuronXYZPArrays](neuron_xyzp_arrays.rs)
+  - Essentially just a vector / array of NeuronXYZPs. However, internally the arrays are flattened, such that theres a single array of all X values, Y values, Z and P of equal length. This is done for processing reasons. The python wrapper exposes some methods of treating this structure as an array, notably by supporting indexing, however individual neurons remain immutable. Furthermore, some functions related to memory reservation from within Rust are exposed to facilitate efficient memory usage. While you can instantiate these arrays empty and push neurons one at a time to them, using other functions to import / export data as numpy arrays will be much faster for mass operations.
+- [CorticalMappedXYZPData](cortical_mapped_xyzp_data.rs)
+  - Essentially a dictionary keyed by CorticalID paired to the relevant NeuronXYZPArray. This allows mapping neuron activation states across many cortical areas easily. The python wrapped version allows iteration and enumeration for pythonic implementations, but also exposes methods controlling Rust level memory management for efficient use. Furthermore, this structure inherits from FeagiByteStructureCompatible, making it serializable and deserializable through the FeagiByteStructure system.
