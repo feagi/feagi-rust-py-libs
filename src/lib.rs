@@ -1,15 +1,14 @@
-mod brain_input;
-mod brain_output;
-mod byte_structures;
-mod cortical_data;
+//! Rust PYO3 Compiled Python Module
+//! All docs pertaining to python exposed modules must 
+//! be reflected to the 'feagi_data_processing.pyi' file!
+
 mod miscellaneous_types;
 mod neuron_data;
+mod io_processing;
+mod genomic_structures;
+mod io_data;
 
-use numpy::ndarray::AssignElem;
 use pyo3::prelude::*;
-use pyo3::{wrap_pyfunction, wrap_pymodule};
-use pyo3::types::IntoPyDict;
-
 
 fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
     match parent.getattr(submodule_name) {
@@ -77,33 +76,29 @@ macro_rules! add_python_function {
 #[pymodule]
 fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalTypeVariant);
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalSensorType);
+    add_python_class!(py, m, "genome", genomic_structures::PyCoreCorticalType); // TODO misnamed!
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalGroupingIndex);
+    add_python_class!(py, m, "genome", genomic_structures::PyCorticalIOChannelIndex);
+    add_python_class!(py, m, "genome", genomic_structures::PySingleChannelDimensions);
+
+    add_python_class!(py, m, "io_data", io_data::PyIOTypeVariant);
+
+    add_python_class!(py, m, "io_processing.bytes", io_processing::byte_structures::PyFeagiByteStructure);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearAverageRollingWindowProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityFloatProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityImageFrameProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleToM1And1);
+    add_python_class!(py, m, "io_processing.cache", io_processing::PySensorCache);
+
+    add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyCorticalMappedXYZPNeuronData);
+    add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZPArrays);
+    add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZP);
     
-    add_python_class!(py, m, "cortical_data", cortical_data::PyCorticalID);
-    
-    add_python_class!(py, m, "neuron_data.neuron_arrays", neuron_data::neuron_arrays::PyNeuronXYZPArrays);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronData);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronDataFullIter);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronDataEasyIter);
-    add_python_class!(py, m, "neuron_data.neurons", neuron_data::neurons::PyNeuronXYZP);
-
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyChannelFormat);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionTargetResolutions);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionCenterProperties);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyColorSpace);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyCornerPoints);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyFrameProcessingParameters);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionFrameSourceCroppingPointGrouping);
-    
-    add_python_class!(py, m, "brain_input.vision", brain_input::vision::segmented_vision_frame::PySegmentedVisionFrame);
-    add_python_class!(py, m, "brain_input.vision", brain_input::vision::image_frame::PyImageFrame);
-
-    add_python_class!(py, m, "byte_structures", byte_structures::PyFeagiByteStructureType);
-    add_python_class!(py, m, "byte_structures", byte_structures::feagi_byte_structure::PyFeagiByteStructure);
-    add_python_class!(py, m, "byte_structures", byte_structures::PyFeagiByteStructureCompatible);
-
-    add_python_class!(py, m, "misc", miscellaneous_types::json_structure::PyJsonStructure);
-
     // add_python_class!(py, m, "brain_input.vision", brain_input::vision::quick_image_diff::PyQuickImageDiff);
     
     Ok(())

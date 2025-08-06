@@ -2,11 +2,11 @@ use pyo3::{pyclass, pymethods, PyResult, PyObject};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyBytes, PyList};
-use feagi_core_data_structures_and_processing::byte_structures::feagi_byte_structure::FeagiByteStructure;
-use feagi_core_data_structures_and_processing::byte_structures::{FeagiByteStructureCompatible, FeagiByteStructureType};
-use crate::byte_structures::{PyFeagiByteStructureCompatible, PyFeagiByteStructureType as PyFBSType};
-use crate::neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronData;
-use crate::miscellaneous_types::json_structure::PyJsonStructure;
+use feagi_core_data_structures_and_processing::io_processing::byte_structures::{FeagiByteStructure, FeagiByteStructureType, FeagiByteStructureCompatible};
+
+use crate::io_processing::byte_structures::{PyFeagiByteStructureCompatible, PyFeagiByteStructureType as PyFBSType};
+use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
+//use crate::miscellaneous_types::json_structure::PyJsonStructure;
 
 /// Helper function to convert a Box<dyn FeagiByteStructureCompatible> to the appropriate Python object
 pub fn convert_compatible_to_python(py: Python, boxed_object: Box<dyn FeagiByteStructureCompatible>, structure_type: FeagiByteStructureType) -> PyResult<PyObject> {
@@ -16,7 +16,9 @@ pub fn convert_compatible_to_python(py: Python, boxed_object: Box<dyn FeagiByteS
             // We'll create it from a byte structure instead
             let temp_byte_struct = boxed_object.as_new_feagi_byte_structure().map_err(|e| PyValueError::new_err(format!("{:?}", e)))?;
             let py_byte_struct = PyFeagiByteStructure { inner: temp_byte_struct };
-            PyJsonStructure::new_from_feagi_byte_structure(py, py_byte_struct)
+            Err(PyErr::new::<PyValueError, _>(py_byte_struct)) // TODO temp
+            
+            //PyJsonStructure::new_from_feagi_byte_structure(py, py_byte_struct)
         },
         FeagiByteStructureType::NeuronCategoricalXYZP => {
             // Convert the boxed trait object back to concrete type

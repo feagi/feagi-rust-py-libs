@@ -1,9 +1,9 @@
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_core_data_structures_and_processing::brain_input::vision::image_frame::ImageFrame;
-use feagi_core_data_structures_and_processing::brain_input::vision::descriptors::*;
-use crate::brain_input::vision::descriptors::*;
+use feagi_core_data_structures_and_processing::io_data::ImageFrame;
+use feagi_core_data_structures_and_processing::io_data::image_descriptors::*;
+use crate::io_data::image::descriptors::*;
 
 #[pyclass]
 #[pyo3(name = "ImageFrame")]
@@ -12,13 +12,19 @@ pub struct PyImageFrame {
     pub inner: ImageFrame,
 }
 
+impl From<PyImageFrame> for ImageFrame {
+    fn from(inner: PyImageFrame) -> Self {
+        inner.inner
+    }
+}
+
 #[pymethods]
 impl PyImageFrame {
     
     //region common contructors
     
     #[new]
-    pub fn new(channel_format: PyChannelFormat, color_space: PyColorSpace, xy_resolution: (usize, usize)) -> PyImageFrame {
+    pub fn new(channel_format: PyChannelLayout, color_space: PyColorSpace, xy_resolution: (usize, usize)) -> PyImageFrame {
         PyImageFrame {
             inner: ImageFrame::new(&channel_format.into(), &color_space.into(), &xy_resolution)
         }
@@ -61,12 +67,12 @@ impl PyImageFrame {
     }
 
     #[getter]
-    pub fn channel_format(&self) -> PyChannelFormat {
-        match self.inner.get_channel_format() {
-            ChannelFormat::GrayScale => PyChannelFormat::GrayScale,
-            ChannelFormat::RG => PyChannelFormat::RG,
-            ChannelFormat::RGB => PyChannelFormat::RGB,
-            ChannelFormat::RGBA => PyChannelFormat::RGBA,
+    pub fn channel_layout(&self) -> PyChannelLayout {
+        match self.inner.get_channel_layout() {
+            ChannelLayout::GrayScale => PyChannelLayout::GrayScale,
+            ChannelLayout::RG => PyChannelLayout::RG,
+            ChannelLayout::RGB => PyChannelLayout::RGB,
+            ChannelLayout::RGBA => PyChannelLayout::RGBA,
         }
     }
 
