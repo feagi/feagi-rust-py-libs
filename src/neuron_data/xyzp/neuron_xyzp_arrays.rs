@@ -1,14 +1,15 @@
+use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyList};
 use numpy::{PyArray1, PyReadonlyArray1};
 use ndarray::Array1;
-use feagi_core_data_structures_and_processing::neuron_data::xyzp::{NeuronXYZPArrays};
+use feagi_core_data_structures_and_processing::neuron_data::xyzp::{NeuronXYZPArrays, NeuronXYZP};
 use super::neuron_xyzp::PyNeuronXYZP;
 
 
-#[pyclass]
+#[pyclass(str)]
 #[derive(Clone)]
 #[pyo3(name = "NeuronXYZPArrays")]
 pub struct PyNeuronXYZPArrays {
@@ -42,6 +43,13 @@ impl PyNeuronXYZPArrays {
     }
 
     //region Array-Like Implementations
+
+    fn __iter__(slf: PyRef<'_, Self>) -> PyNeuronXYZPArraysIterator {
+        PyNeuronXYZPArraysIterator {
+            inner: slf.inner.copy_as_neuron_xyzp_vec().into_iter(),
+        }
+    }
+    
     #[staticmethod]
     pub fn with_capacity(number_of_neurons_initial: usize) -> PyResult<Self> {
         let inner = NeuronXYZPArrays::with_capacity(number_of_neurons_initial);
@@ -114,19 +122,20 @@ impl PyNeuronXYZPArrays {
         PyList::new(py, py_objects)
     }
     
-    // TODO copy_as_tuple_of_nd_arrays -> copy_as_tuple_of_numpy_arrays
-
+    pub fn copy_as_tuple_of_numpy_arrays<'py>(&self, py: Python<'py>) -> PyResult<(Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<f32>>)> {
+        let nd_arrays_tuple = self.inner.copy_as_tuple_of_nd_arrays();
+        Ok((
+            PyArray1::from_array(py, &nd_arrays_tuple.0),
+            PyArray1::from_array(py, &nd_arrays_tuple.1),
+            PyArray1::from_array(py, &nd_arrays_tuple.2),
+            PyArray1::from_array(py, &nd_arrays_tuple.3)
+        ))
+    }
     
     pub fn get_size_in_number_of_bytes(&self) -> PyResult<usize> {
         Ok(self.inner.get_size_in_number_of_bytes())
     }
     
-    
-    
-    
-    
-
-
     pub fn copy_as_tuple_of_numpy<'py>(&self, py: Python<'py>) -> PyResult<(Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<f32>>)> {
         let nd_arrays_tuple = self.inner.copy_as_tuple_of_nd_arrays();
         Ok((
@@ -152,6 +161,13 @@ impl From<PyNeuronXYZPArrays> for NeuronXYZPArrays {
     }
 }
 
+impl Display for PyNeuronXYZPArrays {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let s = self.inner.to_string();
+        write!(f, "{}", s)
+    }
+}
+
 pub fn tuple_nd_array_to_tuple_np_array<'py>(input: (Array1<u32>, Array1<u32>, Array1<u32>, Array1<f32>), py: Python<'py>)
     -> PyResult<(Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<f32>>)> {
 
@@ -161,4 +177,24 @@ pub fn tuple_nd_array_to_tuple_np_array<'py>(input: (Array1<u32>, Array1<u32>, A
         PyArray1::from_array(py, &input.2),
         PyArray1::from_array(py, &input.3)
     ))
+}
+
+/// Python iterator for NeuronXYZPArrays.
+///
+/// This iterator struct enables Pythonic iteration over neuron arrays by implementing
+/// the Python iterator protocol through the `__iter__` and `__next__` magic methods.
+#[pyclass]
+pub struct PyNeuronXYZPArraysIterator {
+    inner: std::vec::IntoIter<NeuronXYZP>,
+}
+
+#[pymethods]
+impl PyNeuronXYZPArraysIterator {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
     }
+
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyNeuronXYZP> {
+        slf.inner.next().map(|neuron| PyNeuronXYZP { inner: neuron })
+    }
+}
