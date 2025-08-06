@@ -3,7 +3,7 @@ use pyo3::{pyclass, pymethods};
 use feagi_core_data_structures_and_processing::neuron_data::xyzp::NeuronXYZP;
 
 //region NeuronXYZP Implementation
-#[pyclass]
+#[pyclass(str)]
 #[derive(Clone)]
 #[pyo3(name = "NeuronXYZP")]
 pub struct PyNeuronXYZP {

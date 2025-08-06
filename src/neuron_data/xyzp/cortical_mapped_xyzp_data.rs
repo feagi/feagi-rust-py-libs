@@ -8,7 +8,7 @@ use crate::io_processing::byte_structures::{PyFeagiByteStructure, PyFeagiByteStr
 use crate::genomic_structures::{PyCorticalID};
 use super::neuron_xyzp_arrays::{PyNeuronXYZPArrays, tuple_nd_array_to_tuple_np_array};
 
-#[pyclass(extends=PyFeagiByteStructureCompatible)]
+#[pyclass(str, extends=PyFeagiByteStructureCompatible)]
 #[derive(Clone)]
 #[pyo3(name = "CorticalMappedXYZPNeuronData")]
 pub struct PyCorticalMappedXYZPNeuronData { // HashMap<CorticalID, NeuronYXCPArrays>
@@ -213,6 +213,11 @@ impl From<PyCorticalMappedXYZPNeuronData> for CorticalMappedXYZPNeuronData {
     }
 }
 
+impl std::fmt::Display for PyCorticalMappedXYZPNeuronData {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.inner.to_string())
+    }
+}
 
 #[pyclass]
 pub struct PyCorticalMappedXYZPNeuronDataFullIter {
