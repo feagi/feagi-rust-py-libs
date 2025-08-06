@@ -18,21 +18,15 @@ pub struct PyNeuronXYZPArrays {
 #[pymethods]
 impl PyNeuronXYZPArrays {
     #[new]
-    pub fn new(maximum_number_of_neurons_possibly_needed: usize) -> PyResult<Self> {
-        let result = NeuronXYZPArrays::new(maximum_number_of_neurons_possibly_needed);
-        match result {
-            Ok(inner) => Ok(PyNeuronXYZPArrays {inner}),
-            Err(e) => Err(PyValueError::new_err(e.to_string()))
-        }
+    pub fn new() -> PyResult<Self> {
+        let inner = NeuronXYZPArrays::new();
+        Ok(PyNeuronXYZPArrays {inner})
     }
-
+    
     #[staticmethod]
     pub fn new_from_resolution(resolution: (usize, usize, usize))  -> PyResult<Self> {
-        let result = NeuronXYZPArrays::new_from_resolution(resolution);
-        match result {
-            Ok(inner) => Ok(PyNeuronXYZPArrays {inner}),
-            Err(e) => Err(PyValueError::new_err(e.to_string()))
-        }
+        let inner = NeuronXYZPArrays::new_from_resolution(resolution);
+        Ok(PyNeuronXYZPArrays {inner})
     }
 
     #[staticmethod]
@@ -47,30 +41,91 @@ impl PyNeuronXYZPArrays {
         }
     }
 
-    pub fn get_max_neuron_capacity_without_reallocating(&self) -> PyResult<usize> {
-        let result = self.inner.get_max_neuron_capacity_without_reallocating();
-        Ok(result)
+    //region Array-Like Implementations
+    #[staticmethod]
+    pub fn with_capacity(number_of_neurons_initial: usize) -> PyResult<Self> {
+        let inner = NeuronXYZPArrays::with_capacity(number_of_neurons_initial);
+        Ok(PyNeuronXYZPArrays{inner})
+    }
+    
+    pub fn capacity(&self) -> PyResult<usize> {
+        Ok(self.inner.capacity())
     }
 
-    pub fn expand_to_new_max_count_if_required(&mut self, new_max_neuron_count: usize) -> PyResult<()> {
-        self.inner.expand_to_new_max_count_if_required(new_max_neuron_count);
-        Ok(())
+    pub fn spare_capacity(&self) -> PyResult<usize> {
+        Ok(self.inner.spare_capacity())
     }
 
-    pub fn reset_indexes(&mut self) -> PyResult<()> {
-        self.inner.reset_indexes();
-        Ok(())
+    pub fn len(&self) -> PyResult<usize> {
+        Ok(self.inner.len())
     }
 
-    pub fn get_number_of_neurons_used(&self) -> PyResult<usize> {
-        let result = self.inner.get_number_of_neurons_used();
-        Ok(result)
+    pub fn shrink_to_fit(&mut self)  {
+        self.inner.shrink_to_fit()
     }
 
-    pub fn add_neuron(&mut self, neuron: PyNeuronXYZP) -> PyResult<()> {
-        self.inner.add_neuron(&neuron.inner);
-        Ok(())
+    pub fn ensure_capacity(&mut self, number_of_neurons_total: usize) {
+        self.inner.ensure_capacity(number_of_neurons_total)
     }
+
+    pub fn reserve(&mut self, additional_neuron_count: usize) {
+        self.inner.reserve(additional_neuron_count)
+    }
+
+    pub fn push(&mut self, new_neuron: PyNeuronXYZP) {
+        self.inner.push(&new_neuron.into())
+    }
+    
+    pub fn get(&mut self, index: usize) -> PyResult<PyNeuronXYZP> { // TODO fix mut
+        let result = &self.inner.get(index);
+        match result {
+            Ok(neuron) => Ok(PyNeuronXYZP{inner: neuron.clone()}),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
+    
+    pub fn pop(&mut self) -> PyResult<PyNeuronXYZP> {
+        let option = self.inner.pop();
+        match option {
+            Some(neuron) => Ok(PyNeuronXYZP{inner: neuron}),
+            None => Err(PyValueError::new_err("Array is Empty!"))
+        }
+    }
+    
+    pub fn clear(&mut self) {
+        self.inner.clear()
+    }
+    
+    pub fn is_empty(&self) -> PyResult<bool> {
+        Ok(self.inner.is_empty())
+    }
+    
+    //endregion
+    
+    
+    pub fn copy_as_neuron_xyzp_vec<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+        let items = self.inner.copy_as_neuron_xyzp_vec();
+
+        let py_objects: Vec<PyObject> = items
+            .into_iter()
+            .map(|item| Py::new(py, PyNeuronXYZP{inner: item}).map(|obj| obj.into()))
+            .collect::<PyResult<_>>()?;
+
+        PyList::new(py, py_objects)
+    }
+    
+    // TODO copy_as_tuple_of_nd_arrays -> copy_as_tuple_of_numpy_arrays
+
+    
+    pub fn get_size_in_number_of_bytes(&self) -> PyResult<usize> {
+        Ok(self.inner.get_size_in_number_of_bytes())
+    }
+    
+    
+    
+    
+    
+
 
     pub fn copy_as_tuple_of_numpy<'py>(&self, py: Python<'py>) -> PyResult<(Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<f32>>)> {
         let nd_arrays_tuple = self.inner.copy_as_tuple_of_nd_arrays();
@@ -82,15 +137,18 @@ impl PyNeuronXYZPArrays {
         ))
     }
 
-    pub fn copy_as_neuron_xyzp_vec<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
-        let items = self.inner.copy_as_neuron_xyzp_vec();
 
-        let py_objects: Vec<PyObject> = items
-            .into_iter()
-            .map(|item| Py::new(py, PyNeuronXYZP{inner: item}).map(|obj| obj.into()))
-            .collect::<PyResult<_>>()?;
-        
-        PyList::new(py, py_objects)
+}
+
+impl From<NeuronXYZPArrays> for PyNeuronXYZPArrays {
+    fn from(neurons: NeuronXYZPArrays) -> Self {
+        PyNeuronXYZPArrays{inner: neurons}
+    }
+}
+
+impl From<PyNeuronXYZPArrays> for NeuronXYZPArrays {
+    fn from(neurons: PyNeuronXYZPArrays) -> Self {
+        neurons.inner
     }
 }
 

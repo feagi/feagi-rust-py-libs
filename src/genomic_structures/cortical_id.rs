@@ -3,7 +3,7 @@ use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::genomic_structures::CorticalID;
 
 #[pyclass(eq)]
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Hash)]
 #[pyo3(name = "CorticalID")]
 pub struct PyCorticalID {
     pub(crate) inner: CorticalID,

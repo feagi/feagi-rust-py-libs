@@ -37,16 +37,7 @@ for data in new_converted_neuron_mapped.iter_easy():
 
 
 
-
-
-
-
-
-
-
 print("pause")
-
-
 
 
 
