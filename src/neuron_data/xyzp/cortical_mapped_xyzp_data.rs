@@ -68,8 +68,13 @@ impl PyCorticalMappedXYZPNeuronData {
     
     
     #[new]
-    pub fn new() -> PyCorticalMappedXYZPNeuronData {
-        PyCorticalMappedXYZPNeuronData {inner: CorticalMappedXYZPNeuronData::new()}
+    pub fn new() -> (PyCorticalMappedXYZPNeuronData, PyFeagiByteStructureCompatible) {
+        (
+            PyCorticalMappedXYZPNeuronData {
+                inner: CorticalMappedXYZPNeuronData::new()
+            },
+            PyFeagiByteStructureCompatible::new()
+        )
     }
 
     //region HashMap like implementation
@@ -196,8 +201,11 @@ impl PyCorticalMappedXYZPNeuronData {
     }
 }
 
-
-
+impl From<CorticalMappedXYZPNeuronData> for PyCorticalMappedXYZPNeuronData {
+    fn from(inner: CorticalMappedXYZPNeuronData) -> Self {
+        PyCorticalMappedXYZPNeuronData { inner }
+    }
+}
 
 impl From<PyCorticalMappedXYZPNeuronData> for CorticalMappedXYZPNeuronData {
     fn from(inner: PyCorticalMappedXYZPNeuronData) -> Self {
