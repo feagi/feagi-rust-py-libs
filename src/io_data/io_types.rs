@@ -1,8 +1,8 @@
 use feagi_core_data_structures_and_processing::error::{FeagiDataProcessingError, IODataError};
-use pyo3::{pyclass, pymethods, Bound, PyAny, PyErr, PyObject, PyResult, Python};
-use pyo3::exceptions::PyValueError;
-use pyo3::types::{PyFloat, PyInt};
+use pyo3::{pyclass, PyObject, Python};
+use pyo3::types::{PyFloat};
 use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant};
+use feagi_core_data_structures_and_processing::io_data::image_descriptors::ImageFrameProperties;
 use pyo3::prelude::PyAnyMethods;
 use crate::io_data::PyImageFrame;
 use crate::io_data::PySegmentedImageFrame;
