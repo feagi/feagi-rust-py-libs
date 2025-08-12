@@ -34,8 +34,7 @@ new_converted_neuron_mapped = fdp.neuron_data.xyzp.CorticalMappedXYZPNeuronData.
 for data in new_converted_neuron_mapped.iter_easy():
     print(data)
 
-fdp.genome.SensorCorticalType.Proximity
-fdp.genome.CorticalID
+fdp.io_data.ImageFrame.
 
 
 print("pause")
