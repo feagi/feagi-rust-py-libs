@@ -21,17 +21,17 @@ impl PyImageFrameProperties {
         let inner = ImageFrameProperties::new(xy_resolution, color_space, color_channel_layout);
         Ok(Self { inner }) // TODO error check for 0 res!
     }
-    
+
     #[getter]
     pub fn expected_xy_resolution(&self) -> PyResult<(usize, usize)> {
         Ok(self.inner.get_expected_xy_resolution())
     }
-    
+
     #[getter]
     pub fn expected_color_space(&self) -> PyResult<PyColorSpace> {
         Ok(self.inner.get_expected_color_space().into())
     }
-    
+
     #[getter]
     pub fn expected_channel_layout(&self) -> PyResult<PyChannelLayout> {
         Ok(self.inner.get_expected_color_channel_layout().into())
@@ -146,7 +146,7 @@ impl From<PyColorSpace> for ColorSpace {
 
 impl From<ColorSpace> for PyColorSpace {
     fn from(color_space: ColorSpace) -> Self {
-        match color_space { 
+        match color_space {
             ColorSpace::Linear => PyColorSpace::Linear,
             ColorSpace::Gamma => PyColorSpace::Gamma,
         }
@@ -180,7 +180,7 @@ impl From<PyChannelLayout> for ChannelLayout {
 
 impl From<ChannelLayout> for PyChannelLayout {
     fn from(channel_layout: ChannelLayout) -> Self {
-        match channel_layout { 
+        match channel_layout {
             ChannelLayout::GrayScale => PyChannelLayout::GrayScale,
             ChannelLayout::RG => PyChannelLayout::RG,
             ChannelLayout::RGB => PyChannelLayout::RGB,
@@ -220,7 +220,7 @@ impl From<PyMemoryOrderLayout> for MemoryOrderLayout {
 
 impl From<MemoryOrderLayout> for PyMemoryOrderLayout {
     fn from(memory_order_layout: MemoryOrderLayout) -> Self {
-        match memory_order_layout { 
+        match memory_order_layout {
             MemoryOrderLayout::HeightsWidthsChannels => PyMemoryOrderLayout::HeightsWidthsChannels,
             MemoryOrderLayout::HeightsChannelsWidths => PyMemoryOrderLayout::HeightsChannelsWidths,
             MemoryOrderLayout::ChannelsHeightsWidths => PyMemoryOrderLayout::ChannelsHeightsWidths,
@@ -283,7 +283,6 @@ impl From<SegmentedFrameCenterProperties> for PySegmentedFrameCenterProperties {
 }
 
 //endregion
-
 
 //region SegmentedFrameTargetResolutions
 

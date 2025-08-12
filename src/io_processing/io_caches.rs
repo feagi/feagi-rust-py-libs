@@ -4,7 +4,7 @@ use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_processing::{SensorCache, StreamCacheProcessor};
 use feagi_core_data_structures_and_processing::genomic_structures::{CorticalGroupingIndex, CorticalIOChannelIndex, CorticalType, SingleChannelDimensions};
 use feagi_core_data_structures_and_processing::neuron_data::xyzp::CorticalMappedXYZPNeuronData;
-use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex, PyCorticalSensorType, PyCorticalType, PySingleChannelDimensions};
+use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex, PySensorCorticalType, PyCorticalType, PySingleChannelDimensions};
 use crate::io_data::{try_get_as_io_type_variant, try_wrap_as_io_type_data};
 use crate::io_processing::byte_structures::PyFeagiByteStructureCompatible;
 use crate::io_processing::PyStreamCacheProcessor;
@@ -28,7 +28,7 @@ impl PySensorCache {
         PySensorCache {inner: SensorCache::new()}
     }
     
-    pub fn register_single_cortical_area<'py>(&mut self, py: Python<'_>, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyObject, number_supported_channels: u32, channel_dimensions: PySingleChannelDimensions) -> PyResult<()> {
+    pub fn register_single_cortical_area<'py>(&mut self, py: Python<'_>, cortical_sensor_type: PySensorCorticalType, cortical_grouping_index: PyObject, number_supported_channels: u32, channel_dimensions: PySingleChannelDimensions) -> PyResult<()> {
         
         let cortical_group_index_result = PyCorticalGroupingIndex::try_from_python(py, cortical_grouping_index);
         if cortical_group_index_result.is_err() {
@@ -46,7 +46,7 @@ impl PySensorCache {
         }
     }
     
-    pub fn register_single_channel<'py>(&mut self, py: Python<'_>, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyObject,
+    pub fn register_single_channel<'py>(&mut self, py: Python<'_>, cortical_sensor_type: PySensorCorticalType, cortical_grouping_index: PyObject,
                             channel: PyObject, sensory_processors: Vec<Py<PyStreamCacheProcessor>>, should_sensor_allow_sending_stale_data: bool) -> PyResult<()> {
 
         let cortical_group_index_result = PyCorticalGroupingIndex::try_from_python(py, cortical_grouping_index);
@@ -77,7 +77,7 @@ impl PySensorCache {
     
     // TODO register_agent_device_index
     
-    pub fn update_value_by_channel<'py>(&mut self, py: Python<'_>, value: PyObject, cortical_sensor_type: PyCorticalSensorType, cortical_grouping_index: PyObject, channel: PyObject) -> PyResult<()> {
+    pub fn update_value_by_channel<'py>(&mut self, py: Python<'_>, value: PyObject, cortical_sensor_type: PySensorCorticalType, cortical_grouping_index: PyObject, channel: PyObject) -> PyResult<()> {
         
         
         let cortical_group_index_result = PyCorticalGroupingIndex::try_from_python(py, cortical_grouping_index);
