@@ -9,6 +9,7 @@ macro_rules! define_input_cortical_types_py {
     (
         $cortical_io_type_enum_name:ident {
             $(
+                $(#[doc = $doc:expr])?
                 $cortical_type_key_name:ident => {
                     friendly_name: $display_name:expr,
                     base_ascii: $base_ascii:expr,
@@ -22,13 +23,13 @@ macro_rules! define_input_cortical_types_py {
         #[pyclass]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         #[pyo3(name = "SensorCorticalType")]
-        pub enum PyCorticalSensorType {
+        pub enum PySensorCorticalType {
             $(
                 $cortical_type_key_name
             ),*
         }
 
-        impl From<SensorCorticalType> for PyCorticalSensorType {
+        impl From<SensorCorticalType> for PySensorCorticalType {
             fn from(inner: SensorCorticalType) -> Self {
                 match inner {
                 $(
@@ -38,11 +39,11 @@ macro_rules! define_input_cortical_types_py {
             }
         }
 
-        impl From<PyCorticalSensorType> for SensorCorticalType {
-            fn from(inner: PyCorticalSensorType) -> Self {
+        impl From<PySensorCorticalType> for SensorCorticalType {
+            fn from(inner: PySensorCorticalType) -> Self {
                 match inner {
                 $(
-                     PyCorticalSensorType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name
+                     PySensorCorticalType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name
                 ),*
                 }
             }
@@ -85,7 +86,7 @@ impl PyCorticalType {
     }
 
     #[staticmethod]
-    pub fn new_sensor(sensor_type: PyCorticalSensorType) -> Self {
+    pub fn new_sensor(sensor_type: PySensorCorticalType) -> Self {
         let sensor_type: SensorCorticalType = sensor_type.into();
         PyCorticalType{inner: CorticalType::from(sensor_type)}
     }
