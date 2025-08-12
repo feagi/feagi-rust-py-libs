@@ -311,63 +311,7 @@ class genome:
         Death: 'CoreCorticalType'
         Power: 'CoreCorticalType'
     
-    class SensorCorticalType:
-        """Enum representing different types of sensor cortical areas.
-        
-        This enum defines all the available sensor types that can be used
-        in FEAGI for processing input data from various sensors and devices.
-        Each sensor type has specific characteristics and use cases.
-        """
-        
-        # Infrared distance sensor for object detection
-        Infrared: 'SensorCorticalType'
-        
-        # Inverted infrared sensor that provides reverse object detection readings.
-        ReverseInfrared: 'SensorCorticalType'
-        
-        # Digital GPIO input pin for reading binary signals (high/low states).
-        DigitalGPIOInput: 'SensorCorticalType'
-        
-        # Proximity sensor for detecting nearby objects and measuring distances.
-        Proximity: 'SensorCorticalType'
-        
-        # Shock sensor for sensing 'pain'
-        Shock: 'SensorCorticalType'
-        
-        # Battery level sensor for monitoring power remaining.
-        Battery: 'SensorCorticalType'
-        
-        # Servo position feedback sensor for monitoring actuator positions.
-        ServoPosition: 'SensorCorticalType'
-        
-        # Image camera input. Either alone or in the center of segmented/peripheral image camera setups
-        ImageCameraCenter: 'SensorCorticalType'
-        
-        # Top Left peripheral image camera input.
-        ImageCameraTopLeft: 'SensorCorticalType'
-        
-        # Top Middle peripheral image camera input.
-        ImageCameraTopMiddle: 'SensorCorticalType'
-        
-        # Top Right peripheral image camera input.
-        ImageCameraTopRight: 'SensorCorticalType'
-        
-        # Middle Left peripheral image camera input.
-        ImageCameraMiddleLeft: 'SensorCorticalType'
-        
-        # Middle Right peripheral image camera input.
-        ImageCameraMiddleRight: 'SensorCorticalType'
-        
-        # Bottom Left peripheral image camera input.
-        ImageCameraBottomLeft: 'SensorCorticalType'
-        
-        # Bottom Middle peripheral image camera input.
-        ImageCameraBottomMiddle: 'SensorCorticalType'
-        
-        # Bottom Right peripheral image camera input.
-        ImageCameraBottomRight: 'SensorCorticalType'
-        
-        class CorticalGroupingIndex:
+    class CorticalGroupingIndex:
         """Index for grouping cortical areas."""
         
         def __init__(self, index: int) -> None:

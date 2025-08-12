@@ -1,6 +1,6 @@
 //! Rust PYO3 Compiled Python Module
 //! All docs pertaining to python exposed modules must 
-//! be reflected to the 'feagi_data_processing.pyi' file!
+//! be reflected to the 'feagi_data_processing.pyi.template' file!
 
 mod miscellaneous_types;
 mod neuron_data;
