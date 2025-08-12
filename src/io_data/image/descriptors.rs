@@ -15,11 +15,14 @@ pub struct PyImageFrameProperties {
 #[pymethods]
 impl PyImageFrameProperties {
     #[new]
-    pub fn new(xy_resolution: (usize, usize), color_space: PyColorSpace, color_channel_layout: PyChannelLayout) -> PyResult<Self> {
+    pub fn new(xy_resolution: (usize, usize), color_space: PyColorSpace, color_channel_layout: PyColorChannelLayout) -> PyResult<Self> {
         let color_space: ColorSpace = color_space.into();
-        let color_channel_layout: ChannelLayout = color_channel_layout.into();
-        let inner = ImageFrameProperties::new(xy_resolution, color_space, color_channel_layout);
-        Ok(Self { inner }) // TODO error check for 0 res!
+        let color_channel_layout: ColorChannelLayout = color_channel_layout.into();
+        let result = ImageFrameProperties::new(xy_resolution, color_space, color_channel_layout);
+        match result {
+            Ok(inner) => Ok(PyImageFrameProperties { inner }),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
     }
 
     #[getter]
@@ -33,7 +36,7 @@ impl PyImageFrameProperties {
     }
 
     #[getter]
-    pub fn expected_channel_layout(&self) -> PyResult<PyChannelLayout> {
+    pub fn expected_channel_layout(&self) -> PyResult<PyColorChannelLayout> {
         Ok(self.inner.get_expected_color_channel_layout().into())
     }
 }
@@ -155,36 +158,36 @@ impl From<ColorSpace> for PyColorSpace {
 
 //endregion
 
-//region ChannelLayout
+//region ColorChannelLayout
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
-#[pyo3(name = "ChannelLayout")]
-pub enum PyChannelLayout {
+#[pyo3(name = "ColorChannelLayout")]
+pub enum PyColorChannelLayout {
     GrayScale,
     RG,
     RGB,
     RGBA
 }
 
-impl From<PyChannelLayout> for ChannelLayout {
-    fn from(py_channel_format: PyChannelLayout) -> Self {
+impl From<PyColorChannelLayout> for ColorChannelLayout {
+    fn from(py_channel_format: PyColorChannelLayout) -> Self {
         match py_channel_format {
-            PyChannelLayout::GrayScale => ChannelLayout::GrayScale,
-            PyChannelLayout::RG => ChannelLayout::RG,
-            PyChannelLayout::RGB => ChannelLayout::RGB,
-            PyChannelLayout::RGBA => ChannelLayout::RGBA,
+            PyColorChannelLayout::GrayScale => ColorChannelLayout::GrayScale,
+            PyColorChannelLayout::RG => ColorChannelLayout::RG,
+            PyColorChannelLayout::RGB => ColorChannelLayout::RGB,
+            PyColorChannelLayout::RGBA => ColorChannelLayout::RGBA,
         }
     }
 }
 
-impl From<ChannelLayout> for PyChannelLayout {
-    fn from(channel_layout: ChannelLayout) -> Self {
+impl From<ColorChannelLayout> for PyColorChannelLayout {
+    fn from(channel_layout: ColorChannelLayout) -> Self {
         match channel_layout {
-            ChannelLayout::GrayScale => PyChannelLayout::GrayScale,
-            ChannelLayout::RG => PyChannelLayout::RG,
-            ChannelLayout::RGB => PyChannelLayout::RGB,
-            ChannelLayout::RGBA => PyChannelLayout::RGBA,
+            ColorChannelLayout::GrayScale => PyColorChannelLayout::GrayScale,
+            ColorChannelLayout::RG => PyColorChannelLayout::RG,
+            ColorChannelLayout::RGB => PyColorChannelLayout::RGB,
+            ColorChannelLayout::RGBA => PyColorChannelLayout::RGBA,
         }
     }
 }

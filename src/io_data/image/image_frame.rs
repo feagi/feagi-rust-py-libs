@@ -26,7 +26,7 @@ impl PyImageFrame {
     //region common contructors
     
     #[new]
-    pub fn new(channel_format: PyChannelLayout, color_space: PyColorSpace, xy_resolution: (usize, usize)) -> PyResult<Self> {
+    pub fn new(channel_format: PyColorChannelLayout, color_space: PyColorSpace, xy_resolution: (usize, usize)) -> PyResult<Self> {
         let result = ImageFrame::new(&channel_format.into(), &color_space.into(), &xy_resolution);
         match result {
             Ok(image_frame) => Ok(PyImageFrame { inner: image_frame }),
@@ -38,7 +38,7 @@ impl PyImageFrame {
     #[staticmethod]
     pub fn from_array(input: PyReadonlyArray3<f32>, color_space: PyColorSpace, source_memory_order: PyMemoryOrderLayout, py: Python) -> PyResult<PyImageFrame> {
         let array = input.as_array().to_owned();
-        match ImageFrame::from_array(array, color_space.into(), source_memory_order.into()) {
+        match ImageFrame::from_array(array, &color_space.into(), &source_memory_order.into()) {
             Ok(inner) => Ok(PyImageFrame { inner }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
@@ -68,7 +68,7 @@ impl PyImageFrame {
     }
 
     #[getter]
-    pub fn channel_layout(&self) -> PyChannelLayout {
+    pub fn channel_layout(&self) -> PyColorChannelLayout {
         self.inner.get_channel_layout().clone().into()
     }
 

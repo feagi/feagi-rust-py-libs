@@ -437,7 +437,7 @@ class io_data:
         and resolution for processing in FEAGI's vision system.
         """
         
-        def __init__(self, channel_format: 'ChannelLayout', color_space: 'ColorSpace', xy_resolution: tuple[int, int]) -> None:
+        def __init__(self, channel_format: 'ColorChannelLayout', color_space: 'ColorSpace', xy_resolution: tuple[int, int]) -> None:
             """Create a new ImageFrame.
             
             Args:
@@ -508,7 +508,7 @@ class io_data:
             ...
         
         @property
-        def channel_layout(self) -> 'ChannelLayout':
+        def channel_layout(self) -> 'ColorChannelLayout':
             """Get the channel layout of this frame."""
             ...
         
@@ -592,7 +592,7 @@ class io_data:
         """
         
         def __init__(self, segment_resolutions: 'SegmentedFrameTargetResolutions', 
-                     segment_color_channels: 'ChannelLayout', 
+                     segment_color_channels: 'ColorChannelLayout',
                      segment_color_space: 'ColorSpace', 
                      input_frames_source_width_height: tuple[int, int]) -> None:
             """Create a new SegmentedImageFrame.
@@ -630,7 +630,7 @@ class io_data:
             ...
         
         @property
-        def center_channel_layout(self) -> 'ChannelLayout':
+        def center_channel_layout(self) -> 'ColorChannelLayout':
             """Get the channel layout of the center segment."""
             ...
         
@@ -654,7 +654,7 @@ class io_data:
         class ImageFrameProperties:
             """Properties describing an image frame's format and dimensions."""
             
-            def __init__(self, xy_resolution: tuple[int, int], color_space: 'ColorSpace', color_channel_layout: 'ChannelLayout') -> None:
+            def __init__(self, xy_resolution: tuple[int, int], color_space: 'ColorSpace', color_channel_layout: 'ColorChannelLayout') -> None:
                 """Create new image frame properties.
                 
                 Args:
@@ -678,7 +678,7 @@ class io_data:
                 ...
             
             @property
-            def expected_channel_layout(self) -> 'ChannelLayout':
+            def expected_channel_layout(self) -> 'ColorChannelLayout':
                 """Expected channel layout (Grayscale, RGB, RGBA, etc.)."""
                 ...
         
@@ -762,12 +762,12 @@ class io_data:
             Linear: 'ColorSpace'
             Gamma: 'ColorSpace'
         
-        class ChannelLayout:
+        class ColorChannelLayout:
             """Enum representing different channel layouts."""
-            GrayScale: 'ChannelLayout'
-            RG: 'ChannelLayout'
-            RGB: 'ChannelLayout'
-            RGBA: 'ChannelLayout'
+            GrayScale: 'ColorChannelLayout'
+            RG: 'ColorChannelLayout'
+            RGB: 'ColorChannelLayout'
+            RGBA: 'ColorChannelLayout'
         
         class MemoryOrderLayout:
             """Enum representing different memory ordering layouts."""
