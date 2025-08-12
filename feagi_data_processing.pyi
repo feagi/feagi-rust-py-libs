@@ -319,53 +319,53 @@ class genome:
         Each sensor type has specific characteristics and use cases.
         """
         
-        # Infrared distance sensor for object detection
         Infrared: 'SensorCorticalType'
+        """Infrared distance sensor for object detection."""
         
-        # Inverted infrared sensor that provides reverse object detection readings.
         ReverseInfrared: 'SensorCorticalType'
+        """Inverted infrared sensor that provides reverse object detection readings.."""
         
-        # Digital GPIO input pin for reading binary signals (high/low states).
         DigitalGPIOInput: 'SensorCorticalType'
+        """Digital GPIO input pin for reading binary signals (high/low states).."""
         
-        # Proximity sensor for detecting nearby objects and measuring distances.
         Proximity: 'SensorCorticalType'
+        """Proximity sensor for detecting nearby objects and measuring distances.."""
         
-        # Shock sensor for sensing 'pain'
         Shock: 'SensorCorticalType'
+        """Shock sensor for sensing 'pain'."""
         
-        # Battery level sensor for monitoring power remaining.
         Battery: 'SensorCorticalType'
+        """Battery level sensor for monitoring power remaining.."""
         
-        # Servo position feedback sensor for monitoring actuator positions.
         ServoPosition: 'SensorCorticalType'
+        """Servo position feedback sensor for monitoring actuator positions.."""
         
-        # Image camera input. Either alone or in the center of segmented/peripheral image camera setups
         ImageCameraCenter: 'SensorCorticalType'
+        """Image camera input. Either alone or in the center of segmented/peripheral image camera setups."""
         
-        # Top Left peripheral image camera input.
         ImageCameraTopLeft: 'SensorCorticalType'
+        """Top Left peripheral image camera input.."""
         
-        # Top Middle peripheral image camera input.
         ImageCameraTopMiddle: 'SensorCorticalType'
+        """Top Middle peripheral image camera input.."""
         
-        # Top Right peripheral image camera input.
         ImageCameraTopRight: 'SensorCorticalType'
+        """Top Right peripheral image camera input.."""
         
-        # Middle Left peripheral image camera input.
         ImageCameraMiddleLeft: 'SensorCorticalType'
+        """Middle Left peripheral image camera input.."""
         
-        # Middle Right peripheral image camera input.
         ImageCameraMiddleRight: 'SensorCorticalType'
+        """Middle Right peripheral image camera input.."""
         
-        # Bottom Left peripheral image camera input.
         ImageCameraBottomLeft: 'SensorCorticalType'
+        """Bottom Left peripheral image camera input.."""
         
-        # Bottom Middle peripheral image camera input.
         ImageCameraBottomMiddle: 'SensorCorticalType'
+        """Bottom Middle peripheral image camera input.."""
         
-        # Bottom Right peripheral image camera input.
         ImageCameraBottomRight: 'SensorCorticalType'
+        """Bottom Right peripheral image camera input.."""
         
         class CorticalGroupingIndex:
         """Index for grouping cortical areas."""

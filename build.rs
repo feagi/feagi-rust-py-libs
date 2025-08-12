@@ -77,12 +77,12 @@ fn generate_sensor_cortical_type_class() -> String {
     class_def.push_str("        \"\"\"\n");
     class_def.push_str("        \n");
     
-    // Add each variant as a class attribute
+    // Add each variant as a class attribute with docstrings
     for variant in &variants {
-        if let Some(doc) = &variant.doc {
-            class_def.push_str(&format!("        # {}\n", doc));
-        }
         class_def.push_str(&format!("        {}: 'SensorCorticalType'\n", variant.name));
+        if let Some(doc) = &variant.doc {
+            class_def.push_str(&format!("        \"\"\"{}.\"\"\"\n", doc));
+        }
         class_def.push_str("        \n");
     }
     
