@@ -3,7 +3,56 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_data::image_descriptors::*;
 
+//region ImageFrameProperties
 
+#[pyclass]
+#[pyo3(name = "ImageFrameProperties")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct PyImageFrameProperties {
+    inner: ImageFrameProperties
+}
+
+#[pymethods]
+impl PyImageFrameProperties {
+    #[new]
+    pub fn new(xy_resolution: (usize, usize), color_space: PyColorSpace, color_channel_layout: PyChannelLayout) -> PyResult<Self> {
+        let color_space: ColorSpace = color_space.into();
+        let color_channel_layout: ChannelLayout = color_channel_layout.into();
+        let inner = ImageFrameProperties::new(xy_resolution, color_space, color_channel_layout);
+        Ok(Self { inner }) // TODO error check for 0 res!
+    }
+    
+    #[getter]
+    pub fn expected_xy_resolution(&self) -> PyResult<(usize, usize)> {
+        Ok(self.inner.get_expected_xy_resolution())
+    }
+    
+    #[getter]
+    pub fn expected_color_space(&self) -> PyResult<PyColorSpace> {
+        Ok(self.inner.get_expected_color_space().into())
+    }
+    
+    #[getter]
+    pub fn expected_channel_layout(&self) -> PyResult<PyChannelLayout> {
+        Ok(self.inner.get_expected_color_channel_layout().into())
+    }
+}
+
+impl From<ImageFrameProperties> for PyImageFrameProperties {
+    fn from(frame_properties: ImageFrameProperties) -> Self {
+        PyImageFrameProperties{inner: frame_properties}
+    }
+}
+
+impl From<PyImageFrameProperties> for ImageFrameProperties {
+    fn from(frame_properties: PyImageFrameProperties) -> Self {
+        frame_properties.inner
+    }
+}
+
+//endregion
+
+//region CornerPoints
 
 #[pyclass]
 #[pyo3(name = "CornerPoints")]
@@ -61,6 +110,22 @@ impl PyCornerPoints {
     }
 }
 
+impl From<PyCornerPoints> for CornerPoints {
+    fn from(points: PyCornerPoints) -> CornerPoints {
+        points.inner
+    }
+}
+
+impl From<CornerPoints> for PyCornerPoints {
+    fn from(points: CornerPoints) -> PyCornerPoints {
+        PyCornerPoints { inner: points }
+    }
+}
+
+//endregion
+
+//region ColorSpace
+
 // Add ColorSpace enum for Python
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
@@ -78,6 +143,19 @@ impl From<PyColorSpace> for ColorSpace {
         }
     }
 }
+
+impl From<ColorSpace> for PyColorSpace {
+    fn from(color_space: ColorSpace) -> Self {
+        match color_space { 
+            ColorSpace::Linear => PyColorSpace::Linear,
+            ColorSpace::Gamma => PyColorSpace::Gamma,
+        }
+    }
+}
+
+//endregion
+
+//region ChannelLayout
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
@@ -99,6 +177,21 @@ impl From<PyChannelLayout> for ChannelLayout {
         }
     }
 }
+
+impl From<ChannelLayout> for PyChannelLayout {
+    fn from(channel_layout: ChannelLayout) -> Self {
+        match channel_layout { 
+            ChannelLayout::GrayScale => PyChannelLayout::GrayScale,
+            ChannelLayout::RG => PyChannelLayout::RG,
+            ChannelLayout::RGB => PyChannelLayout::RGB,
+            ChannelLayout::RGBA => PyChannelLayout::RGBA,
+        }
+    }
+}
+
+//endregion
+
+//region MemoryOrderLayout
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]
@@ -124,6 +217,23 @@ impl From<PyMemoryOrderLayout> for MemoryOrderLayout {
         }
     }
 }
+
+impl From<MemoryOrderLayout> for PyMemoryOrderLayout {
+    fn from(memory_order_layout: MemoryOrderLayout) -> Self {
+        match memory_order_layout { 
+            MemoryOrderLayout::HeightsWidthsChannels => PyMemoryOrderLayout::HeightsWidthsChannels,
+            MemoryOrderLayout::HeightsChannelsWidths => PyMemoryOrderLayout::HeightsChannelsWidths,
+            MemoryOrderLayout::ChannelsHeightsWidths => PyMemoryOrderLayout::ChannelsHeightsWidths,
+            MemoryOrderLayout::ChannelsWidthsHeights => PyMemoryOrderLayout::ChannelsWidthsHeights,
+            MemoryOrderLayout::WidthsChannelsHeights => PyMemoryOrderLayout::WidthsChannelsHeights,
+            MemoryOrderLayout::WidthsHeightsChannels => PyMemoryOrderLayout::WidthsChannelsHeights,
+        }
+    }
+}
+
+//endregion
+
+//region SegmentedFrameCenterProperties
 
 #[pyclass]
 #[derive(Clone)]
@@ -160,6 +270,22 @@ impl PySegmentedFrameCenterProperties {
     }
 }
 
+impl From<PySegmentedFrameCenterProperties> for SegmentedFrameCenterProperties {
+    fn from(value: PySegmentedFrameCenterProperties) -> Self {
+        value.inner
+    }
+}
+
+impl From<SegmentedFrameCenterProperties> for PySegmentedFrameCenterProperties {
+    fn from(value: SegmentedFrameCenterProperties) -> Self {
+        PySegmentedFrameCenterProperties {inner: value}
+    }
+}
+
+//endregion
+
+
+//region SegmentedFrameTargetResolutions
 
 #[pyclass]
 #[derive(Clone)]
@@ -216,84 +342,16 @@ impl PySegmentedFrameTargetResolutions {
     }
 }
 
-#[pyclass]
-#[derive(Clone)]
-#[pyo3(name = "SegmentedVisionTargetResolutions")]
-pub struct PySegmentedVisionTargetResolutions{
-    pub inner: SegmentedFrameTargetResolutions,
-}
-
-#[pymethods]
-impl PySegmentedVisionTargetResolutions {
-    #[new]
-    pub fn new(        lower_left: (usize, usize),
-                       middle_left: (usize, usize),
-                       upper_left: (usize, usize),
-                       upper_middle: (usize, usize),
-                       upper_right: (usize, usize),
-                       middle_right: (usize, usize),
-                       lower_right: (usize, usize),
-                       lower_middle: (usize, usize),
-                       center: (usize, usize)
-    ) -> PyResult<Self> {
-        let result = SegmentedFrameTargetResolutions::new(lower_left, middle_left, upper_left, upper_middle, upper_right, middle_right, lower_right, lower_middle, center);
-        match result {
-            Ok(inner) => Ok(PySegmentedVisionTargetResolutions { inner }),
-            Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string()))
-        }
-    }
-
-    #[staticmethod]
-    fn create_with_same_sized_peripheral(center_width_height: (usize, usize), peripheral_width_height: (usize, usize)) -> PyResult<Self> {
-        let result = SegmentedFrameTargetResolutions::create_with_same_sized_peripheral(center_width_height, peripheral_width_height);
-        match result {
-            Ok(inner) => Ok(PySegmentedVisionTargetResolutions { inner }),
-            Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string()))
-        }
-    }
-
-    #[getter]
-    fn lower_left(&self) -> (usize, usize) {
-        self.inner.lower_left
-    }
-
-    #[getter]
-    fn middle_left(&self) -> (usize, usize) {
-        self.inner.middle_left
-    }
-
-    #[getter]
-    fn upper_left(&self) -> (usize, usize) {
-        self.inner.upper_left
-    }
-
-    #[getter]
-    fn upper_middle(&self) -> (usize, usize) {
-        self.inner.upper_middle
-    }
-
-    #[getter]
-    fn upper_right(&self) -> (usize, usize) {
-        self.inner.upper_right
-    }
-
-    #[getter]
-    fn middle_right(&self) -> (usize, usize) {
-        self.inner.middle_right
-    }
-
-    #[getter]
-    fn lower_right(&self) -> (usize, usize) {
-        self.inner.lower_right
-    }
-
-    #[getter]
-    fn lower_middle(&self) -> (usize, usize) {
-        self.inner.lower_middle
-    }
-
-    #[getter]
-    fn center(&self) -> (usize, usize) {
-        self.inner.center
+impl From<PySegmentedFrameTargetResolutions> for SegmentedFrameTargetResolutions {
+    fn from(value: PySegmentedFrameTargetResolutions) -> Self {
+        value.inner
     }
 }
+
+impl From<SegmentedFrameTargetResolutions> for PySegmentedFrameTargetResolutions {
+    fn from(value: SegmentedFrameTargetResolutions) -> Self {
+        PySegmentedFrameTargetResolutions{inner: value}
+    }
+}
+
+//endregion
