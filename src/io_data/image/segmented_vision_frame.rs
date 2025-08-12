@@ -24,7 +24,7 @@ impl PySegmentedImageFrame {
     #[new]
     pub fn new(
         segment_resolutions: &PySegmentedFrameTargetResolutions,
-        segment_color_channels: PyChannelLayout,
+        segment_color_channels: PyColorChannelLayout,
         segment_color_space: PyColorSpace,
         input_frames_source_width_height: (usize, usize)
     ) -> PyResult<Self> {
@@ -71,12 +71,12 @@ impl PySegmentedImageFrame {
     }
 
     #[getter]
-    pub fn center_channel_layout(&self) -> PyChannelLayout {
+    pub fn center_channel_layout(&self) -> PyColorChannelLayout {
         match self.inner.get_center_channel_layout() {
-            ChannelLayout::GrayScale => PyChannelLayout::GrayScale,
-            ChannelLayout::RG => PyChannelLayout::RG,
-            ChannelLayout::RGB => PyChannelLayout::RGB,
-            ChannelLayout::RGBA => PyChannelLayout::RGBA,
+            ColorChannelLayout::GrayScale => PyColorChannelLayout::GrayScale,
+            ColorChannelLayout::RG => PyColorChannelLayout::RG,
+            ColorChannelLayout::RGB => PyColorChannelLayout::RGB,
+            ColorChannelLayout::RGBA => PyColorChannelLayout::RGBA,
         }
     }
     //endregion

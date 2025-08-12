@@ -91,7 +91,7 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyImageFrameProperties);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyCornerPoints);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyColorSpace);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyChannelLayout);
+    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyColorChannelLayout);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyMemoryOrderLayout);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedFrameCenterProperties);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedFrameTargetResolutions);
