@@ -173,35 +173,33 @@ class genome:
     class CorticalType:
         """Represents different types of cortical areas in FEAGI."""
         
-        def __init__(self, core_type: 'CoreCorticalType') -> None:
+        @staticmethod
+        def new_from_core(py_core_cortical_type: 'CoreCorticalType') -> 'CorticalType':
             """Create CorticalType from core type.
             
             Args:
-                core_type: Core cortical type (Death, Power)
-            """
-            ...
-        
-        @staticmethod
-        def new_core(core_type: 'CoreCorticalType') -> 'CorticalType':
-            """Create core cortical type.
-            
-            Args:
-                core_type: Core cortical type (Death, Power)
+                py_core_cortical_type: Core cortical type (Death, Power)
                 
             Returns:
                 CorticalType for core areas
+                
+            Raises:
+                ValueError: If core type conversion fails
             """
             ...
         
         @staticmethod
-        def new_sensor(sensor_type: 'SensorCorticalType') -> 'CorticalType':
+        def new_from_sensory(py_sensor_cortical_type: Any) -> 'CorticalType':
             """Create sensor cortical type.
             
             Args:
-                sensor_type: Sensor cortical type
+                py_sensor_cortical_type: Sensor cortical type
                 
             Returns:
                 CorticalType for sensor areas
+                
+            Raises:
+                ValueError: If sensor type conversion fails
             """
             ...
         
@@ -220,6 +218,75 @@ class genome:
             
             Returns:
                 CorticalType for memory areas
+            """
+            ...
+        
+        @staticmethod
+        def get_type_from_bytes(bytes: bytes) -> 'CorticalType':
+            """Get cortical type from byte array.
+            
+            Args:
+                bytes: Byte array representing the cortical type
+                
+            Returns:
+                CorticalType decoded from bytes
+                
+            Raises:
+                ValueError: If bytes are invalid or cannot be decoded
+            """
+            ...
+        
+        def to_cortical_id(self, io_cortical_group_index: Any) -> 'CorticalID':
+            """Convert this cortical type to a cortical ID.
+            
+            Args:
+                io_cortical_group_index: CorticalGroupingIndex or integer for the grouping
+                
+            Returns:
+                CorticalID created from this type and the grouping index
+                
+            Raises:
+                ValueError: If conversion fails or parameters are invalid
+            """
+            ...
+        
+        def is_type_core(self) -> bool:
+            """Check if this is a core cortical type.
+            
+            Returns:
+                True if this is a core type
+            """
+            ...
+        
+        def is_type_sensor(self) -> bool:
+            """Check if this is a sensor cortical type.
+            
+            Returns:
+                True if this is a sensor type
+            """
+            ...
+        
+        def is_type_motor(self) -> bool:
+            """Check if this is a motor cortical type.
+            
+            Returns:
+                True if this is a motor type
+            """
+            ...
+        
+        def is_type_custom(self) -> bool:
+            """Check if this is a custom cortical type.
+            
+            Returns:
+                True if this is a custom type
+            """
+            ...
+        
+        def is_type_memory(self) -> bool:
+            """Check if this is a memory cortical type.
+            
+            Returns:
+                True if this is a memory type
             """
             ...
         
