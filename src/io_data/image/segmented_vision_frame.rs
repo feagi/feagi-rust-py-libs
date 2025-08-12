@@ -4,7 +4,6 @@ use feagi_core_data_structures_and_processing::io_data::image_descriptors::*;
 use feagi_core_data_structures_and_processing::io_data::SegmentedImageFrame;
 use feagi_core_data_structures_and_processing::genomic_structures::CorticalID;
 
-
 use crate::io_data::image::image_frame::PyImageFrame;
 use crate::io_data::image::descriptors::*;
 use crate::genomic_structures::PyCorticalID;
@@ -24,7 +23,7 @@ impl PySegmentedImageFrame {
     //region Common Constructors
     #[new]
     pub fn new(
-        segment_resolutions: &PySegmentedVisionTargetResolutions,
+        segment_resolutions: &PySegmentedFrameTargetResolutions,
         segment_color_channels: PyChannelLayout,
         segment_color_space: PyColorSpace,
         input_frames_source_width_height: (usize, usize)
@@ -82,18 +81,6 @@ impl PySegmentedImageFrame {
     }
     //endregion
     
-    //region Loading in New Data
-    pub fn update_segments(
-        &mut self,
-        source_frame: &PyImageFrame,
-        center_properties: &PySegmentedFrameCenterProperties
-    ) -> PyResult<()> {
-        match self.inner.update_segments(&source_frame.inner, center_properties.inner) {
-            Ok(_) => Ok(()),
-            Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
-        }
-    }
-    //endregion 
     
     //region Neuron Export
     pub fn export_as_new_cortical_mapped_neuron_data<'py>(&mut self, py: Python<'py>, camera_index: u8) -> PyResult<PyObject> {
@@ -116,4 +103,16 @@ impl PySegmentedImageFrame {
     // NOTE: inplace_export_cortical_mapped_neuron_data is not exposed to python since inplace operations make no sense
     
     //endregion
+}
+
+impl From<SegmentedImageFrame> for PySegmentedImageFrame {
+    fn from(inner:SegmentedImageFrame) -> Self {
+        PySegmentedImageFrame{inner}
+    }
+}
+
+impl From<PySegmentedImageFrame> for SegmentedImageFrame {
+    fn from(inner:PySegmentedImageFrame) -> Self {
+        inner.inner
+    }
 }

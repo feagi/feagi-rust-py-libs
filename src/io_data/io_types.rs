@@ -1,44 +1,36 @@
 use feagi_core_data_structures_and_processing::error::{FeagiDataProcessingError, IODataError};
-use pyo3::{pyclass, pymethods, Bound, PyAny, PyErr, PyObject, PyResult, Python};
-use pyo3::exceptions::PyValueError;
-use pyo3::types::{PyFloat, PyInt};
-use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant};
+use pyo3::{pyclass, PyObject, Python};
+use pyo3::types::{PyFloat};
+use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant, ImageFrame, SegmentedImageFrame};
+use feagi_core_data_structures_and_processing::io_data::image_descriptors::ImageFrameProperties;
 use pyo3::prelude::PyAnyMethods;
 use crate::io_data::PyImageFrame;
 use crate::io_data::PySegmentedImageFrame;
 
-#[pyclass(eq, eq_int)]
+
+
+#[pyclass(eq)]
 #[derive(PartialEq, Clone, Hash)]
 #[pyo3(name = "IOTypeVariant")]
-pub enum PyIOTypeVariant {
-    F32,
-    F32Normalized0To1,
-    F32NormalizedM1To1,
-    ImageFrame,
-    SegmentedImageFrame,
+pub struct PyIOTypeVariant {
+    inner: IOTypeVariant,
 }
 
 impl From<IOTypeVariant> for PyIOTypeVariant {
     fn from(io_type: IOTypeVariant) -> Self {
-        match io_type {
-            IOTypeVariant::F32 => Self::F32,
-            IOTypeVariant::F32Normalized0To1 => Self::F32Normalized0To1,
-            IOTypeVariant::F32NormalizedM1To1 => Self::F32NormalizedM1To1,
-            IOTypeVariant::ImageFrame => Self::ImageFrame,
-            IOTypeVariant::SegmentedImageFrame => Self::SegmentedImageFrame,
-        }
+        PyIOTypeVariant { inner: io_type }
     }
 }
 
 impl From<PyIOTypeVariant> for IOTypeVariant {
     fn from(io_type: PyIOTypeVariant) -> Self {
-        match io_type {
-            PyIOTypeVariant::F32 => Self::F32,
-            PyIOTypeVariant::F32Normalized0To1 => Self::F32Normalized0To1,
-            PyIOTypeVariant::F32NormalizedM1To1 => Self::F32NormalizedM1To1,
-            PyIOTypeVariant::ImageFrame => Self::ImageFrame,
-            PyIOTypeVariant::SegmentedImageFrame => Self::SegmentedImageFrame,
-        }
+        io_type.inner
+    }
+}
+
+impl std::fmt::Display for PyIOTypeVariant {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+        write!(f, "{}", self.inner.to_string())
     }
 }
 
@@ -49,9 +41,17 @@ pub(crate) fn try_get_as_io_type_variant<'py>(py: Python<'_>, any: PyObject) -> 
     let bound = any.bind(py);
     
     match () {
-        _ if bound.is_instance_of::<PyImageFrame>() => Ok(IOTypeVariant::ImageFrame),
+        _ if bound.is_instance_of::<PyImageFrame>() => {
+            let py_image_frame = any.extract::<PyImageFrame>(py).unwrap();
+            let image_frame: ImageFrame = py_image_frame.into();
+            Ok(IOTypeVariant::ImageFrame(Some(image_frame.get_image_frame_properties())))
+        },
         
-        _ if bound.is_instance_of::<PySegmentedImageFrame>() => Ok(IOTypeVariant::SegmentedImageFrame),
+        _ if bound.is_instance_of::<PySegmentedImageFrame>() => {
+            let py_segmented_image_frame = any.extract::<PySegmentedImageFrame>(py).unwrap();
+            let segmented_image_frame: SegmentedImageFrame = py_segmented_image_frame.into();
+            Ok(IOTypeVariant::SegmentedImageFrame(Some(segmented_image_frame.get_image_frame_properties())))
+        },
         
         _ if bound.is_instance_of::<PyFloat>() => Ok(IOTypeVariant::F32),
         
