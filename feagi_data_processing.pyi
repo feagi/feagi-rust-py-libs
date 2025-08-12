@@ -194,7 +194,7 @@ class genome:
             ...
         
         @staticmethod
-        def new_sensor(sensor_type: Any) -> 'CorticalType':
+        def new_sensor(sensor_type: 'SensorCorticalType') -> 'CorticalType':
             """Create sensor cortical type.
             
             Args:
