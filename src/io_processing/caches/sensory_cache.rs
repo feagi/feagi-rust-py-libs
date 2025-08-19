@@ -155,14 +155,12 @@ impl PySensorCache {
     
     //endregion
 
-    pub fn encode_to_neurons<'py>(&mut self, py: Python<'py>, mut writing_target: PyCorticalMappedXYZPNeuronData) -> PyResult<()> {
+    pub fn encode_to_neurons<'py>(&mut self, py: Python<'py>, writing_target: &mut PyCorticalMappedXYZPNeuronData) -> PyResult<()> {
         // TODO pass in instant? Review how to handle this
-        let mut mapped_data: &mut CorticalMappedXYZPNeuronData = writing_target.get_mut();
-        let result = self.inner.encode_to_neurons(Instant::now(), &mut mapped_data);
+        let mapped_data: &mut CorticalMappedXYZPNeuronData = writing_target.get_mut();
+        let result = self.inner.encode_to_neurons(Instant::now(), mapped_data);
         match result {
-            Ok(()) => {
-                Ok(())
-            },
+            Ok(()) => Ok(()),
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
     }
