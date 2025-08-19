@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_processing::processors::ImageFrameQuickDiffProcessor;
-use crate::io_data::image::descriptors::PyImageFrameProperties;
+use crate::io_data::image_descriptors::PyImageFrameProperties;
 use super::super::PyStreamCacheProcessor;
 
 //region Image Frame Quick Diff Processor

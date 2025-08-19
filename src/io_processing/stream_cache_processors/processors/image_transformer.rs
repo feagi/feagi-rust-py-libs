@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_processing::processors::ImageFrameTransformerProcessor;
-use crate::io_data::image::PyImageFrameTransformer;
+use crate::io_data::PyImageFrameTransformer;
 use super::super::PyStreamCacheProcessor;
 
 //region Image Frame Transformer Processor

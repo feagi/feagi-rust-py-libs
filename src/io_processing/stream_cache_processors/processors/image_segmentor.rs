@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_processing::processors::ImageFrameSegmentatorProcessor;
-use crate::io_data::image::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
-use crate::io_data::image::PyImageFrameSegmentator;
+use crate::io_data::image_descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::io_data::PyImageFrameSegmentator;
 use super::super::PyStreamCacheProcessor;
 
 //region Image Frame Segmentator Processor

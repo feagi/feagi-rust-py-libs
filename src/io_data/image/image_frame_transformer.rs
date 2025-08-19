@@ -35,7 +35,7 @@ impl PyImageFrameTransformer {
     }
 
     pub fn set_conversion_to_color_space(&mut self, target_color_space: PyColorSpace) -> PyResult<()> {
-        match self.inner.set_conversion_to_color_space(target_color_space.into()) {
+        match self.inner.set_color_space_to(&target_color_space.into()) {
             Ok(_) => Ok(()),
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
@@ -49,7 +49,7 @@ impl PyImageFrameTransformer {
     }
 
     pub fn set_contrast_adjustment(&mut self, contrast_factor: f32) -> PyResult<()> {
-        match self.inner.set_contrast_adjustment(contrast_factor) {
+        match self.inner.set_contrast_change(contrast_factor) {
             Ok(_) => Ok(()),
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
