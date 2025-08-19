@@ -2,11 +2,10 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_data::image_descriptors::*;
 use feagi_core_data_structures_and_processing::io_data::SegmentedImageFrame;
-use feagi_core_data_structures_and_processing::genomic_structures::CorticalID;
-
+use feagi_core_data_structures_and_processing::genomic_structures::{CorticalGroupingIndex, CorticalID};
 use crate::io_data::image::image_frame::PyImageFrame;
 use crate::io_data::image::descriptors::*;
-use crate::genomic_structures::PyCorticalID;
+use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalID, PyCorticalType};
 use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
 
 
@@ -24,43 +23,71 @@ impl PySegmentedImageFrame {
     #[new]
     pub fn new(
         segment_resolutions: &PySegmentedFrameTargetResolutions,
-        segment_color_channels: PyColorChannelLayout,
         segment_color_space: PyColorSpace,
-        input_frames_source_width_height: (usize, usize)
+        center_color_channels: PyColorChannelLayout,
+        peripheral_color_channels: PyColorChannelLayout,
     ) -> PyResult<Self> {
         match SegmentedImageFrame::new(
             &segment_resolutions.inner,
-            &segment_color_channels.into(),
             &segment_color_space.into(),
-            input_frames_source_width_height
+            &center_color_channels.into(),
+            &peripheral_color_channels.into()
         ) {
             Ok(inner) => Ok(PySegmentedImageFrame { inner }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
     }
-
+    
     #[staticmethod]
-    pub fn create_ordered_cortical_ids(camera_index: u8, is_grayscale: bool) -> PyResult<Vec<PyCorticalID>> {
-        /*
-        match CorticalID::create_ordered_cortical_areas_for_segmented_vision(camera_index, is_grayscale) {
-            Ok(cortical_ids) => {
-                let py_cortical_ids: Vec<PyCorticalID> = cortical_ids
-                    .into_iter()
-                    .map(|id| PyCorticalID { inner: id })
-                    .collect();
-                Ok(py_cortical_ids)
-            },
+    pub fn from_segmented_image_frame_properties(properties: PySegmentedImageFrameProperties) -> PyResult<Self> {
+        let result = SegmentedImageFrame::from_segmented_image_frame_properties(&properties.into());
+        match result {
+            Ok(segmented) => Ok(PySegmentedImageFrame {inner: segmented}),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
-        
-         */
-        
-        
-         Err(PyErr::new::<PyValueError, _>("Camera does not support neuron data")) // TODO
     }
+    //endregion
+
+    //region Static Methods
+    
+    #[staticmethod]
+    pub fn create_ordered_cortical_ids_for_segmented_vision(camera_index: PyCorticalGroupingIndex) -> PyResult<[PyCorticalID; 9]> {
+        let camera_index: CorticalGroupingIndex = camera_index.into();
+        let ids = SegmentedImageFrame::create_ordered_cortical_ids_for_segmented_vision(camera_index);
+        Ok([
+            ids[0].into(),
+            ids[1].into(),
+            ids[2].into(),
+            ids[3].into(),
+            ids[4].into(),
+            ids[5].into(),
+            ids[6].into(),
+            ids[7].into(),
+            ids[8].into(),
+        ])
+    }
+
+    #[staticmethod]
+    pub fn create_ordered_cortical_types_for_segmented_vision() -> PyResult<[PyCorticalType; 9]> {
+        let cortical_types = SegmentedImageFrame::create_ordered_cortical_types_for_segmented_vision();
+        Ok([
+            cortical_types[0].into(),
+            cortical_types[1].into(),
+            cortical_types[2].into(),
+            cortical_types[3].into(),
+            cortical_types[4].into(),
+            cortical_types[5].into(),
+            cortical_types[6].into(),
+            cortical_types[7].into(),
+            cortical_types[8].into(),
+        ])
+    }
+    
     //endregion
     
     //region Get Properties
+    
+    
     
     #[getter]
     pub fn color_space(&self) -> PyColorSpace {

@@ -55,6 +55,142 @@ impl From<PyImageFrameProperties> for ImageFrameProperties {
 
 //endregion
 
+//region Segmented Image Frame Properties
+#[pyclass]
+#[pyo3(name = "SegmentedImageFrameProperties")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct PySegmentedImageFrameProperties {
+    inner: SegmentedImageFrameProperties
+}
+
+// TODO implement Display
+#[pymethods]
+impl PySegmentedImageFrameProperties {
+
+    #[new]
+    pub fn new(segment_xy_resolutions: PySegmentedFrameTargetResolutions, center_color_channels: PyColorChannelLayout,
+               peripheral_color_channels: PyColorChannelLayout, color_space: PyColorSpace) -> PyResult<Self> {
+        let segment_xy_resolutions: SegmentedFrameTargetResolutions = segment_xy_resolutions.into();
+        let center_color_channels: ColorChannelLayout = center_color_channels.into();
+        let peripheral_color_channels: ColorChannelLayout = peripheral_color_channels.into();
+        let color_space: ColorSpace = color_space.into();
+        Ok(PySegmentedImageFrameProperties{
+            inner: SegmentedImageFrameProperties::new(
+                &segment_xy_resolutions,
+                &center_color_channels,
+                &peripheral_color_channels,
+                &color_space
+            )
+        })
+    }
+
+    #[getter]
+    pub fn expected_resolutions(&self) -> PyResult<PySegmentedFrameTargetResolutions> {
+        Ok(self.inner.get_expected_resolutions().clone().into())
+    }
+
+    #[getter]
+    pub fn center_color_channel(&self) -> PyResult<PyColorChannelLayout> {
+        Ok(self.inner.get_center_color_channel().clone().into())
+    }
+
+    #[getter]
+    pub fn peripheral_color_channel(&self) -> PyResult<PyColorChannelLayout> {
+        Ok(self.inner.get_center_color_channel().clone().into())
+    }
+
+    #[getter]
+    pub fn color_space(&self) -> PyResult<PyColorSpace> {
+        Ok(self.inner.get_color_space().clone().into())
+    }
+
+}
+
+impl From<SegmentedImageFrameProperties> for PySegmentedImageFrameProperties {
+    fn from(frame_properties: SegmentedImageFrameProperties) -> Self {
+        PySegmentedImageFrameProperties{inner: frame_properties}
+    }
+}
+
+impl From<PySegmentedImageFrameProperties> for SegmentedImageFrameProperties {
+    fn from(frame_properties: PySegmentedImageFrameProperties) -> Self {
+        frame_properties.inner
+    }
+}
+
+//endregion
+
+//region SegmentedFrameTargetResolutions
+
+#[pyclass]
+#[derive(Clone)]
+#[pyo3(name = "SegmentedFrameTargetResolutions")]
+pub struct PySegmentedFrameTargetResolutions {
+    pub inner: SegmentedFrameTargetResolutions,
+}
+
+#[pymethods]
+impl PySegmentedFrameTargetResolutions {
+    #[getter]
+    fn lower_left(&self) -> (usize, usize) {
+        self.inner.lower_left
+    }
+
+    #[getter]
+    fn middle_left(&self) -> (usize, usize) {
+        self.inner.middle_left
+    }
+
+    #[getter]
+    fn upper_left(&self) -> (usize, usize) {
+        self.inner.upper_left
+    }
+
+    #[getter]
+    fn upper_middle(&self) -> (usize, usize) {
+        self.inner.upper_middle
+    }
+
+    #[getter]
+    fn upper_right(&self) -> (usize, usize) {
+        self.inner.upper_right
+    }
+
+    #[getter]
+    fn middle_right(&self) -> (usize, usize) {
+        self.inner.middle_right
+    }
+
+    #[getter]
+    fn lower_right(&self) -> (usize, usize) {
+        self.inner.lower_right
+    }
+
+    #[getter]
+    fn lower_middle(&self) -> (usize, usize) {
+        self.inner.lower_middle
+    }
+
+    #[getter]
+    fn center(&self) -> (usize, usize) {
+        self.inner.center
+    }
+}
+
+impl From<PySegmentedFrameTargetResolutions> for SegmentedFrameTargetResolutions {
+    fn from(value: PySegmentedFrameTargetResolutions) -> Self {
+        value.inner
+    }
+}
+
+impl From<SegmentedFrameTargetResolutions> for PySegmentedFrameTargetResolutions {
+    fn from(value: SegmentedFrameTargetResolutions) -> Self {
+        PySegmentedFrameTargetResolutions{inner: value}
+    }
+}
+
+//endregion
+
 //region CornerPoints
 
 #[pyclass]
@@ -126,6 +262,50 @@ impl From<CornerPoints> for PyCornerPoints {
 }
 
 //endregion
+
+//region Gaze Properties
+
+#[pyclass]
+#[derive(Clone)]
+#[pyo3(name = "GazeProperties")]
+pub struct PyGazeProperties{
+    pub inner: GazeProperties,
+}
+
+#[pymethods]
+impl PyGazeProperties {
+    #[new]
+    fn cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy: (f32, f32), center_size_normalized_xy: (f32, f32)) -> PyResult<Self> {
+        let result = GazeProperties::cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy, center_size_normalized_xy);
+        match result {
+            Ok(inner) => Ok(PyGazeProperties { inner }),
+            Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string())),
+        }
+    }
+
+    #[staticmethod]
+    fn create_default_centered() -> Self {
+        PyGazeProperties {
+            inner: GazeProperties::create_default_centered(),
+        }
+    }
+}
+
+impl From<PyGazeProperties> for GazeProperties {
+    fn from(value: PyGazeProperties) -> Self {
+        value.inner
+    }
+}
+
+impl From<GazeProperties> for PyGazeProperties {
+    fn from(value: GazeProperties) -> Self {
+        PyGazeProperties {inner: value}
+    }
+}
+
+//endregion
+
+//region Enums
 
 //region ColorSpace
 
@@ -235,125 +415,5 @@ impl From<MemoryOrderLayout> for PyMemoryOrderLayout {
 }
 
 //endregion
-
-//region SegmentedFrameCenterProperties
-
-#[pyclass]
-#[derive(Clone)]
-#[pyo3(name = "SegmentedFrameCenterProperties")]
-pub struct PySegmentedFrameCenterProperties{
-    pub inner: SegmentedFrameCenterProperties,
-}
-
-#[pymethods]
-impl PySegmentedFrameCenterProperties {
-    #[new]
-    fn new_row_major_where_origin_top_left(center_coordinates_normalized_yx: (f32, f32), center_size_normalized_yx: (f32, f32)) -> PyResult<Self> {
-        let result = SegmentedFrameCenterProperties::new_row_major_where_origin_top_left(center_coordinates_normalized_yx, center_size_normalized_yx);
-        match result {
-            Ok(inner) => Ok(PySegmentedFrameCenterProperties { inner }),
-            Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string())),
-        }
-    }
-
-    #[staticmethod]
-    fn cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy: (f32, f32), center_size_normalized_xy: (f32, f32)) -> PyResult<Self> {
-        let result = SegmentedFrameCenterProperties::cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy, center_size_normalized_xy);
-        match result {
-            Ok(inner) => Ok(PySegmentedFrameCenterProperties { inner }),
-            Err(msg) => Err(PyErr::new::<PyValueError, _>(msg.to_string())),
-        }
-    }
-
-    #[staticmethod]
-    fn create_default_centered() -> Self {
-        PySegmentedFrameCenterProperties {
-            inner: SegmentedFrameCenterProperties::create_default_centered(),
-        }
-    }
-}
-
-impl From<PySegmentedFrameCenterProperties> for SegmentedFrameCenterProperties {
-    fn from(value: PySegmentedFrameCenterProperties) -> Self {
-        value.inner
-    }
-}
-
-impl From<SegmentedFrameCenterProperties> for PySegmentedFrameCenterProperties {
-    fn from(value: SegmentedFrameCenterProperties) -> Self {
-        PySegmentedFrameCenterProperties {inner: value}
-    }
-}
-
-//endregion
-
-//region SegmentedFrameTargetResolutions
-
-#[pyclass]
-#[derive(Clone)]
-#[pyo3(name = "SegmentedFrameTargetResolutions")]
-pub struct PySegmentedFrameTargetResolutions {
-    pub inner: SegmentedFrameTargetResolutions,
-}
-
-#[pymethods]
-impl PySegmentedFrameTargetResolutions {
-    #[getter]
-    fn lower_left(&self) -> (usize, usize) {
-        self.inner.lower_left
-    }
-
-    #[getter]
-    fn middle_left(&self) -> (usize, usize) {
-        self.inner.middle_left
-    }
-
-    #[getter]
-    fn upper_left(&self) -> (usize, usize) {
-        self.inner.upper_left
-    }
-
-    #[getter]
-    fn upper_middle(&self) -> (usize, usize) {
-        self.inner.upper_middle
-    }
-
-    #[getter]
-    fn upper_right(&self) -> (usize, usize) {
-        self.inner.upper_right
-    }
-
-    #[getter]
-    fn middle_right(&self) -> (usize, usize) {
-        self.inner.middle_right
-    }
-
-    #[getter]
-    fn lower_right(&self) -> (usize, usize) {
-        self.inner.lower_right
-    }
-
-    #[getter]
-    fn lower_middle(&self) -> (usize, usize) {
-        self.inner.lower_middle
-    }
-
-    #[getter]
-    fn center(&self) -> (usize, usize) {
-        self.inner.center
-    }
-}
-
-impl From<PySegmentedFrameTargetResolutions> for SegmentedFrameTargetResolutions {
-    fn from(value: PySegmentedFrameTargetResolutions) -> Self {
-        value.inner
-    }
-}
-
-impl From<SegmentedFrameTargetResolutions> for PySegmentedFrameTargetResolutions {
-    fn from(value: SegmentedFrameTargetResolutions) -> Self {
-        PySegmentedFrameTargetResolutions{inner: value}
-    }
-}
 
 //endregion

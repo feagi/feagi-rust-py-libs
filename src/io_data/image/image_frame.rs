@@ -19,7 +19,6 @@ impl std::fmt::Display for PyImageFrame {
     }
 }
 
-
 #[pymethods]
 impl PyImageFrame {
     
@@ -127,13 +126,13 @@ impl PyImageFrame {
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
     }
-
+    
     //endregion
     
     //region Out-Place
     
-    pub fn resize_nearest_neighbor(&mut self, target_widtH_height: (usize, usize)) -> PyResult<()> {
-        let result = self.resize_nearest_neighbor(target_widtH_height);
+    pub fn resize_nearest_neighbor(&mut self, target_width_height: (usize, usize)) -> PyResult<()> {
+        let result = self.resize_nearest_neighbor(target_width_height);
         match result {
             Ok(_) => Ok(()),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
