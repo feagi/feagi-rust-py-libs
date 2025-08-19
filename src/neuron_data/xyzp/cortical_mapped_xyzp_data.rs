@@ -201,6 +201,12 @@ impl PyCorticalMappedXYZPNeuronData {
     }
 }
 
+impl PyCorticalMappedXYZPNeuronData {
+    pub(crate) fn get_mut(&mut self) -> &mut CorticalMappedXYZPNeuronData {
+        &mut self.inner
+    }
+}
+
 impl From<CorticalMappedXYZPNeuronData> for PyCorticalMappedXYZPNeuronData {
     fn from(inner: CorticalMappedXYZPNeuronData) -> Self {
         PyCorticalMappedXYZPNeuronData { inner }
@@ -219,6 +225,8 @@ impl std::fmt::Display for PyCorticalMappedXYZPNeuronData {
     }
 }
 
+
+//region Iterators
 #[pyclass]
 pub struct PyCorticalMappedXYZPNeuronDataFullIter {
     items: Vec<(PyCorticalID, PyNeuronXYZPArrays)>,
@@ -310,3 +318,4 @@ impl PyCorticalMappedXYZPNeuronDataValuesIter {
     }
 }
     
+//endregion

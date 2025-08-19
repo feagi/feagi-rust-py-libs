@@ -110,7 +110,7 @@ impl PyCorticalType {
     
     #[staticmethod]
     pub fn get_type_from_bytes(bytes: [u8; CorticalID::CORTICAL_ID_LENGTH]) -> PyResult<Self> { // TODO rename?
-        let result = CorticalType::get_type_from_bytes(&bytes);
+        let result = CorticalType::try_get_type_from_bytes(&bytes);
         match result {
             Ok(cortical_type) => Ok(PyCorticalType{inner: cortical_type}),
             Err(e) => Err(PyValueError::new_err(e.to_string()))

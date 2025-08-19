@@ -63,29 +63,6 @@ impl PyCorticalID {
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
     }
-    
-    #[staticmethod]
-    pub fn create_ordered_cortical_areas_for_segmented_vision<'py>(py: Python<'_>, camera_index: PyObject) -> PyResult<[Self; 9]> {
-
-        let camera_index_result = PyCorticalGroupingIndex::try_from_python(py, camera_index);
-        let camera_index = match camera_index_result {
-            Ok(camera_index) => camera_index,
-            Err(e) => return Err(PyValueError::new_err(e.to_string()))
-        };
-        
-        let result = CorticalID::create_ordered_cortical_areas_for_segmented_vision(camera_index);
-        Ok([
-            result[0].into(),
-            result[1].into(),
-            result[2].into(),
-            result[3].into(),
-            result[4].into(),
-            result[5].into(),
-            result[6].into(),
-            result[7].into(),
-            result[8].into(),
-        ])
-    }
 
     #[staticmethod]
     pub fn try_new_from_bytes(bytes: [u8; CorticalID::CORTICAL_ID_LENGTH]) -> PyResult<Self> {

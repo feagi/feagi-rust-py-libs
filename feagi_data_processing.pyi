@@ -60,7 +60,7 @@ class genome:
             ...
         
         @staticmethod
-        def new_sensor_cortical_area_id(sensor_cortical_type: Any, input_index: Any) -> 'CorticalID':
+        def new_sensor_cortical_area_id(sensor_cortical_type: Any, input_index: int or CorticalIOChannelIndex) -> 'CorticalID':
             """Create a new sensor cortical area ID.
             
             Args:
@@ -72,21 +72,6 @@ class genome:
                 
             Raises:
                 ValueError: If parameters are invalid
-            """
-            ...
-        
-        @staticmethod
-        def create_ordered_cortical_areas_for_segmented_vision(camera_index: Any) -> list['CorticalID']:
-            """Create cortical areas for segmented vision (9 segments).
-            
-            Args:
-                camera_index: CorticalGroupingIndex or integer for the camera
-                
-            Returns:
-                List of 9 CorticalIDs for segmented vision areas
-                
-            Raises:
-                ValueError: If camera index is invalid
             """
             ...
         
@@ -121,7 +106,7 @@ class genome:
             ...
         
         @staticmethod
-        def try_from_cortical_type(cortical_type: 'CorticalType', io_cortical_index: Any) -> 'CorticalID':
+        def try_from_cortical_type(cortical_type: 'CorticalType', io_cortical_index: int or CorticalIOChannelIndex) -> 'CorticalID':
             """Create CorticalID from cortical type and index.
             
             Args:
@@ -592,16 +577,16 @@ class io_data:
         """
         
         def __init__(self, segment_resolutions: 'SegmentedFrameTargetResolutions', 
-                     segment_color_channels: 'ColorChannelLayout',
-                     segment_color_space: 'ColorSpace', 
-                     input_frames_source_width_height: tuple[int, int]) -> None:
+                     segment_color_space: 'ColorSpace',
+                     center_color_channels: 'ColorChannelLayout',
+                     peripheral_color_channels: 'ColorChannelLayout') -> None:
             """Create a new SegmentedImageFrame.
             
             Args:
                 segment_resolutions: Target resolutions for each segment
-                segment_color_channels: Channel layout for segments
-                segment_color_space: Color space for segments
-                input_frames_source_width_height: Source frame size as (width, height)
+                segment_color_space: Color space for segments  
+                center_color_channels: Channel layout for center segment
+                peripheral_color_channels: Channel layout for peripheral segments
                 
             Raises:
                 ValueError: If parameters are invalid
@@ -609,18 +594,49 @@ class io_data:
             ...
         
         @staticmethod
-        def create_ordered_cortical_ids(camera_index: int, is_grayscale: bool) -> list[Any]:
+        def from_segmented_image_frame_properties(properties: 'SegmentedImageFrameProperties') -> 'SegmentedImageFrame':
+            """Create SegmentedImageFrame from properties specification.
+            
+            Args:
+                properties: Properties defining the segmented frame format
+                
+            Returns:
+                New SegmentedImageFrame with the specified properties
+                
+            Raises:
+                ValueError: If properties are invalid
+            """
+            ...
+        
+        @staticmethod
+        def create_ordered_cortical_ids_for_segmented_vision(camera_index: Any) -> list[Any]:
             """Create ordered cortical IDs for segmented vision.
             
             Args:
-                camera_index: Index of the camera (0-255)
-                is_grayscale: Whether the vision is grayscale
+                camera_index: CorticalGroupingIndex for the camera
                 
             Returns:
-                List of cortical IDs for the 9 vision segments
+                List of 9 cortical IDs for the vision segments in order
                 
             Raises:
                 ValueError: If camera index is invalid
+            """
+            ...
+        
+        @staticmethod
+        def create_ordered_cortical_types_for_segmented_vision() -> list[Any]:
+            """Create ordered cortical types for segmented vision.
+            
+            Returns:
+                List of 9 cortical types for the vision segments in order
+            """
+            ...
+        
+        def get_segmented_image_frame_properties(self) -> 'SegmentedImageFrameProperties':
+            """Get the properties of this segmented frame.
+            
+            Returns:
+                SegmentedImageFrameProperties describing this frame
             """
             ...
         
@@ -634,6 +650,21 @@ class io_data:
             """Get the channel layout of the center segment."""
             ...
         
+        @property
+        def peripheral_channel_layout(self) -> 'ColorChannelLayout':
+            """Get the channel layout of the peripheral segments."""
+            ...
+        
+        @property
+        def segmented_image_frame_properties(self) -> 'SegmentedImageFrameProperties':
+            """Get the complete properties of this segmented frame."""
+            ...
+        
+        @property
+        def segmented_frame_target_resolutions(self) -> 'SegmentedFrameTargetResolutions':
+            """Get the target resolutions for all segments."""
+            ...
+        
         def export_as_new_cortical_mapped_neuron_data(self, camera_index: int) -> Any:
             """Export segmented frame as cortical mapped neuron data.
             
@@ -645,6 +676,126 @@ class io_data:
                 
             Raises:
                 ValueError: If export fails or camera doesn't support neuron data
+            """
+            ...
+    
+    class ImageFrameTransformer:
+        """Image transformation pipeline configuration for processing operations.
+        
+        Defines a complete image processing pipeline including cropping, resizing, 
+        color space conversion, brightness/contrast adjustment, and grayscale conversion.
+        """
+        
+        def __init__(self, input_image_properties: 'ImageFrameProperties') -> None:
+            """Create a new image transformer with input requirements.
+            
+            Args:
+                input_image_properties: Required properties for input images
+            """
+            ...
+        
+        def set_cropping_from(self, upper_left: tuple[int, int], lower_right: tuple[int, int]) -> None:
+            """Set cropping region for the transformation.
+            
+            Args:
+                upper_left: Upper-left corner as (row, col)
+                lower_right: Lower-right corner as (row, col)
+                
+            Raises:
+                ValueError: If coordinates are invalid
+            """
+            ...
+        
+        def set_resizing_to(self, target_resolution: tuple[int, int]) -> None:
+            """Set target resolution for resizing.
+            
+            Args:
+                target_resolution: Target size as (width, height)
+                
+            Raises:
+                ValueError: If resolution is invalid
+            """
+            ...
+        
+        def set_conversion_to_color_space(self, target_color_space: 'ColorSpace') -> None:
+            """Set target color space for conversion.
+            
+            Args:
+                target_color_space: Target color space (Linear or Gamma)
+                
+            Raises:
+                ValueError: If conversion is invalid
+            """
+            ...
+        
+        def set_brightness_multiplier(self, brightness_factor: float) -> None:
+            """Set brightness adjustment factor.
+            
+            Args:
+                brightness_factor: Brightness multiplier (1.0 = no change)
+                
+            Raises:
+                ValueError: If factor is invalid
+            """
+            ...
+        
+        def set_contrast_adjustment(self, contrast_factor: float) -> None:
+            """Set contrast adjustment factor.
+            
+            Args:
+                contrast_factor: Contrast multiplier (1.0 = no change)
+                
+            Raises:
+                ValueError: If factor is invalid
+            """
+            ...
+        
+        def set_conversion_to_grayscale(self, convert_to_grayscale: bool) -> None:
+            """Set whether to convert to grayscale.
+            
+            Args:
+                convert_to_grayscale: True to convert RGB/RGBA to grayscale
+                
+            Raises:
+                ValueError: If conversion is not supported for current format
+            """
+            ...
+        
+        @property
+        def get_output_image_properties(self) -> 'ImageFrameProperties':
+            """Get the properties of the output image after transformations."""
+            ...
+    
+    class ImageFrameSegmentator:
+        """Image segmentator for creating peripheral vision segments.
+        
+        Handles segmentation of images into 9 regions for peripheral vision simulation
+        with configurable gaze properties.
+        """
+        
+        def __init__(self, input_properties: 'ImageFrameProperties', 
+                     output_properties: 'SegmentedImageFrameProperties',
+                     initial_gaze: 'GazeProperties') -> None:
+            """Create a new image segmentator.
+            
+            Args:
+                input_properties: Properties of input images
+                output_properties: Properties of output segmented frames
+                initial_gaze: Initial gaze configuration
+                
+            Raises:
+                ValueError: If properties are incompatible
+            """
+            ...
+        
+        def update_gaze(self, gaze: 'GazeProperties') -> None:
+            """Update the gaze properties for segmentation.
+            
+            Args:
+                gaze: New gaze properties
+                
+            Raises:
+                ValueError: If gaze properties are invalid
             """
             ...
     
@@ -774,13 +925,59 @@ class io_data:
             HeightsWidthsChannels: 'MemoryOrderLayout'
             WidthsChannelsHeights: 'MemoryOrderLayout'
         
-        class SegmentedFrameCenterProperties:
-            """Properties for the center region of segmented vision frames."""
-            ...
+        class SegmentedImageFrameProperties:
+            """Properties describing a segmented image frame's format and segments."""
+            
+            def __init__(self, segment_xy_resolutions: 'SegmentedFrameTargetResolutions', 
+                         center_color_channels: 'ColorChannelLayout',
+                         peripheral_color_channels: 'ColorChannelLayout', 
+                         color_space: 'ColorSpace') -> None:
+                """Create new segmented image frame properties.
+                
+                Args:
+                    segment_xy_resolutions: Target resolutions for all segments
+                    center_color_channels: Channel layout for center segment
+                    peripheral_color_channels: Channel layout for peripheral segments
+                    color_space: Color space for all segments
+                """
+                ...
+            
+            @property
+            def expected_resolutions(self) -> 'SegmentedFrameTargetResolutions':
+                """Expected resolutions for all segments."""
+                ...
+            
+            @property
+            def center_color_channel(self) -> 'ColorChannelLayout':
+                """Color channel layout for center segment."""
+                ...
+            
+            @property
+            def peripheral_color_channel(self) -> 'ColorChannelLayout':
+                """Color channel layout for peripheral segments."""
+                ...
+            
+            @property
+            def color_space(self) -> 'ColorSpace':
+                """Color space for all segments."""
+                ...
         
         class SegmentedFrameTargetResolutions:
             """Target resolutions for all segments in segmented vision frames."""
             ...
+        
+        class GazeProperties:
+            """Properties defining gaze direction and focus for segmented vision."""
+            
+            def __init__(self, eccentricity_normalized_yx: tuple[float, float], 
+                         modularity_normalized_yx: tuple[float, float]) -> None:
+                """Create new gaze properties.
+                
+                Args:
+                    eccentricity_normalized_yx: Center point coordinates in normalized space (0.0-1.0)
+                    modularity_normalized_yx: Size of the center region in normalized space (0.0-1.0)
+                """
+                ...
 
 # IO Processing module
 class io_processing:
@@ -788,9 +985,223 @@ class io_processing:
     
     class bytes:
         """Byte structure handling module."""
+        
+        class FeagiByteStructureType:
+            """Enum representing different types of FEAGI byte structures."""
+            JSON: 'FeagiByteStructureType'
+            MultiStructHolder: 'FeagiByteStructureType'
+            NeuronCategoricalXYZP: 'FeagiByteStructureType'
+        
+        class FeagiByteStructureCompatible:
+            """Base class for objects that can be serialized to FEAGI byte structures."""
+            
+            def __init__(self) -> None:
+                """Create new FeagiByteStructureCompatible instance."""
+                ...
+            
+            @property
+            def struct_type(self) -> 'FeagiByteStructureType':
+                """Get the structure type of this object."""
+                ...
+            
+            def version(self) -> int:
+                """Get the version number of this structure."""
+                ...
+            
+            @staticmethod
+            def new_from_feagi_byte_structure(byte_structure: 'FeagiByteStructure') -> 'FeagiByteStructureCompatible':
+                """Create object from a FEAGI byte structure.
+                
+                Args:
+                    byte_structure: Source byte structure to deserialize from
+                    
+                Returns:
+                    New object created from byte structure
+                    
+                Raises:
+                    ValueError: If not properly overridden or conversion fails
+                """
+                ...
+            
+            def as_new_feagi_byte_structure(self) -> 'FeagiByteStructure':
+                """Serialize this object to a FEAGI byte structure.
+                
+                Returns:
+                    New FeagiByteStructure containing the serialized data
+                    
+                Raises:
+                    ValueError: If not properly overridden or serialization fails
+                """
+                ...
+        
         class FeagiByteStructure:
-            """FEAGI byte structure for efficient data serialization."""
-            ...
+            """FEAGI byte structure for efficient data serialization.
+            
+            Provides efficient serialization and deserialization of FEAGI data structures
+            with support for single structures and multi-structure containers.
+            """
+            
+            def __init__(self, bytes: bytes) -> None:
+                """Create a new FeagiByteStructure from bytes.
+                
+                Args:
+                    bytes: Raw byte data to deserialize
+                    
+                Raises:
+                    ValueError: If bytes are invalid or cannot be parsed
+                """
+                ...
+            
+            @staticmethod
+            def create_from_2_existing(a: 'FeagiByteStructure', b: 'FeagiByteStructure') -> 'FeagiByteStructure':
+                """Create a multi-structure from two existing structures.
+                
+                Args:
+                    a: First structure to combine
+                    b: Second structure to combine
+                    
+                Returns:
+                    New multi-structure containing both inputs
+                    
+                Raises:
+                    ValueError: If combination fails
+                """
+                ...
+            
+            @staticmethod
+            def create_from_multiple_existing(existing_list: list['FeagiByteStructure']) -> 'FeagiByteStructure':
+                """Create a multi-structure from a list of existing structures.
+                
+                Args:
+                    existing_list: List of structures to combine
+                    
+                Returns:
+                    New multi-structure containing all inputs
+                    
+                Raises:
+                    ValueError: If combination fails or list is empty
+                """
+                ...
+            
+            @staticmethod
+            def create_from_compatible(object: 'FeagiByteStructureCompatible') -> 'FeagiByteStructure':
+                """Create structure from a compatible object.
+                
+                Args:
+                    object: Compatible object to serialize
+                    
+                Returns:
+                    New FeagiByteStructure containing the serialized object
+                    
+                Raises:
+                    ValueError: If serialization fails
+                """
+                ...
+            
+            @property
+            def structure_type(self) -> 'FeagiByteStructureType':
+                """Get the type of this structure."""
+                ...
+            
+            @property
+            def version(self) -> int:
+                """Get the version of this structure."""
+                ...
+            
+            @property
+            def is_multistruct(self) -> bool:
+                """Check if this is a multi-structure container."""
+                ...
+            
+            @property
+            def contained_structure_count(self) -> int:
+                """Get the number of structures contained (1 for single, N for multi)."""
+                ...
+            
+            def get_ordered_object_types(self) -> list['FeagiByteStructureType']:
+                """Get the types of all contained objects in order.
+                
+                Returns:
+                    List of structure types for each contained object
+                    
+                Raises:
+                    ValueError: If structure is invalid
+                """
+                ...
+            
+            def copy_out_single_byte_structure_from_multistruct(self, index: int) -> 'FeagiByteStructure':
+                """Extract a single structure from a multi-structure.
+                
+                Args:
+                    index: Index of the structure to extract (0-based)
+                    
+                Returns:
+                    Single FeagiByteStructure at the specified index
+                    
+                Raises:
+                    ValueError: If index is out of bounds or this is not a multi-structure
+                """
+                ...
+            
+            def copy_out_single_object_from_single_struct(self) -> Any:
+                """Extract the object from a single structure.
+                
+                Returns:
+                    The deserialized object contained in this structure
+                    
+                Raises:
+                    ValueError: If this is a multi-structure or extraction fails
+                """
+                ...
+            
+            def copy_out_single_object_from_multistruct(self, index: int) -> Any:
+                """Extract an object from a multi-structure at the specified index.
+                
+                Args:
+                    index: Index of the object to extract (0-based)
+                    
+                Returns:
+                    The deserialized object at the specified index
+                    
+                Raises:
+                    ValueError: If index is out of bounds or extraction fails
+                """
+                ...
+            
+            def copy_out_as_byte_vector(self) -> bytes:
+                """Get the raw byte representation of this structure.
+                
+                Returns:
+                    Raw bytes that can be used to reconstruct this structure
+                """
+                ...
+            
+            def get_wasted_capacity_count(self) -> int:
+                """Get the number of bytes of wasted capacity in the internal buffer."""
+                ...
+            
+            def get_utilized_capacity_percentage(self) -> float:
+                """Get the percentage of utilized capacity in the internal buffer."""
+                ...
+            
+            def ensure_capacity_of_at_least(self, size: int) -> None:
+                """Ensure the internal buffer has at least the specified capacity.
+                
+                Args:
+                    size: Minimum required capacity in bytes
+                    
+                Raises:
+                    ValueError: If capacity cannot be allocated
+                """
+                ...
+            
+            def shed_wasted_capacity(self) -> None:
+                """Free up wasted capacity in the internal buffer to save memory."""
+                ...
+            
+            def reset_write_index(self) -> None:
+                """Reset the write index, effectively truncating the structure to 0 length."""
+                ...
     
     class processors:
         """Data processing modules."""
@@ -834,6 +1245,62 @@ class io_processing:
         class LinearScaleToM1And1:
             """Linear scaling processor that maps input range to [-1, 1]."""
             ...
+        
+        class ImageFrameTransformerProcessor:
+            """Stream processor for image transformation operations.
+            
+            Applies configured image transformations to incoming frames in a stream 
+            processing pipeline with caching.
+            """
+            
+            def __init__(self, transformer_definition: Any) -> None:
+                """Create new image transformer processor.
+                
+                Args:
+                    transformer_definition: ImageFrameTransformer configuration
+                    
+                Raises:
+                    ValueError: If transformer definition is invalid
+                """
+                ...
+        
+        class ImageFrameSegmentatorProcessor:
+            """Stream processor for image segmentation operations.
+            
+            Segments incoming image frames into 9 regions for peripheral vision 
+            simulation with caching.
+            """
+            
+            def __init__(self, input_image_properties: Any, 
+                         output_image_properties: Any,
+                         image_segmentator: Any) -> None:
+                """Create new image segmentator processor.
+                
+                Args:
+                    input_image_properties: Properties of input images
+                    output_image_properties: Properties of output segmented frames
+                    image_segmentator: ImageFrameSegmentator instance
+                """
+                ...
+        
+        class ImageFrameQuickDiffProcessor:
+            """Stream processor for quick image difference detection.
+            
+            Computes pixel-wise differences between consecutive frames to detect 
+            motion or changes with threshold filtering.
+            """
+            
+            def __init__(self, image_properties: Any, threshold: float) -> None:
+                """Create new quick diff processor.
+                
+                Args:
+                    image_properties: Properties defining input image format
+                    threshold: Minimum difference threshold for pixel changes
+                    
+                Raises:
+                    ValueError: If threshold is negative or properties are invalid
+                """
+                ...
     
     class cache:
         """Caching mechanisms for sensors."""
@@ -845,78 +1312,148 @@ class io_processing:
                 """Create new empty sensor cache."""
                 ...
             
-            def register_single_cortical_area(
-                self, 
-                cortical_sensor_type: Any, 
-                cortical_grouping_index: Any, 
-                number_supported_channels: int, 
-                channel_dimensions: Any
+            def register_cortical_group_for_proximity(
+                self,
+                cortical_group: Any,
+                number_of_channels: int,
+                allow_stale_data: Bool,
+                neuron_resolution: int,
+                lower_bound: float,
+                upper_bound: float
             ) -> None:
                 """Register a single cortical area for sensor data.
                 
                 Args:
                     cortical_sensor_type: Type of sensor cortical area
-                    cortical_grouping_index: Grouping index for the area
+                    cortical_group: Grouping index for the area
                     number_supported_channels: Number of channels supported
                     channel_dimensions: Dimensions for each channel
+
+                    cortical_group: Grouping index for the area
+                    number_of_channels: How many channels this proximity area will have. Cannot be zero
+                    allow_stale_data: Allow sending stale data
+                    neuron_resolution: Number of neurons in Z direciton in FEAGI, effectively the resolution. Cannot be Zero
+                    lower_bound: lowest value possible from sensor to be be scaled as "0"
+                    upper_bound: highest value possible from sensor to be be scaled as "1"
                     
                 Raises:
                     ValueError: If parameters are invalid
                 """
                 ...
             
-            def register_single_channel(
+            def register_cortical_group_for_image_camera(
                 self,
-                cortical_sensor_type: Any,
-                cortical_grouping_index: Any,
-                channel: Any,
-                sensory_processors: list[Any],
-                should_sensor_allow_sending_stale_data: bool
+                cortical_group: Any,
+                number_of_channels: int,
+                allow_stale_data: Bool,
+                input_image_properties: 'ImageFrameProperties',
+                output_image_properties: 'ImageFrameProperties',
             ) -> None:
-                """Register a single channel within a cortical area.
-                
+                """Register a single cortical area for sensor data.
+
                 Args:
-                    cortical_sensor_type: Type of sensor cortical area
-                    cortical_grouping_index: Grouping index for the area
-                    channel: Channel index within the area
-                    sensory_processors: List of processors for this channel
-                    should_sensor_allow_sending_stale_data: Whether to allow stale data
+                    cortical_group: Grouping index for the area
+                    number_supported_channels: Number of channels supported
+                    allow_stale_data: Dimensions for each channel
+                    input_image_properties: The expected  properties of the incoming image
+                    output_image_properties: The expected properties of the image to be sent to FEAGI
                     
                 Raises:
                     ValueError: If parameters are invalid
                 """
                 ...
-            
-            def update_value_by_channel(
+
+            def register_cortical_group_for_image_camera_with_peripheral(
                 self,
-                value: Any,
-                cortical_sensor_type: Any,
-                cortical_grouping_index: Any,
-                channel: Any
+                cortical_group: Any,
+                number_of_channels: int,
+                allow_stale_data: Bool,
+                input_image_properties: 'ImageFrameProperties',
+                output_image_properties: 'SegmentedImageFrameProperties',
             ) -> None:
-                """Update sensor value for a specific channel.
-                
+                """Register a single cortical area for sensor data.
+
                 Args:
-                    value: New sensor value
-                    cortical_sensor_type: Type of sensor cortical area
-                    cortical_grouping_index: Grouping index for the area
-                    channel: Channel index within the area
-                    
+                    cortical_group: Grouping index for the area
+                    number_supported_channels: Number of channels supported
+                    allow_stale_data: Dimensions for each channel
+                    input_image_properties: The expected  properties of the incoming image
+                    output_image_properties: The expected properties of the segmented image to be sent to FEAGI
+
                 Raises:
                     ValueError: If parameters are invalid
                 """
                 ...
-            
-            def export_as_cortical_mapped_xyzp_neuron_data(self) -> Any:
+
+            def send_data_for_proximity(
+                self,
+                new_value: float,
+                cortical_grouping_index: Any,
+                device_channel: Any,
+            ) -> None:
+                """Updates the cached data for a proximity sensor
+
+                Args:
+                    new_value: The latest value to be
+                    cortical_grouping_index: The index of the cortical area to be updated
+                    device_channel: The channel of the cortical area to be updated
+
+                Raises:
+                    ValueError: If parameters are invalid
+                """
+                ...
+
+            def send_data_for_image_camera(
+                self,
+                new_value: 'ImageFrame',
+                cortical_grouping_index: Any,
+                device_channel: Any,
+            ) -> None:
+                """Updates the cached data for an image sensor
+
+                Args:
+                    new_value: The latest value to be
+                    cortical_grouping_index: The index of the cortical area to be updated
+                    device_channel: The channel of the cortical area to be updated
+
+                Raises:
+                    ValueError: If parameters are invalid
+                """
+                ...
+
+            def send_data_for_segmented_image_camera(
+                self,
+                new_value: 'ImageFrame',
+                cortical_grouping_index: Any,
+                device_channel: Any,
+            ) -> None:
+                """Updates the cached data for an image sensor
+
+                Args:
+                    new_value: The latest value to be
+                    cortical_grouping_index: The index of the cortical area to be updated
+                    device_channel: The channel of the cortical area to be updated
+
+                Raises:
+                    ValueError: If parameters are invalid
+                """
+                ...
+
+
+            def encode_to_neurons(
+            self,
+            write_target: 'CorticalMappedXYZPNeuronData'
+            ) -> None:
                 """Export all cached sensor data as cortical mapped neuron data.
-                
-                Returns:
-                    CorticalMappedXYZPNeuronData containing all sensor data
-                    
+
+                Args:
+                    write_target: The existing neuron data container to overwrite
+
                 Raises:
                     ValueError: If export fails
                 """
                 ...
+
 
 # Neuron Data module
 class neuron_data:

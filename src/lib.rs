@@ -88,20 +88,26 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "io_data", io_data::PyIOTypeVariant);
     add_python_class!(py, m, "io_data", io_data::PyImageFrame);
     add_python_class!(py, m, "io_data", io_data::PySegmentedImageFrame);
+    add_python_class!(py, m, "io_data", io_data::PyImageFrameTransformer);
+    add_python_class!(py, m, "io_data", io_data::PyImageFrameSegmentator);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyImageFrameProperties);
+    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedImageFrameProperties);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyCornerPoints);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyColorSpace);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyColorChannelLayout);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedFrameCenterProperties);
+    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyGazeProperties);
     add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedFrameTargetResolutions);
-
+    
     add_python_class!(py, m, "io_processing.bytes", io_processing::byte_structures::PyFeagiByteStructure);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearAverageRollingWindowProcessor);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityFloatProcessor);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityImageFrameProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1Processor);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleToM1And1);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyImageFrameTransformerProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyImageFrameSegmentatorProcessor);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyImageFrameQuickDiffProcessor);
     add_python_class!(py, m, "io_processing.cache", io_processing::PySensorCache);
 
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyCorticalMappedXYZPNeuronData);
