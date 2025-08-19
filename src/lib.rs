@@ -100,7 +100,7 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearAverageRollingWindowProcessor);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityFloatProcessor);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityImageFrameProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1);
+    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1Processor);
     add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleToM1And1);
     add_python_class!(py, m, "io_processing.cache", io_processing::PySensorCache);
 

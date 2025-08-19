@@ -86,8 +86,10 @@ impl PySegmentedImageFrame {
     //endregion
     
     //region Get Properties
-    
-    
+
+    pub fn get_segmented_image_frame_properties(&self) -> PySegmentedImageFrameProperties {
+        self.inner.get_segmented_image_frame_properties().into()
+    }
     
     #[getter]
     pub fn color_space(&self) -> PyColorSpace {
@@ -99,12 +101,16 @@ impl PySegmentedImageFrame {
 
     #[getter]
     pub fn center_channel_layout(&self) -> PyColorChannelLayout {
-        match self.inner.get_center_channel_layout() {
-            ColorChannelLayout::GrayScale => PyColorChannelLayout::GrayScale,
-            ColorChannelLayout::RG => PyColorChannelLayout::RG,
-            ColorChannelLayout::RGB => PyColorChannelLayout::RGB,
-            ColorChannelLayout::RGBA => PyColorChannelLayout::RGBA,
-        }
+        self.inner.get_center_channel_layout().into()
+    }
+
+    #[getter]
+    pub fn peripheral_channel_layout(&self) -> PyColorChannelLayout {
+        self.inner.get_peripheral_channel_layout().into()
+    }
+    #[getter]
+    pub fn segmented_frame_target_resolutions(&self) -> PySegmentedFrameTargetResolutions {
+        self.inner.get_segmented_frame_target_resolutions().into()
     }
     //endregion
     

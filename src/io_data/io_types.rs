@@ -1,12 +1,10 @@
-use feagi_core_data_structures_and_processing::error::{FeagiDataProcessingError, IODataError};
 use pyo3::{pyclass, PyObject, Python};
 use pyo3::types::{PyFloat};
-use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant, ImageFrame, SegmentedImageFrame};
-use feagi_core_data_structures_and_processing::io_data::image_descriptors::ImageFrameProperties;
 use pyo3::prelude::PyAnyMethods;
+use feagi_core_data_structures_and_processing::error::{FeagiDataProcessingError, IODataError};
+use feagi_core_data_structures_and_processing::io_data::{IOTypeData, IOTypeVariant, ImageFrame, SegmentedImageFrame};
 use crate::io_data::PyImageFrame;
 use crate::io_data::PySegmentedImageFrame;
-
 
 
 #[pyclass(eq)]
@@ -50,7 +48,7 @@ pub(crate) fn try_get_as_io_type_variant<'py>(py: Python<'_>, any: PyObject) -> 
         _ if bound.is_instance_of::<PySegmentedImageFrame>() => {
             let py_segmented_image_frame = any.extract::<PySegmentedImageFrame>(py).unwrap();
             let segmented_image_frame: SegmentedImageFrame = py_segmented_image_frame.into();
-            Ok(IOTypeVariant::SegmentedImageFrame(Some(segmented_image_frame.get_image_frame_properties())))
+            Ok(IOTypeVariant::SegmentedImageFrame(Some(segmented_image_frame.get_segmented_image_frame_properties())))
         },
         
         _ if bound.is_instance_of::<PyFloat>() => Ok(IOTypeVariant::F32),

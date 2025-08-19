@@ -372,6 +372,12 @@ impl From<ColorChannelLayout> for PyColorChannelLayout {
     }
 }
 
+impl From<&ColorChannelLayout> for PyColorChannelLayout {
+    fn from(channel_layout: &ColorChannelLayout) -> Self {
+        channel_layout.clone().into()
+    }
+}
+
 //endregion
 
 //region MemoryOrderLayout

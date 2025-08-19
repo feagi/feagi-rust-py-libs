@@ -1,7 +1,7 @@
 use feagi_core_data_structures_and_processing::io_processing::StreamCacheProcessor;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use crate::io_processing::processors::{PyIdentityFloatProcessor, PyIdentityImageFrameProcessor, PyLinearAverageRollingWindowProcessor, PyLinearScaleTo0And1, PyLinearScaleToM1And1};
+use crate::io_processing::processors::{PyIdentityFloatProcessor, PyIdentityImageFrameProcessor, PyLinearAverageRollingWindowProcessor, PyLinearScaleTo0And1Processor, PyLinearScaleToM1And1};
 // This is a trait in the core lib, exposed here as a base class
 
 #[pyclass(subclass)]
@@ -42,7 +42,7 @@ pub(crate) fn extract_stream_cache_processor<'py>(
     }
 
     // Try PyLinearScaleTo0And1
-    if let Ok(scale_0_1) = bound.downcast::<PyLinearScaleTo0And1>() {
+    if let Ok(scale_0_1) = bound.downcast::<PyLinearScaleTo0And1Processor>() {
         let processor = scale_0_1.borrow().inner.clone();
         return Ok(Box::new(processor));
     }
