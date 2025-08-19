@@ -1,9 +1,14 @@
-use feagi_core_data_structures_and_processing::genomic_structures::CorticalGroupingIndex;
+use std::time::Instant;
+use feagi_core_data_structures_and_processing::genomic_structures::{CorticalGroupingIndex, CorticalIOChannelIndex};
+use feagi_core_data_structures_and_processing::io_data::ImageFrame;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_core_data_structures_and_processing::io_processing::SensorCache;
-use crate::genomic_structures::PyCorticalGroupingIndex;
+use feagi_core_data_structures_and_processing::neuron_data::xyzp::CorticalMappedXYZPNeuronData;
+use crate::genomic_structures::{PyCorticalGroupingIndex, PyCorticalIOChannelIndex};
 use crate::io_data::image_descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::io_data::PyImageFrame;
+use crate::neuron_data::xyzp::PyCorticalMappedXYZPNeuronData;
 
 #[pyclass]
 #[pyo3(name = "SensorCache")]
@@ -100,5 +105,57 @@ impl PySensorCache {
     
     //endregion
     
+    //region Send Data
+    
+    //region macro
+    
+    pub fn send_data_for_proximity<'py>(&mut self, py: Python<'_>, new_value: f32, cortical_grouping_index: PyCorticalGroupingIndex, device_channel: PyCorticalIOChannelIndex) -> PyResult<()> {
+        let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
+        let device_channel: CorticalIOChannelIndex = device_channel.into();
+        match self.inner.send_data_for_proximity(new_value, cortical_grouping_index, device_channel) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
+    
+    //endregion
+    
+    //region Custom Calls
+
+    pub fn send_data_for_image_camera<'py>(&mut self, py: Python<'_>, new_value: PyImageFrame, cortical_grouping_index: PyCorticalGroupingIndex, device_channel: PyCorticalIOChannelIndex) -> PyResult<()> {
+        let new_value: ImageFrame = new_value.into();
+        let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
+        let device_channel: CorticalIOChannelIndex = device_channel.into();
+        match self.inner.send_data_for_image_camera(new_value, cortical_grouping_index, device_channel) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
+
+    pub fn send_data_for_segmented_image_camera<'py>(&mut self, py: Python<'_>, new_value: PyImageFrame, cortical_grouping_index: PyCorticalGroupingIndex, device_channel: PyCorticalIOChannelIndex) -> PyResult<()> {
+        let new_value: ImageFrame = new_value.into();
+        let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
+        let device_channel: CorticalIOChannelIndex = device_channel.into();
+        match self.inner.send_data_for_segmented_image_camera(new_value, cortical_grouping_index, device_channel) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
+    
+    //endregion
+    
+    //endregion
+
+    pub fn encode_to_neurons<'py>(&mut self, py: Python<'py>, mut writing_target: PyCorticalMappedXYZPNeuronData) -> PyResult<()> {
+        // TODO pass in instant? Review how to handle this
+        let mut mapped_data: &mut CorticalMappedXYZPNeuronData = writing_target.get_mut();
+        let result = self.inner.encode_to_neurons(Instant::now(), &mut mapped_data);
+        match result {
+            Ok(()) => {
+                Ok(())
+            },
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
     
 }

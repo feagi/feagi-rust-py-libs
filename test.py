@@ -6,6 +6,27 @@ import numpy as np
 print("start")
 
 sensor_cache = fdp.io_processing.cache.SensorCache()
+
+sensor_cache.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 cortical_type = fdp.genome.SensorCorticalType.Proximity
 cortical_grouping_index = 1
 number_channels = 3
