@@ -109,9 +109,18 @@ impl PySensorCache {
     
     //region macro
     
-    pub fn send_data_for_proximity<'py>(&mut self, py: Python<'_>, new_value: f32, cortical_grouping_index: PyCorticalGroupingIndex, device_channel: PyCorticalIOChannelIndex) -> PyResult<()> {
-        let cortical_grouping_index: CorticalGroupingIndex = cortical_grouping_index.into();
-        let device_channel: CorticalIOChannelIndex = device_channel.into();
+    pub fn send_data_for_proximity<'py>(&mut self, py: Python<'_>, new_value: f32, cortical_grouping_index: PyObject, device_channel: PyObject) -> PyResult<()> {
+
+        let cortical_grouping_index: CorticalGroupingIndex = match PyCorticalGroupingIndex::try_from_python(py, cortical_grouping_index) {
+            Ok(c) => c,
+            Err(e) => return Err(PyValueError::new_err(e.to_string()))
+        };
+
+        let device_channel: CorticalIOChannelIndex = match PyCorticalIOChannelIndex::try_from_python(py, device_channel) {
+            Ok(c) => c,
+            Err(e) => return Err(PyValueError::new_err(e.to_string()))
+        };
+        
         match self.inner.send_data_for_proximity(new_value, cortical_grouping_index, device_channel) {
             Ok(_) => Ok(()),
             Err(e) => Err(PyValueError::new_err(e.to_string()))

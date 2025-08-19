@@ -1228,7 +1228,7 @@ class io_processing:
 
             def encode_to_neurons(
             self,
-            write_target: 'PyCorticalMappedXYZPNeuronData'
+            write_target: 'CorticalMappedXYZPNeuronData'
             ) -> None:
                 """Export all cached sensor data as cortical mapped neuron data.
 
@@ -1239,6 +1239,7 @@ class io_processing:
                     ValueError: If export fails
                 """
                 ...
+
 
 # Neuron Data module
 class neuron_data:
