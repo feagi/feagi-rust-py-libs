@@ -985,9 +985,223 @@ class io_processing:
     
     class bytes:
         """Byte structure handling module."""
+        
+        class FeagiByteStructureType:
+            """Enum representing different types of FEAGI byte structures."""
+            JSON: 'FeagiByteStructureType'
+            MultiStructHolder: 'FeagiByteStructureType'
+            NeuronCategoricalXYZP: 'FeagiByteStructureType'
+        
+        class FeagiByteStructureCompatible:
+            """Base class for objects that can be serialized to FEAGI byte structures."""
+            
+            def __init__(self) -> None:
+                """Create new FeagiByteStructureCompatible instance."""
+                ...
+            
+            @property
+            def struct_type(self) -> 'FeagiByteStructureType':
+                """Get the structure type of this object."""
+                ...
+            
+            def version(self) -> int:
+                """Get the version number of this structure."""
+                ...
+            
+            @staticmethod
+            def new_from_feagi_byte_structure(byte_structure: 'FeagiByteStructure') -> 'FeagiByteStructureCompatible':
+                """Create object from a FEAGI byte structure.
+                
+                Args:
+                    byte_structure: Source byte structure to deserialize from
+                    
+                Returns:
+                    New object created from byte structure
+                    
+                Raises:
+                    ValueError: If not properly overridden or conversion fails
+                """
+                ...
+            
+            def as_new_feagi_byte_structure(self) -> 'FeagiByteStructure':
+                """Serialize this object to a FEAGI byte structure.
+                
+                Returns:
+                    New FeagiByteStructure containing the serialized data
+                    
+                Raises:
+                    ValueError: If not properly overridden or serialization fails
+                """
+                ...
+        
         class FeagiByteStructure:
-            """FEAGI byte structure for efficient data serialization."""
-            ...
+            """FEAGI byte structure for efficient data serialization.
+            
+            Provides efficient serialization and deserialization of FEAGI data structures
+            with support for single structures and multi-structure containers.
+            """
+            
+            def __init__(self, bytes: bytes) -> None:
+                """Create a new FeagiByteStructure from bytes.
+                
+                Args:
+                    bytes: Raw byte data to deserialize
+                    
+                Raises:
+                    ValueError: If bytes are invalid or cannot be parsed
+                """
+                ...
+            
+            @staticmethod
+            def create_from_2_existing(a: 'FeagiByteStructure', b: 'FeagiByteStructure') -> 'FeagiByteStructure':
+                """Create a multi-structure from two existing structures.
+                
+                Args:
+                    a: First structure to combine
+                    b: Second structure to combine
+                    
+                Returns:
+                    New multi-structure containing both inputs
+                    
+                Raises:
+                    ValueError: If combination fails
+                """
+                ...
+            
+            @staticmethod
+            def create_from_multiple_existing(existing_list: list['FeagiByteStructure']) -> 'FeagiByteStructure':
+                """Create a multi-structure from a list of existing structures.
+                
+                Args:
+                    existing_list: List of structures to combine
+                    
+                Returns:
+                    New multi-structure containing all inputs
+                    
+                Raises:
+                    ValueError: If combination fails or list is empty
+                """
+                ...
+            
+            @staticmethod
+            def create_from_compatible(object: 'FeagiByteStructureCompatible') -> 'FeagiByteStructure':
+                """Create structure from a compatible object.
+                
+                Args:
+                    object: Compatible object to serialize
+                    
+                Returns:
+                    New FeagiByteStructure containing the serialized object
+                    
+                Raises:
+                    ValueError: If serialization fails
+                """
+                ...
+            
+            @property
+            def structure_type(self) -> 'FeagiByteStructureType':
+                """Get the type of this structure."""
+                ...
+            
+            @property
+            def version(self) -> int:
+                """Get the version of this structure."""
+                ...
+            
+            @property
+            def is_multistruct(self) -> bool:
+                """Check if this is a multi-structure container."""
+                ...
+            
+            @property
+            def contained_structure_count(self) -> int:
+                """Get the number of structures contained (1 for single, N for multi)."""
+                ...
+            
+            def get_ordered_object_types(self) -> list['FeagiByteStructureType']:
+                """Get the types of all contained objects in order.
+                
+                Returns:
+                    List of structure types for each contained object
+                    
+                Raises:
+                    ValueError: If structure is invalid
+                """
+                ...
+            
+            def copy_out_single_byte_structure_from_multistruct(self, index: int) -> 'FeagiByteStructure':
+                """Extract a single structure from a multi-structure.
+                
+                Args:
+                    index: Index of the structure to extract (0-based)
+                    
+                Returns:
+                    Single FeagiByteStructure at the specified index
+                    
+                Raises:
+                    ValueError: If index is out of bounds or this is not a multi-structure
+                """
+                ...
+            
+            def copy_out_single_object_from_single_struct(self) -> Any:
+                """Extract the object from a single structure.
+                
+                Returns:
+                    The deserialized object contained in this structure
+                    
+                Raises:
+                    ValueError: If this is a multi-structure or extraction fails
+                """
+                ...
+            
+            def copy_out_single_object_from_multistruct(self, index: int) -> Any:
+                """Extract an object from a multi-structure at the specified index.
+                
+                Args:
+                    index: Index of the object to extract (0-based)
+                    
+                Returns:
+                    The deserialized object at the specified index
+                    
+                Raises:
+                    ValueError: If index is out of bounds or extraction fails
+                """
+                ...
+            
+            def copy_out_as_byte_vector(self) -> bytes:
+                """Get the raw byte representation of this structure.
+                
+                Returns:
+                    Raw bytes that can be used to reconstruct this structure
+                """
+                ...
+            
+            def get_wasted_capacity_count(self) -> int:
+                """Get the number of bytes of wasted capacity in the internal buffer."""
+                ...
+            
+            def get_utilized_capacity_percentage(self) -> float:
+                """Get the percentage of utilized capacity in the internal buffer."""
+                ...
+            
+            def ensure_capacity_of_at_least(self, size: int) -> None:
+                """Ensure the internal buffer has at least the specified capacity.
+                
+                Args:
+                    size: Minimum required capacity in bytes
+                    
+                Raises:
+                    ValueError: If capacity cannot be allocated
+                """
+                ...
+            
+            def shed_wasted_capacity(self) -> None:
+                """Free up wasted capacity in the internal buffer to save memory."""
+                ...
+            
+            def reset_write_index(self) -> None:
+                """Reset the write index, effectively truncating the structure to 0 length."""
+                ...
     
     class processors:
         """Data processing modules."""
@@ -1191,7 +1405,7 @@ class io_processing:
 
             def send_data_for_image_camera(
                 self,
-                new_value: 'ImageFrame'',
+                new_value: 'ImageFrame',
                 cortical_grouping_index: Any,
                 device_channel: Any,
             ) -> None:
@@ -1209,7 +1423,7 @@ class io_processing:
 
             def send_data_for_segmented_image_camera(
                 self,
-                new_value: 'ImageFrame'',
+                new_value: 'ImageFrame',
                 cortical_grouping_index: Any,
                 device_channel: Any,
             ) -> None:

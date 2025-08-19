@@ -15,7 +15,8 @@ sensor_cache.send_data_for_proximity(10, 1, 0)
 sensor_cache.encode_to_neurons(neuron_data)
 
 byte_data_struct: fdp.io_processing.bytes.FeagiByteStructure = neuron_data.as_new_feagi_byte_structure()
-byte_data = byte_data_struct.
+
+byte_data = byte_data_struct.copy_out_as_byte_vector()
 
 
 

@@ -1349,7 +1349,7 @@ class io_processing:
 
             def send_data_for_image_camera(
                 self,
-                new_value: 'ImageFrame'',
+                new_value: 'ImageFrame',
                 cortical_grouping_index: Any,
                 device_channel: Any,
             ) -> None:
@@ -1367,7 +1367,7 @@ class io_processing:
 
             def send_data_for_segmented_image_camera(
                 self,
-                new_value: 'ImageFrame'',
+                new_value: 'ImageFrame',
                 cortical_grouping_index: Any,
                 device_channel: Any,
             ) -> None:
