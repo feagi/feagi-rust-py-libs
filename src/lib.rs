@@ -10,6 +10,8 @@
 mod feagi_data_structures;
 mod py_error;
 mod macro_helpers;
+mod feagi_data_serialization;
+mod feagi_connector_core;
 
 use pyo3::prelude::*;
 
@@ -23,10 +25,10 @@ fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) ->
 macro_rules! add_python_class {
     ($python:expr, $root_python_module:expr, $class_path:expr, $class:ty) => {
         {
-            
+
             let path: Vec<String> = $class_path.split('.').map(|s| s.to_string()).collect();
             let mut current_module = $root_python_module.clone();
-            
+
             for path_step in path {
                 if !check_submodule_exists(&current_module, &path_step) {
                     // we need to add a submodule
@@ -40,7 +42,7 @@ macro_rules! add_python_class {
                     current_module = child_module.downcast::<PyModule>()?.clone();
                 }
             }
-            
+
             current_module.add_class::<$class>()?;
         }
     };
@@ -77,8 +79,8 @@ macro_rules! add_python_function {
 
 /// Core Module, accessible to users
 #[pymodule]
-fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    
+fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYPoint);
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYResolution);
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedXYImageResolutions);
@@ -89,8 +91,8 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedImageFrameProperties);
     //add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::P); // TODO PyCornerPoints!
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyGazeProperties);
-    
-    
+
+
     /*
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
@@ -131,9 +133,9 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZP);
     
     // add_python_class!(py, m, "brain_input.vision", brain_input::vision::quick_image_diff::PyQuickImageDiff);
-    
-    
+
+
      */
-    
+
     Ok(())
 }

@@ -266,7 +266,7 @@ impl From<MemoryOrderLayout> for PyMemoryOrderLayout {
 
 //region Image Frame Properties
 
-#[pyclass]
+#[pyclass(str)]
 #[pyo3(name = "ImageFrameProperties")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PyImageFrameProperties {
@@ -308,7 +308,7 @@ project_display!(PyImageFrameProperties);
 
 //region Segmented Image Frame Properties
 
-#[pyclass]
+#[pyclass(str)]
 #[pyo3(name = "SegmentedImageFrameProperties")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PySegmentedImageFrameProperties {
@@ -369,7 +369,7 @@ project_display!(PySegmentedImageFrameProperties);
 
 //region Gaze Properties
 
-#[pyclass]
+#[pyclass(str)]
 #[derive(Clone)]
 #[pyo3(name = "GazeProperties")]
 pub struct PyGazeProperties{
