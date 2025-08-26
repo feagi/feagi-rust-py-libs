@@ -21,24 +21,47 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "feagi-data-processing"
-version = "0.0.41"
+name = "feagi_connector_core"
+version = "0.0.50-beta.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de34411b0f023c56ea3e7b7fcedf8225870a16b740081f0e72193d68d19b12be"
 dependencies = [
- "feagi_core_data_structures_and_processing",
+ "feagi_data_structures",
  "ndarray",
- "numpy",
- "pyo3",
+ "paste",
 ]
 
 [[package]]
-name = "feagi_core_data_structures_and_processing"
-version = "0.0.50-beta.9"
+name = "feagi_data_serialization"
+version = "0.0.50-beta.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9610db683c4d98539351e9cc097eba785a4a9f230c9e0bcd2873c03f991ddc86"
+checksum = "7536d523f695eefd66577cb2b2494286ba4e9fc7db479f396952070db32323ef"
 dependencies = [
  "byteorder",
+ "feagi_data_structures",
+ "serde_json",
+]
+
+[[package]]
+name = "feagi_data_structures"
+version = "0.0.50-beta.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8328d0ec31c2ba9e1ee067a5a7aa1de557e74448f37975d238d7c32c8335a60e"
+dependencies = [
  "ndarray",
  "serde_json",
+]
+
+[[package]]
+name = "feagi_rust_py_libs"
+version = "0.0.42"
+dependencies = [
+ "feagi_connector_core",
+ "feagi_data_serialization",
+ "feagi_data_structures",
+ "ndarray",
+ "numpy",
+ "pyo3",
 ]
 
 [[package]]
@@ -153,6 +176,12 @@ name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+
+[[package]]
+name = "paste"
+version = "1.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "portable-atomic"

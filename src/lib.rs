@@ -2,11 +2,14 @@
 //! All docs pertaining to python exposed modules must 
 //! be reflected to the 'feagi_data_processing.pyi.template' file!
 
-mod miscellaneous_types;
-mod neuron_data;
-mod io_processing;
-mod genomic_structures;
-mod io_data;
+//mod miscellaneous_types;
+//mod neuron_data;
+//mod io_processing;
+//mod genomic_structures;
+//mod io_data;
+mod feagi_data_structures;
+mod py_error;
+mod macro_helpers;
 
 use pyo3::prelude::*;
 
@@ -75,7 +78,8 @@ macro_rules! add_python_function {
 /// Core Module, accessible to users
 #[pymodule]
 fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-
+    
+    /*
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalTypeVariant);
@@ -115,6 +119,9 @@ fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZP);
     
     // add_python_class!(py, m, "brain_input.vision", brain_input::vision::quick_image_diff::PyQuickImageDiff);
+    
+    
+     */
     
     Ok(())
 }

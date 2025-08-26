@@ -48,3 +48,4 @@ impl From<ImageFrameSegmentator> for PyImageFrameSegmentator {
         PyImageFrameSegmentator { inner: segmentator }
     }
 }
+

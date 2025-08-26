@@ -352,7 +352,7 @@ class genome:
         ImageCameraBottomRight: 'SensorCorticalType'
         """Bottom Right peripheral image camera input.."""
         
-        class CorticalGroupingIndex:
+    class CorticalGroupingIndex:
         """Index for grouping cortical areas."""
         
         def __init__(self, index: int) -> None:
