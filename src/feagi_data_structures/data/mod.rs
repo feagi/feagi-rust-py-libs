@@ -1,1 +1,1 @@
-mod image_descriptors;
+pub mod image_descriptors;
