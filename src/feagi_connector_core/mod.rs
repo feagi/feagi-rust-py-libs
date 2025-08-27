@@ -1,1 +1,1 @@
-mod sensory;
+pub mod sensory;

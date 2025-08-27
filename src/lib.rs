@@ -80,7 +80,10 @@ macro_rules! add_python_function {
 /// Core Module, accessible to users
 #[pymodule]
 fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-
+    
+    //region Feagi Data Structures Crate
+    
+    // Data
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYPoint);
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYResolution);
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedXYImageResolutions);
@@ -91,8 +94,28 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedImageFrameProperties);
     //add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::P); // TODO PyCornerPoints!
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyGazeProperties);
+    
+    
+    // Genomic
+    
+    // Processing
 
+    //endregion
 
+    //region Feagi Data Serialization Crate
+    
+    // Byte Structure
+    
+    //endregion
+    
+    //region Feagi Connector Core Crate
+    
+    // Sensory
+    add_python_class!(py, m, "connector_core", feagi_connector_core::sensory::PySensorCache);
+    
+    //endregion
+    
+    
     /*
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
     add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);

@@ -55,7 +55,7 @@ dependencies = [
 
 [[package]]
 name = "feagi_rust_py_libs"
-version = "0.0.42"
+version = "0.0.43"
 dependencies = [
  "feagi_connector_core",
  "feagi_data_serialization",
