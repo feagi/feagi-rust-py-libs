@@ -6,22 +6,24 @@ build-backend = "maturin"
 features = ["pyo3/extension-module"]
 
 [package]
-name = "feagi-data-processing"
-version = "0.0.41"
+name = "feagi_rust_py_libs"
+version = "0.0.42"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "feagi_data_processing"
+name = "feagi_rust_py_libs"
 crate-type = ["cdylib"]
 
 [dependencies]
-feagi_core_data_structures_and_processing = { version = "0.0.50-beta.9"}
+feagi_connector_core = { version = "0.0.50-beta.11"}
+feagi_data_serialization = { version = "0.0.50-beta.11"}
+feagi_data_structures = { version = "0.0.50-beta.11"}
 numpy = "0.24.0"
 ndarray = "0.16.1"
 
 [build-dependencies]
-feagi_core_data_structures_and_processing = { version = "0.0.50-beta.9"}
+feagi_data_structures = { version = "0.0.50-beta.11"}
 
 
 [dependencies.pyo3]

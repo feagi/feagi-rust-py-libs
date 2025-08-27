@@ -23,7 +23,12 @@ fn main() {
     println!("Generated feagi_data_processing.pyi with SensorCorticalType");
 }
 
-use feagi_core_data_structures_and_processing::sensor_definition;
+use feagi_data_structures::sensor_definition;
+
+// TODO: Rename to feagi_data_libraries?
+// TODO add macro(s) / funcs for going from PyObject to index types?
+// TODO: confirm func for building inheritance?
+
 
 // Macro to collect sensor variant information
 macro_rules! collect_sensor_variants {
@@ -33,9 +38,10 @@ macro_rules! collect_sensor_variants {
                 #[doc = $doc:expr]
                 $variant:ident => {
                     friendly_name: $friendly_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
                     base_ascii: $base_ascii:expr,
                     channel_dimension_range: $channel_dimension_range:expr,
-                    default_coder_type: $default_coder_type:expr,
+                    default_coder_type: $default_coder_type:ident,
                 }$(,)?
             )*
         }

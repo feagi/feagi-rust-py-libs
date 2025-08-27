@@ -79,3 +79,4 @@ impl From<ImageFrameTransformer> for PyImageFrameTransformer {
         PyImageFrameTransformer { inner: transformer }
     }
 }
+
