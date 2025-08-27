@@ -1,3 +1,3 @@
 pub mod data;
-mod genomic;
-mod processing;
+pub mod genomic;
+pub mod processing;
