@@ -94,8 +94,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedImageFrameProperties);
     //add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::P); // TODO PyCornerPoints!
     add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyGazeProperties);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::PyImageFrame);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::PySegmentedImageFrame);
+    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyImageFrame);
+    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
     
     // Genomic
     
