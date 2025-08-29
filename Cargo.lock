@@ -62,6 +62,7 @@ dependencies = [
  "feagi_data_structures",
  "ndarray",
  "numpy",
+ "paste",
  "pyo3",
 ]
 
