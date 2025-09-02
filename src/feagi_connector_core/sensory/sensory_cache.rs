@@ -10,7 +10,6 @@ use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, Py
 use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::*;
 use crate::py_error::PyFeagiError;
-use crate::generate_sensor_python_methods;
 
 macro_rules! define_cortical_group_functions {
     (
@@ -259,7 +258,7 @@ impl PySensorCache {
     //region Specific Sensor Functions
 
     // Generate Python wrapper methods using the procedural macro
-    generate_sensor_python_methods!();
+    //generate_sensor_python_methods!();
 
     // Manual Functions
 

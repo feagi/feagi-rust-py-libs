@@ -14,8 +14,6 @@ mod feagi_data_serialization;
 mod feagi_connector_core;
 
 use pyo3::prelude::*;
-use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
 
 fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
     match parent.getattr(submodule_name) {

@@ -24,5 +24,9 @@ impl PyNeuronXYZP {
 }
 //endregion
 
+fn test(a: PyNeuronXYZP) {
+    let a = a.inner;
+}
+
 py_type_casts!(PyNeuronXYZP, NeuronXYZP);
 project_display!(PyNeuronXYZP);
