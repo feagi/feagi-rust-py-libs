@@ -63,7 +63,10 @@ dependencies = [
  "ndarray",
  "numpy",
  "paste",
+ "proc-macro2",
  "pyo3",
+ "quote",
+ "syn",
 ]
 
 [[package]]

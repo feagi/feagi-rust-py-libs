@@ -10,6 +10,7 @@ use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, Py
 use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::*;
 use crate::py_error::PyFeagiError;
+use crate::generate_sensor_python_methods;
 
 macro_rules! define_cortical_group_functions {
     (
@@ -26,6 +27,11 @@ macro_rules! define_cortical_group_functions {
             ),* $(,)?
         }
     ) => {
+        
+        
+        
+        
+        
         $(
             // Generate function conditionally based on default_coder_type
             define_cortical_group_functions!(@generate_functions 
@@ -35,12 +41,12 @@ macro_rules! define_cortical_group_functions {
             );
         )*
     };
-    
+
         // Generate function for F32Normalized0To1_Linear coder type
     (@generate_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, F32Normalized0To1_Linear) => {
         paste::paste! {
             #[doc = "Register cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 number_of_channels: PyObject,
                 allow_stale_data: bool,
@@ -50,41 +56,41 @@ macro_rules! define_cortical_group_functions {
 
                 let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                 let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-                
+
                 self.inner.[<register_cortical_group_ $snake_case_identifier>](cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound)
                     .map_err(PyFeagiError::from)?;
                 Ok(())
             }
-            
+
             #[doc = "Store data of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject,
                 new_float: f32
             ) -> PyResult<()> {
-                
+
                 let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                 let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-                
+
                 self.inner.[<store_ $snake_case_identifier>](cortical_group, device_channel, new_float)
                     .map_err(PyFeagiError::from)?;
                 Ok(())
             }
-            
+
             #[doc = "Read most recent data of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject
                 ) -> PyResult<f32> {
-                    
+
                     let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                     let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-                
+
                     let result = self.inner.[<read_ $snake_case_identifier>](cortical_group, device_channel)
                         .map_err(PyFeagiError::from)?;
                     Ok(result)
             }
-            
+
             /*
             #[doc = "Set Pipeline Processing Stages of cortical group for the " $snake_case_identifier " sensor"]
             pub fn [<set_stages_ $snake_case_identifier>](&mut self,
@@ -95,14 +101,14 @@ macro_rules! define_cortical_group_functions {
                     self.set_processors_for_channel(sensor_type, cortical_group, device_channel, new_stages)
             }
             */
-            
+
         }
     };
 
     (@generate_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, F32NormalizedM1To1_SplitSignDivided) => {
         paste::paste! {
             #[doc = "Register cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 number_of_channels: PyObject,
                 allow_stale_data: bool,
@@ -112,41 +118,41 @@ macro_rules! define_cortical_group_functions {
 
                 let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                 let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-                
+
                 self.inner.[<register_ $snake_case_identifier>](cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound)
                     .map_err(PyFeagiError::from)?;
                 Ok(())
             }
-            
+
             #[doc = "Store data of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject,
                 new_float: f32
             ) -> PyResult<()> {
-                
+
                 let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                 let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-                
+
                 self.inner.[<store_ $snake_case_identifier>](cortical_group, device_channel, new_float)
                     .map_err(PyFeagiError::from)?;
                 Ok(())
             }
-            
+
             #[doc = "Read most recent data of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject
                 ) -> PyResult<f32> {
-                    
+
                     let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                     let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-                
+
                     let result = self.inner.[<read_ $snake_case_identifier>](cortical_group, device_channel)
                         .map_err(PyFeagiError::from)?;
                     Ok(result)
             }
-            
+
             /*
             #[doc = "Set Pipeline Processing Stages of cortical group for the " $snake_case_identifier " sensor"]
             pub fn [<set_stages_ $snake_case_identifier>](&mut self,
@@ -157,61 +163,61 @@ macro_rules! define_cortical_group_functions {
                     self.set_processors_for_channel(sensor_type, cortical_group, device_channel, new_stages)
             }
             */
-            
+
         }
     };
 
     (@generate_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, ImageFrame) => {
         paste::paste! {
             #[doc = "Register cortical group for " $snake_case_identifier " sensor"]
-            pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-            cortical_group_index: PyObject, number_of_channels: PyObject, allow_stale_data: bool, 
-            input_image_properties: PyImageFrameProperties, 
-            output_image_properties: PyImageFrameProperties) -> PyResult<()> { 
-                
+            pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>,
+            cortical_group_index: PyObject, number_of_channels: PyObject, allow_stale_data: bool,
+            input_image_properties: PyImageFrameProperties,
+            output_image_properties: PyImageFrameProperties) -> PyResult<()> {
+
                 let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group_index).map_err(PyFeagiError::from)?;
                 let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-                
-                self.inner.[<register_ $snake_case_identifier>](cortical_group_index, 
-                                                               number_of_channels, 
-                                                               allow_stale_data, 
-                                                               input_image_properties.into(), 
+
+                self.inner.[<register_ $snake_case_identifier>](cortical_group_index,
+                                                               number_of_channels,
+                                                               allow_stale_data,
+                                                               input_image_properties.into(),
                                                                output_image_properties.into())
                     .map_err(PyFeagiError::from)?;
                 Ok(())
             }
 
             #[doc = "Store data of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject,
                 new_image: PyImageFrame) -> PyResult<()> {
-                    
+
                     let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                     let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-    
+
                     self.inner.[<store_ $snake_case_identifier>](cortical_group, device_channel, new_image.into())
                         .map_err(PyFeagiError::from)?;
                     Ok(())
             }
-            
+
             #[doc = "Read most recent data of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject
                 ) -> PyResult<PyImageFrame> {
-                    
+
                     let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
                     let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-    
+
                     let result = self.inner.[<read_ $snake_case_identifier>](cortical_group, device_channel)
                         .map_err(PyFeagiError::from)?;
                     Ok(result.into())
             }
-            
+
             /*
             #[doc = "Set Pipeline Processing Stages of cortical group for the " $snake_case_identifier " sensor"]
-            pub fn [<set_stages_ $snake_case_identifier>](&mut self, py: Python<'_>, 
+            pub fn [<set_stages_ $snake_case_identifier>](&mut self, py: Python<'_>,
                 cortical_group: PyObject,
                 device_channel: PyObject
                 new_stages: Vec<Box<dyn StreamCacheStage + Sync + Send>>) -> Result<(), FeagiDataError> {
@@ -219,11 +225,11 @@ macro_rules! define_cortical_group_functions {
                     self.set_processors_for_channel(sensor_type, cortical_group, device_channel, new_stages)
             }
              */
-            
+
         }
     };
     // Segmented Image Frame does not get its own!
-        
+
     // Fallback for other coder types - no function generated
     (@generate_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, $default_coder_type:ident) => {}
         // No functions generated for this type!
@@ -233,6 +239,12 @@ macro_rules! define_cortical_group_functions {
 #[pyo3(name = "SensorCache")]
 pub struct PySensorCache {
     inner: SensorCache,
+}
+
+// Generate sensor functions outside of pymethods block
+impl PySensorCache {
+    // Generate default implementations for all sensors
+    sensor_definition!(define_cortical_group_functions);
 }
 
 #[pymethods]
@@ -246,8 +258,8 @@ impl PySensorCache {
 
     //region Specific Sensor Functions
 
-    // Generate default implementations for all sensors
-    sensor_definition!(define_cortical_group_functions);
+    // Generate Python wrapper methods using the procedural macro
+    generate_sensor_python_methods!();
 
     // Manual Functions
 
