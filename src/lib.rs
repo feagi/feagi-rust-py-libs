@@ -14,7 +14,6 @@ mod feagi_data_serialization;
 mod feagi_connector_core;
 
 use pyo3::prelude::*;
-use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
@@ -78,118 +77,6 @@ macro_rules! add_python_function {
 }
 
 // TODO the above macros can be consolidated
-
-/// Procedural macro to generate Python wrapper methods for sensor functions
-/// This macro dynamically reads from the sensor_definition! to maintain single source of truth
-#[proc_macro]
-pub fn generate_sensor_python_methods(input: TokenStream) -> TokenStream {
-    // Parse the input TokenStream to extract sensor definitions
-    // The input should be the sensor_definition! macro invocation
-    
-    let expanded = quote! {
-        // We'll use the sensor_definition! macro to generate wrapper methods
-        // by creating a custom macro that generates Python wrappers
-        
-        macro_rules! generate_python_wrappers_inner {
-            (
-                $cortical_io_type_enum_name:ident {
-                    $(
-                        $(#[doc = $doc:expr])?
-                        $cortical_type_key_name:ident => {
-                            friendly_name: $display_name:expr,
-                            snake_case_identifier: $snake_case_identifier:expr,
-                            base_ascii: $base_ascii:expr,
-                            channel_dimension_range: $channel_dimension_range:expr,
-                            default_coder_type: $default_coder_type:ident,
-                        }
-                    ),* $(,)?
-                }
-            ) => {
-                $(
-                    generate_python_wrappers_inner!(@generate_wrapper_functions
-                        $snake_case_identifier,
-                        $cortical_type_key_name,
-                        $default_coder_type
-                    );
-                )*
-            };
-            
-            // Generate wrapper functions for F32Normalized0To1_Linear coder type
-            (@generate_wrapper_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, F32Normalized0To1_Linear) => {
-                paste::paste! {
-                    pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, number_of_channels: PyObject, allow_stale_data: bool,
-                        neuron_resolution: usize, lower_bound: f32, upper_bound: f32) -> PyResult<()> {
-                        PySensorCache::[<register_ $snake_case_identifier>](self, py, cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound)
-                    }
-                    
-                    pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, device_channel: PyObject, new_float: f32) -> PyResult<()> {
-                        PySensorCache::[<store_ $snake_case_identifier>](self, py, cortical_group, device_channel, new_float)
-                    }
-                    
-                    pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, device_channel: PyObject) -> PyResult<f32> {
-                        PySensorCache::[<read_ $snake_case_identifier>](self, py, cortical_group, device_channel)
-                    }
-                }
-            };
-
-            // Generate wrapper functions for F32NormalizedM1To1_SplitSignDivided coder type
-            (@generate_wrapper_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, F32NormalizedM1To1_SplitSignDivided) => {
-                paste::paste! {
-                    pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, number_of_channels: PyObject, allow_stale_data: bool,
-                        neuron_resolution: usize, lower_bound: f32, upper_bound: f32) -> PyResult<()> {
-                        PySensorCache::[<register_ $snake_case_identifier>](self, py, cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound)
-                    }
-                    
-                    pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, device_channel: PyObject, new_float: f32) -> PyResult<()> {
-                        PySensorCache::[<store_ $snake_case_identifier>](self, py, cortical_group, device_channel, new_float)
-                    }
-                    
-                    pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, device_channel: PyObject) -> PyResult<f32> {
-                        PySensorCache::[<read_ $snake_case_identifier>](self, py, cortical_group, device_channel)
-                    }
-                }
-            };
-
-            // Generate wrapper functions for ImageFrame coder type
-            (@generate_wrapper_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, ImageFrame) => {
-                paste::paste! {
-                    pub fn [<register_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group_index: PyObject, number_of_channels: PyObject, allow_stale_data: bool, 
-                        input_image_properties: PyImageFrameProperties, 
-                        output_image_properties: PyImageFrameProperties) -> PyResult<()> {
-                        PySensorCache::[<register_ $snake_case_identifier>](self, py, cortical_group_index, number_of_channels, allow_stale_data, input_image_properties, output_image_properties)
-                    }
-                    
-                    pub fn [<store_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, device_channel: PyObject, new_image: PyImageFrame) -> PyResult<()> {
-                        PySensorCache::[<store_ $snake_case_identifier>](self, py, cortical_group, device_channel, new_image)
-                    }
-                    
-                    pub fn [<read_ $snake_case_identifier>](&mut self, py: Python<'_>, 
-                        cortical_group: PyObject, device_channel: PyObject) -> PyResult<PyImageFrame> {
-                        PySensorCache::[<read_ $snake_case_identifier>](self, py, cortical_group, device_channel)
-                    }
-                }
-            };
-            
-            // Fallback for other coder types - no function generated
-            (@generate_wrapper_functions $snake_case_identifier:expr, $cortical_type_key_name:ident, $default_coder_type:ident) => {
-                // No wrapper functions generated for this type!
-            };
-        }
-        
-        // Generate the actual wrapper functions using the sensor definitions
-        sensor_definition!(generate_python_wrappers_inner);
-    };
-
-    TokenStream::from(expanded)
-}
 
 /// Core Module, accessible to users
 #[pymodule]
