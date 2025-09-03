@@ -3,12 +3,15 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_connector_core::caching::SensorCache;
 use feagi_data_structures::data::image_descriptors::ImageFrameProperties;
+use feagi_data_structures::data::ImageFrame;
 use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
 use feagi_data_structures::sensor_definition;
 use feagi_data_structures::FeagiDataError;
+use feagi_data_structures::genomic::SensorCorticalType;
 use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::*;
+use crate::feagi_data_structures::genomic::{PyCoreCorticalType, PySensorCorticalType};
 use crate::py_error::PyFeagiError;
 
 macro_rules! define_cortical_group_functions {
@@ -240,12 +243,6 @@ pub struct PySensorCache {
     inner: SensorCache,
 }
 
-// Generate sensor functions outside of pymethods block
-impl PySensorCache {
-    // Generate default implementations for all sensors
-    sensor_definition!(define_cortical_group_functions);
-}
-
 #[pymethods]
 impl PySensorCache {
     #[new]
@@ -254,6 +251,235 @@ impl PySensorCache {
             inner: SensorCache::new(),
         }
     }
+
+    //region Specific Sensor Functions
+
+    //region F32Normalized0To1_Linear
+
+    pub fn register_f32_normalized_0_to_1_linear(&mut self, py: Python<'_>,
+                                                 sensor_cortical_type: PySensorCorticalType,
+                                                 cortical_group: PyObject,
+                                                 number_of_channels: PyObject,
+                                                 allow_stale_data: bool,
+                                                 neuron_resolution: usize,
+                                                 lower_bound: f32,
+                                                 upper_bound: f32) -> PyResult<()> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+
+        match sensor_cortical_type {
+            SensorCorticalType::Infrared => {
+                self.inner.register_cortical_group_infrared(cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::ReverseInfrared => {
+                self.inner.register_cortical_group_infrared_inverted(cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::DigitalGPIOInput => {
+                self.inner.register_cortical_group_gpio_digital(cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::Proximity => {
+                self.inner.register_cortical_group_proximity(cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::Battery => {
+                self.inner.register_cortical_group_battery_gauge(cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound).map_err(PyFeagiError::from)?;
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        }
+        Ok(())
+    }
+
+    pub fn store_f32_normalized_0_to_1_linear(&mut self, py: Python<'_>,
+                                              sensor_cortical_type: PySensorCorticalType,
+                                              cortical_group: PyObject,
+                                              device_channel: PyObject,
+                                              new_float: f32) -> PyResult<()> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        match sensor_cortical_type {
+            SensorCorticalType::Infrared => {
+                self.inner.store_infrared(cortical_group, device_channel, new_float).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::ReverseInfrared => {
+                self.inner.store_infrared_inverted(cortical_group, device_channel, new_float).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::DigitalGPIOInput => {
+                self.inner.store_gpio_digital(cortical_group, device_channel, new_float).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::Proximity => {
+                self.inner.store_proximity(cortical_group, device_channel, new_float).map_err(PyFeagiError::from)?;
+            }
+            SensorCorticalType::Battery => {
+                self.inner.store_battery_gauge(cortical_group, device_channel, new_float).map_err(PyFeagiError::from)?;
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        }
+        Ok(())
+    }
+
+    pub fn read_f32_normalized_0_to_1_linear(&mut self, py: Python<'_>,
+                                              sensor_cortical_type: PySensorCorticalType,
+                                              cortical_group: PyObject,
+                                              device_channel: PyObject) -> PyResult<(f32)> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        Ok(match sensor_cortical_type {
+            SensorCorticalType::Infrared => {
+                self.inner.read_infrared(cortical_group, device_channel).map_err(PyFeagiError::from)?
+            }
+            SensorCorticalType::ReverseInfrared => {
+                self.inner.read_infrared_inverted(cortical_group, device_channel).map_err(PyFeagiError::from)?
+            }
+            SensorCorticalType::DigitalGPIOInput => {
+                self.inner.read_gpio_digital(cortical_group, device_channel).map_err(PyFeagiError::from)?
+            }
+            SensorCorticalType::Proximity => {
+                self.inner.read_proximity(cortical_group, device_channel).map_err(PyFeagiError::from)?
+            }
+            SensorCorticalType::Battery => {
+                self.inner.read_battery_gauge(cortical_group, device_channel).map_err(PyFeagiError::from)?
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        })
+    }
+
+
+    //endregion
+
+    //region F32NormalizedM1To1_SplitSignDivided
+
+    pub fn register_f32_normalized_m1_to_1_split_sign_divided(&mut self, py: Python<'_>,
+                                                 sensor_cortical_type: PySensorCorticalType,
+                                                 cortical_group: PyObject,
+                                                 number_of_channels: PyObject,
+                                                 allow_stale_data: bool,
+                                                 neuron_resolution: usize,
+                                                 lower_bound: f32,
+                                                 upper_bound: f32) -> PyResult<()> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+
+        match sensor_cortical_type {
+            /* // TODO what happened?
+            SensorCorticalType::ServoPosition => {
+                self.inner.(cortical_group, number_of_channels, allow_stale_data, neuron_resolution, lower_bound, upper_bound).map_err(PyFeagiError::from)?;
+            }
+
+             */
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        }
+        Ok(())
+    }
+
+    pub fn store_f32_normalized_m1_to_1_split_sign_divided(&mut self, py: Python<'_>,
+                                              sensor_cortical_type: PySensorCorticalType,
+                                              cortical_group: PyObject,
+                                              device_channel: PyObject,
+                                              new_float: f32) -> PyResult<()> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        match sensor_cortical_type {
+            SensorCorticalType::ServoPosition => {
+                self.inner.store_servo_position(cortical_group, device_channel, new_float).map_err(PyFeagiError::from)?;
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        }
+        Ok(())
+    }
+
+    pub fn read_f32_normalized_m1_to_1_split_sign_divided(&mut self, py: Python<'_>,
+                                             sensor_cortical_type: PySensorCorticalType,
+                                             cortical_group: PyObject,
+                                             device_channel: PyObject) -> PyResult<(f32)> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        Ok(match sensor_cortical_type {
+            SensorCorticalType::ServoPosition => {
+                self.inner.read_servo_position(cortical_group, device_channel).map_err(PyFeagiError::from)?
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        })
+    }
+    //endregion
+
+    //region ImageFrame
+
+    pub fn register_image_frame(&mut self, py: Python<'_>, sensor_cortical_type: PySensorCorticalType,
+                                cortical_group: PyObject, number_of_channels: PyObject,
+                                allow_stale_data: bool,
+                                input_image_properties: PyImageFrameProperties,
+                                output_image_properties: PyImageFrameProperties) -> PyResult<()> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+        let input_image_properties: ImageFrameProperties = input_image_properties.into();
+        let output_image_properties: ImageFrameProperties = output_image_properties.into();
+
+        match sensor_cortical_type {
+            SensorCorticalType::ImageCameraCenter => {
+                self.inner.register_image_camera_center(cortical_group, number_of_channels, allow_stale_data, input_image_properties, output_image_properties).map_err(PyFeagiError::from)?;
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        }
+        Ok(())
+    }
+
+    pub fn store_image_frame(&mut self, py: Python<'_>, sensor_cortical_type: PySensorCorticalType, cortical_group: PyObject, device_channel: PyObject, new_image: PyImageFrame) -> PyResult<()> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+        let new_image: ImageFrame = new_image.into();
+
+        match sensor_cortical_type {
+            SensorCorticalType::ImageCameraCenter => {
+                self.inner.store_image_camera_center(cortical_group, device_channel, new_image).map_err(PyFeagiError::from)?;
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        }
+        Ok(())
+    }
+
+    pub fn read_image_frame(&mut self, py: Python<'_>,
+                                                          sensor_cortical_type: PySensorCorticalType,
+                                                          cortical_group: PyObject,
+                                                          device_channel: PyObject) -> PyResult<(PyImageFrame)> {
+
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        Ok(match sensor_cortical_type {
+            SensorCorticalType::ImageCameraCenter => {
+                self.inner.read_image_camera_center(cortical_group, device_channel).map_err(PyFeagiError::from)?.into()
+            }
+            _ => {Err(PyValueError::new_err("SensorCortical type is not supported"))?}
+        })
+    }
+
+    //endregion
+
+
+    //endregion
+
+
+
 
     //region Specific Sensor Functions
 
