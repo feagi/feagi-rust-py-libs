@@ -1,1 +1,7 @@
 mod feagi_byte_structure;
+mod feagi_byte_structure_compatible;
+mod feagi_byte_structure_type;
+
+pub use feagi_byte_structure::PyFeagiByteStructure as PyFeagiByteStructure;
+pub use feagi_byte_structure_compatible::PyFeagiByteStructureCompatible as PyFeagiByteStructureCompatible;
+pub use feagi_byte_structure_type::PyFeagiByteStructureType as PyFeagiByteStructureType;

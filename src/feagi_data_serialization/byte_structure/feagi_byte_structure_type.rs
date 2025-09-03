@@ -1,7 +1,7 @@
 
 use pyo3::{pyclass};
 use pyo3::prelude::*;
-use feagi_core_data_structures_and_processing::io_processing::byte_structures::FeagiByteStructureType;
+use feagi_data_serialization::FeagiByteStructureType;
 
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone)]

@@ -1,8 +1,8 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_core_data_structures_and_processing::io_processing::byte_structures::FeagiByteStructureType;
-use crate::io_processing::byte_structures::{PyFeagiByteStructure, PyFeagiByteStructureType};
+use feagi_data_serialization::FeagiByteStructureType;
+use crate::feagi_data_serialization::{PyFeagiByteStructure, PyFeagiByteStructureType};
 
 #[pyclass(subclass)]
 #[pyo3(name = "FeagiByteStructureCompatible")]

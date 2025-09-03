@@ -76,7 +76,6 @@ macro_rules! add_python_function {
 
 // TODO the above macros can be consolidated
 
-
 /// Core Module, accessible to users
 #[pymodule]
 fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
