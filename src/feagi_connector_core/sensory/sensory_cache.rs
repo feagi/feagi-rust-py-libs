@@ -475,23 +475,9 @@ impl PySensorCache {
 
     //endregion
 
-
-    //endregion
-
-
-
-
-    //region Specific Sensor Functions
-
-    // Generate Python wrapper methods using the procedural macro
-    //generate_sensor_python_methods!();
-
-    // Manual Functions
-
     //region Segmented Image Camera Manual Functions
 
-    /*
-    pub fn register_cortical_group_for_image_camera_with_peripheral<'py>(&mut self, py: Python<'_>, cortical_group_index: PyObject,
+    pub fn register_image_camera_with_peripheral<'py>(&mut self, py: Python<'_>, cortical_group_index: PyObject,
                                                                          number_of_channels: PyObject,
                                                                          allow_stale_data: bool, input_image_properties: PyImageFrameProperties,
                                                                          output_image_properties: PySegmentedImageFrameProperties,
@@ -499,7 +485,7 @@ impl PySensorCache {
 
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group_index).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-        let temp =  self.inner.register_cortical_group_for_image_camera_with_peripheral(
+        let temp =  self.inner.register_image_camera_with_peripheral(
             cortical_group_index, number_of_channels, allow_stale_data,
             input_image_properties.into(), output_image_properties.into(),
             gaze.into()).map_err(PyFeagiError::from);
@@ -510,22 +496,25 @@ impl PySensorCache {
         }
     }
 
-    pub fn write_image_for_center_image_camera_input_with_peripheral<'py>(&mut self, py: Python<'_>, cortical_group_index: PyObject, cortical_channel_index: PyObject, new_image: PyImageFrame) -> PyResult<()> {
+    pub fn store_image_camera_with_peripheral<'py>(&mut self, py: Python<'_>, cortical_group_index: PyObject, cortical_channel_index: PyObject, new_image: PyImageFrame) -> PyResult<()> {
 
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group_index).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, cortical_channel_index).map_err(PyFeagiError::from)?;
 
-        let temp = self.inner.send_data_for_segmented_image_camera(new_image.into(), cortical_group_index, cortical_channel_index);
+        let temp = self.inner.store_segmented_image_camera(new_image.into(), cortical_group_index, cortical_channel_index);
 
         match temp {
             Ok(()) => Ok(()),
             Err(e) => {Err(PyValueError::new_err("TODO")) }
         }
     }
-    
-     */
+
+
 
     //endregion
+
+    //endregion
+
 
 
     pub fn encode_cached_data_into_bytes(&mut self) -> PyResult<()> {
