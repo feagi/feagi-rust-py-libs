@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
@@ -379,9 +380,8 @@ pub struct PyGazeProperties{
 #[pymethods]
 impl PyGazeProperties {
     #[new]
-    fn cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy: (f32, f32), center_size_normalized_xy: (f32, f32)) -> PyResult<Self> {
-        let inner = GazeProperties::cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy, center_size_normalized_xy)
-            .map_err(PyFeagiError::from)?;
+    fn new(eccentricity_center_xy: (f32, f32), modularity_size_xy: (f32, f32)) -> PyResult<Self> {
+        let inner = GazeProperties::new(eccentricity_center_xy, modularity_size_xy);
         Ok(PyGazeProperties { inner })
     }
 
@@ -398,5 +398,11 @@ impl PyGazeProperties {
 py_type_casts!(PyGazeProperties, GazeProperties);
 py_object_cast_generic!(PyGazeProperties, GazeProperties, "Unable to retrieve GazeProperties data from given!");
 project_display!(PyGazeProperties);
+
+impl Display for PyGazeProperties {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.inner)
+    }
+}
 
 //endregion
