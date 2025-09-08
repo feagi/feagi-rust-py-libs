@@ -20,6 +20,7 @@ macro_rules! define_input_cortical_types_py {
                     base_ascii: $base_ascii:expr,
                     channel_dimension_range: $channel_dimension_range:expr,
                     default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
                 }
             ),* $(,)?
         }

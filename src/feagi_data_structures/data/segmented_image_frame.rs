@@ -1,10 +1,8 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::data::{ImageFrame, SegmentedImageFrame};
+use feagi_data_structures::data::{SegmentedImageFrame};
 use feagi_data_structures::genomic::descriptors::CorticalGroupIndex;
 use crate::feagi_data_structures::data::image_descriptors::*;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::{PyCorticalID, PyCorticalType};
 
@@ -128,8 +126,6 @@ impl PySegmentedImageFrame {
          */
         Err(PyErr::new::<PyValueError, _>("Camera does not support neuron data")) // TODO
     }
-
-    // NOTE: inplace_export_cortical_mapped_neuron_data is not exposed to python since inplace operations make no sense
 
     //endregion
 }

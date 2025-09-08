@@ -399,10 +399,4 @@ py_type_casts!(PyGazeProperties, GazeProperties);
 py_object_cast_generic!(PyGazeProperties, GazeProperties, "Unable to retrieve GazeProperties data from given!");
 project_display!(PyGazeProperties);
 
-impl Display for PyGazeProperties {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.inner)
-    }
-}
-
 //endregion

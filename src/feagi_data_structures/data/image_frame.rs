@@ -53,7 +53,7 @@ impl PyImageFrame {
     #[staticmethod]
     pub fn new_from_png_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
-        let result = ImageFrame::new_from_png_bytes(&bytes_vec, color_space.into());
+        let result = ImageFrame::new_from_png_bytes(&bytes_vec, &color_space.into());
         match result {
             Ok(image_frame) => Ok(PyImageFrame { inner: image_frame }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
@@ -63,7 +63,7 @@ impl PyImageFrame {
     #[staticmethod]
     pub fn new_from_bmp_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
-        let result = ImageFrame::new_from_bmp_bytes(&bytes_vec, color_space.into());
+        let result = ImageFrame::new_from_bmp_bytes(&bytes_vec, &color_space.into());
         match result {
             Ok(image_frame) => Ok(PyImageFrame { inner: image_frame }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
@@ -73,7 +73,7 @@ impl PyImageFrame {
     #[staticmethod]
     pub fn new_from_jpeg_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
-        let result = ImageFrame::new_from_jpeg_bytes(&bytes_vec, color_space.into());
+        let result = ImageFrame::new_from_jpeg_bytes(&bytes_vec, &color_space.into());
         match result {
             Ok(image_frame) => Ok(PyImageFrame { inner: image_frame }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
@@ -83,7 +83,7 @@ impl PyImageFrame {
     #[staticmethod]
     pub fn new_from_tiff_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
-        let result = ImageFrame::new_from_tiff_bytes(&bytes_vec, color_space.into());
+        let result = ImageFrame::new_from_tiff_bytes(&bytes_vec, &color_space.into());
         match result {
             Ok(image_frame) => Ok(PyImageFrame { inner: image_frame }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
@@ -115,7 +115,7 @@ impl PyImageFrame {
 
     // NOTE: get_pixels_view skipped, equivalent is copy_to_numpy_array
 
-    pub fn copy_to_numpy_array(&self, py: Python) -> PyResult<Py<PyArray3<f32>>> {
+    pub fn copy_to_numpy_array<'py>(&self, py: Python) -> PyResult<Py<PyArray3<u8>>> {
         Ok(Py::from(PyArray3::from_array(py, &self.inner.get_pixels_view())))
     }
     
@@ -164,17 +164,13 @@ impl PyImageFrame {
     //region In-Place
 
     pub fn change_brightness(&mut self, brightness_factor: i32) -> PyResult<()> {
-        match self.inner.change_brightness(brightness_factor) {
-            Ok(_) => Ok(()),
-            Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
-        }
+        self.inner.change_brightness(brightness_factor);
+        Ok(())
     }
 
     pub fn change_contrast(&mut self, contrast_factor: f32) -> PyResult<()> {
-        match self.inner.change_contrast(contrast_factor) {
-            Ok(_) => Ok(()),
-            Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
-        }
+        self.inner.change_contrast(contrast_factor);
+        Ok(())
     }
 
     //endregion
