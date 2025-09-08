@@ -48,14 +48,16 @@ impl PySensorCache {
                                                  cortical_group: PyObject,
                                                  number_of_channels: PyObject,
                                                  allow_stale_data: bool,
-                                                 neuron_resolution: usize,
+                                                 neuron_resolution: u32,
                                                  lower_bound: f32,
                                                  upper_bound: f32) -> PyResult<()> {
 
-        convert_common_parameters!(sensor_cortical_type, cortical_group, number_of_channels);
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
 
         self.inner.register_f32_0_to_1(sensor_cortical_type, cortical_group, number_of_channels,
-                                       allow_stale_data, &neuron_resolution.into(),
+                                       allow_stale_data, neuron_resolution.into(),
                                        lower_bound..upper_bound).map_err(PyFeagiError::from)?;
         Ok(())
     }
@@ -66,7 +68,10 @@ impl PySensorCache {
                                               device_channel: PyObject,
                                               new_float: f32) -> PyResult<()> {
 
-        convert_common_parameters!();
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
         self.inner.store_f32_0_to_1(sensor_cortical_type, cortical_group, device_channel,
                                     new_float).map_err(PyFeagiError::from)?;
         Ok(())
@@ -77,8 +82,11 @@ impl PySensorCache {
                                               cortical_group: PyObject,
                                               device_channel: PyObject) -> PyResult<(f32)> {
 
-        convert_common_parameters!();
-        self.inner.read_cache_f32_0_to_1(sensor_cortical_type, cortical_group, device_channel)
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        Ok(self.inner.read_cache_f32_0_to_1(sensor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?)
 
     }
 
@@ -92,11 +100,14 @@ impl PySensorCache {
                                                  cortical_group: PyObject,
                                                  number_of_channels: PyObject,
                                                  allow_stale_data: bool,
-                                                 neuron_resolution: usize,
+                                                 neuron_resolution: u32,
                                                  lower_bound: f32,
                                                  upper_bound: f32) -> PyResult<()> {
 
-        convert_common_parameters!();
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+
         self.inner.register_f32_m1_to_1(sensor_cortical_type, cortical_group, number_of_channels,
                                         allow_stale_data, neuron_resolution.into(),
                                         lower_bound..upper_bound).map_err(PyFeagiError::from)?;
@@ -109,7 +120,10 @@ impl PySensorCache {
                                               device_channel: PyObject,
                                               new_float: f32) -> PyResult<()> {
 
-        convert_common_parameters!();
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
         self.inner.store_f32_m1_to_1(sensor_cortical_type, cortical_group, device_channel,
                                      new_float).map_err(PyFeagiError::from)?;
         Ok(())
@@ -120,8 +134,11 @@ impl PySensorCache {
                                              cortical_group: PyObject,
                                              device_channel: PyObject) -> PyResult<(f32)> {
 
-        convert_common_parameters!();
-        self.inner.read_cache_f32_m1_to_1(sensor_cortical_type, cortical_group, device_channel)
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        Ok(self.inner.read_cache_f32_m1_to_1(sensor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?)
 
 
     }
@@ -135,7 +152,10 @@ impl PySensorCache {
                                 input_image_properties: PyImageFrameProperties,
                                 output_image_properties: PyImageFrameProperties) -> PyResult<()> {
 
-        convert_common_parameters!();
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+
         let input_image_properties: ImageFrameProperties = input_image_properties.into();
         let output_image_properties: ImageFrameProperties = output_image_properties.into();
         self.inner.register_image_frame(sensor_cortical_type, cortical_group, number_of_channels,
@@ -146,7 +166,10 @@ impl PySensorCache {
 
     pub fn store_image_frame(&mut self, py: Python<'_>, sensor_cortical_type: PySensorCorticalType, cortical_group: PyObject, device_channel: PyObject, new_image: PyImageFrame) -> PyResult<()> {
 
-        convert_common_parameters!();
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
         let new_image: ImageFrame = new_image.into();
         self.inner.store_image_frame(sensor_cortical_type, cortical_group, device_channel,
                                      new_image).map_err(PyFeagiError::from)?;
@@ -159,8 +182,11 @@ impl PySensorCache {
                                                           cortical_group: PyObject,
                                                           device_channel: PyObject) -> PyResult<(PyImageFrame)> {
 
-        convert_common_parameters!();
-        self.inner.read_cache_image_frame(sensor_cortical_type, cortical_group, device_channel)
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        Ok(self.inner.read_cache_image_frame(sensor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?.into())
     }
 
     //endregion
