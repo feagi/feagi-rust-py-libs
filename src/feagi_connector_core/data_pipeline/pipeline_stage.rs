@@ -28,6 +28,9 @@ impl PyPipelineStage {
     }
 
     // NOTE: Do not implement clone_box
-    
-    
+
+    #[new]
+    pub(crate) fn new() -> Self {
+        PyPipelineStage {}
+    }
 }
