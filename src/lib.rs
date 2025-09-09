@@ -97,6 +97,10 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
     
     // Genomic
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalID);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
     
     // Processing
 
