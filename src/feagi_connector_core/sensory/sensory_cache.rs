@@ -8,6 +8,7 @@ use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, Cortical
 use feagi_data_structures::sensor_definition;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::SensorCorticalType;
+use pyo3::types::PyList;
 use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::*;
@@ -41,7 +42,7 @@ impl PySensorCache {
 
     //region Generic Types
 
-    //region F32Normalized0To1_Linear
+    //region F32_O_to_1
 
     pub fn register_f32_0_to_1(&mut self, py: Python<'_>,
                                                  sensor_cortical_type: PySensorCorticalType,
@@ -77,7 +78,7 @@ impl PySensorCache {
         Ok(())
     }
 
-    pub fn read_f32_0_to_1(&mut self, py: Python<'_>,
+    pub fn read_cache_f32_0_to_1(&mut self, py: Python<'_>,
                                               sensor_cortical_type: PySensorCorticalType,
                                               cortical_group: PyObject,
                                               device_channel: PyObject) -> PyResult<(f32)> {
@@ -89,6 +90,8 @@ impl PySensorCache {
         Ok(self.inner.read_cache_f32_0_to_1(sensor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?)
 
     }
+
+    pub fn set_pipeline_stages_f32_0_to_1(&mut self, py: Python<'_>, sensor_cortical_type: PySensorCorticalType, group: PyObject, channel: PyObject, new_stages: PyList<PipelineStage>) -> PyResult<()> {}
 
 
     //endregion
