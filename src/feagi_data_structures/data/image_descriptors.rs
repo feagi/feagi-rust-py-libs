@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
@@ -379,9 +380,8 @@ pub struct PyGazeProperties{
 #[pymethods]
 impl PyGazeProperties {
     #[new]
-    fn cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy: (f32, f32), center_size_normalized_xy: (f32, f32)) -> PyResult<Self> {
-        let inner = GazeProperties::cartesian_where_origin_bottom_left(center_coordinates_normalized_cartesian_xy, center_size_normalized_xy)
-            .map_err(PyFeagiError::from)?;
+    fn new(eccentricity_center_xy: (f32, f32), modularity_size_xy: (f32, f32)) -> PyResult<Self> {
+        let inner = GazeProperties::new(eccentricity_center_xy, modularity_size_xy);
         Ok(PyGazeProperties { inner })
     }
 
