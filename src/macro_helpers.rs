@@ -19,8 +19,6 @@ macro_rules! py_type_casts { // TODO this should be procedural. Too bad!
             }
         }
         */
-
-
         
         impl From<$py_type> for $feagi_type {
             fn from(inner: $py_type) -> Self {

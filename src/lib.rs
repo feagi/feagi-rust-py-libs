@@ -96,6 +96,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyImageFrame);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
     
+    // Wrapped IO Data
+    add_python_class!(py, m, "data_structures.wrapped_io_data", feagi_data_structures::wrapped_io_data::PyWrappedIOType);
+    
     // Genomic
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalID);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
