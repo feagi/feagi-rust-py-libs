@@ -8,12 +8,20 @@ use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 // NOTE: We don't need the actual data type as we just use PyObject. Instead, here are some conversion functions
 
 pub fn wrapped_io_data_to_py_object(wrapped_iodata: WrappedIOData) -> PyResult<PyObject> {
-    Ok(match wrapped_iodata {
-        WrappedIOData::ImageFrame(frame) => PyImageFrame::from(frame).into(),
-        WrappedIOData::SegmentedImageFrame(segmented_frame) => PySegmentedImageFrame::from(segmented_frame).into(),
-        WrappedIOData::F32(number) => PyFloat::from(number),
-        WrappedIOData::F32Normalized0To1(number) => PyFloat::from(number),
-        WrappedIOData::F32NormalizedM1To1(number) => PyFloat::from(number),
+    Python::with_gil(|py| {
+        Ok(match wrapped_iodata {
+            WrappedIOData::ImageFrame(frame) => {
+                let py_frame = PyImageFrame::from(frame);
+                py_frame.into_py(py)
+            },
+            WrappedIOData::SegmentedImageFrame(segmented_frame) => {
+                let py_segmented_frame = PySegmentedImageFrame::from(segmented_frame);
+                py_segmented_frame.into_py(py)
+            },
+            WrappedIOData::F32(number) => PyFloat::new(py, number as f64).into(),
+            WrappedIOData::F32Normalized0To1(number) => PyFloat::new(py, number as f64).into(),
+            WrappedIOData::F32NormalizedM1To1(number) => PyFloat::new(py, number as f64).into(),
+        })
     })
 }
 
