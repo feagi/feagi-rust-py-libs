@@ -1,10 +1,12 @@
-use feagi_data_structures::processing::ImageFrameProcessor;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyValueError};
 use pyo3::prelude::*;
+use feagi_data_structures::FeagiDataError;
+use feagi_data_structures::processing::ImageFrameProcessor;
 use crate::feagi_data_structures::data::image_descriptors::PyImageFrameProperties;
+use crate::{project_display, py_object_cast_generic, py_type_casts};
 
-#[pyclass]
+#[pyclass(str)]
 #[pyo3(name = "ImageFrameProcessor")]
 #[derive(Clone)]
 pub struct PyImageFrameProcessor {
@@ -25,3 +27,7 @@ impl PyImageFrameProcessor {
         }
     }
 }
+
+py_type_casts!(PyImageFrameProcessor, ImageFrameProcessor);
+py_object_cast_generic!(PyImageFrameProcessor, ImageFrameProcessor, "Unable to retrieve ImageFrameProcessor data from given!");
+project_display!(PyImageFrameProcessor);
