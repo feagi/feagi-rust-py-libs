@@ -3,18 +3,21 @@ use std::time::Instant;
 use feagi_connector_core::data_pipeline::PipelineStage;
 use feagi_connector_core::data_pipeline::stages::ImageFrameQuickDiffStage;
 use feagi_data_structures::data::ImageFrame;
+use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::wrapped_io_data::WrappedIOData;
 use pyo3::{pyclass, pymethods, PyResult, Py};
-use pyo3::exceptions::{PyNotImplementedError, PyOSError, PyValueError};
+use pyo3::exceptions::{PyOSError};
 use pyo3::prelude::*;
 use crate::{project_display, py_type_casts};
 use crate::feagi_connector_core::data_pipeline::pipeline_stage::PyPipelineStage;
+use crate::feagi_connector_core::data_pipeline::pipeline_stage_pytrait::PipelineStagePyTrait;
 use crate::feagi_data_structures::data::image_descriptors::PyImageFrameProperties;
 use crate::feagi_data_structures::data::PyImageFrame;
 use crate::feagi_data_structures::wrapped_io_data::PyWrappedIOType;
 
 #[pyclass(str, extends=PyPipelineStage)]
 #[pyo3(name = "ImageFrameQuickDiffStage")]
+#[derive(Clone)]
 pub struct PyImageFrameQuickDiffStage {
     inner: ImageFrameQuickDiffStage,
 }
@@ -60,9 +63,13 @@ impl PyImageFrameQuickDiffStage {
 
     //endregion
 
+}
 
-
-
+impl PipelineStagePyTrait for PyImageFrameQuickDiffStage {
+    fn copy_as_box(&self) -> Result<Box<dyn PipelineStage>, FeagiDataError> {
+        let stage = self.inner.clone();
+        Ok(Box::new(stage))
+    }
 }
 
 project_display!(PyImageFrameQuickDiffStage);

@@ -1,2 +1,5 @@
 mod pipeline_stage;
-mod stages;
+pub mod stages;
+pub(crate) mod pipeline_stage_pytrait;
+
+pub use pipeline_stage::PyPipelineStage as PyPipelineStage;

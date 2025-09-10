@@ -1,2 +1,2 @@
 pub mod sensory;
-mod data_pipeline;
+pub mod data_pipeline;

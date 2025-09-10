@@ -107,6 +107,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // Processing
 
+
     //endregion
 
     //region Feagi Data Serialization Crate
@@ -119,7 +120,11 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // Sensory
     add_python_class!(py, m, "connector_core", feagi_connector_core::sensory::PySensorCache);
-    
+
+    // Data Pipeline
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage);
+
+
     //endregion
     
     
