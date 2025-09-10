@@ -96,19 +96,29 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyImageFrame);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
     
+    // Wrapped IO Data
+    add_python_class!(py, m, "data_structures.wrapped_io_data", feagi_data_structures::wrapped_io_data::PyWrappedIOType);
+    
     // Genomic
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalID);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
+
+    // neurons
+    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData);
+    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZPArrays);
+    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZP);
     
     // Processing
+
 
     //endregion
 
     //region Feagi Data Serialization Crate
     
     // Byte Structure
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructure);
     
     //endregion
     
@@ -116,7 +126,11 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // Sensory
     add_python_class!(py, m, "connector_core", feagi_connector_core::sensory::PySensorCache);
-    
+
+    // Data Pipeline
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage);
+
+
     //endregion
     
     

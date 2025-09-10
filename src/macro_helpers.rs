@@ -19,8 +19,6 @@ macro_rules! py_type_casts { // TODO this should be procedural. Too bad!
             }
         }
         */
-
-
         
         impl From<$py_type> for $feagi_type {
             fn from(inner: $py_type) -> Self {
@@ -49,8 +47,6 @@ macro_rules! project_display { // TODO this should be procedural. Too bad!
 macro_rules! py_object_cast_generic {
     ($py_type:ty, $feagi_type:ty, $error_msg:expr) => {
         impl $py_type{
-            
-
             pub(crate) fn try_get_from_py_object<'py>(py: Python<'_>, any: PyObject) -> Result<$feagi_type, FeagiDataError> {
                 let bound = any.bind(py);
                 
@@ -60,7 +56,6 @@ macro_rules! py_object_cast_generic {
                         Ok(py_obj.into())
                     },
                     _ => Err(FeagiDataError::BadParameters($error_msg.into())) // TODO
-                    
                 }
             }
 
