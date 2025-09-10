@@ -2,7 +2,7 @@ use feagi_connector_core::data_pipeline::stages::*;
 use pyo3::{pyclass, pymethods, PyResult,};
 use pyo3::exceptions::{PyValueError};
 use pyo3::prelude::*;
-use crate::{project_display, py_type_casts};
+use crate::{common_stage_implementations, project_display, py_type_casts};
 use crate::feagi_connector_core::data_pipeline::pipeline_stage::PyPipelineStage;
 use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 
@@ -25,8 +25,7 @@ impl PyIdentityFloatStage {
     }
 }
 
-project_display!(PyIdentityFloatStage);
-py_type_casts!(PyIdentityFloatStage, IdentityFloatStage);
+common_stage_implementations!(PyIdentityFloatStage,"IdentityFloatStage");
 
 //endregion
 
@@ -50,8 +49,7 @@ impl PyIdentityImageFrameStage {
     }
 }
 
-project_display!(PyIdentityImageFrameStage);
-py_type_casts!(PyIdentityImageFrameStage, IdentityImageFrameStage);
+common_stage_implementations!(PyIdentityImageFrameStage, "IdentityImageFrameStage");
 
 //endregion
 
@@ -75,7 +73,7 @@ impl PyIdentitySegmentedImageFrameStage {
     }
 }
 
-project_display!(PyIdentitySegmentedImageFrameStage);
-py_type_casts!(PyIdentitySegmentedImageFrameStage, IdentitySegmentedImageFrameStage);
+common_stage_implementations!(PyIdentitySegmentedImageFrameStage, "IdentitySegmentedImageFrameStage");
+
 
 //endregion

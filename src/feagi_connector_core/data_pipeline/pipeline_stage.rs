@@ -7,6 +7,18 @@ use feagi_data_structures::wrapped_io_data::WrappedIOData;
 use pyo3::exceptions::PyValueError;
 use crate::feagi_data_structures::wrapped_io_data::{py_object_to_wrapped_io_data, wrapped_io_data_to_py_object, PyWrappedIOType};
 
+#[macro_export]
+/// Adds common implementations to stages
+macro_rules! common_stage_implementations { // TODO downcast to get inner data
+    ($stage_type:ty, $stage_name:expr) => {
+        impl std::fmt::Display for $stage_type {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{}", $stage_name)
+            }
+        }
+    }
+}
+
 
 #[pyclass(subclass)]
 pub struct PyPipelineStage {
