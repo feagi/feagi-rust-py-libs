@@ -192,7 +192,8 @@ impl PySensorCache {
         let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
         let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
 
-        Ok(self.inner.read_cache_image_frame(sensor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?.into())
+        //Ok(self.inner.read_cache_image_frame(sensor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?.into())
+        Ok(self.inner.read_cache_image_frame(sensor_cortical_type, cortical_group, device_channel).unwrap().into())
     }
 
     // TODO properly implement pyobject style import of stages!

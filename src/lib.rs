@@ -104,6 +104,11 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
+
+    // neurons
+    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData);
+    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZPArrays);
+    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZP);
     
     // Processing
 
@@ -113,6 +118,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region Feagi Data Serialization Crate
     
     // Byte Structure
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructure);
     
     //endregion
     
