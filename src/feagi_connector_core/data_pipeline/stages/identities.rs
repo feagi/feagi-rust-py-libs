@@ -6,7 +6,6 @@ use pyo3::exceptions::{PyNotImplementedError, PyValueError};
 use pyo3::prelude::*;
 use crate::{project_display, py_type_casts};
 use crate::feagi_connector_core::data_pipeline::pipeline_stage::PyPipelineStage;
-use crate::feagi_connector_core::data_pipeline::pipeline_stage_pytrait::PipelineStagePyTrait;
 use crate::feagi_data_structures::wrapped_io_data::PyWrappedIOType;
 
 #[pyclass(str, extends=PyPipelineStage)]
@@ -29,26 +28,6 @@ impl PyIdentityFloatStage {
         ))
     }
 
-    //region PipelineStage
-
-    pub fn get_input_data_type(&self) -> PyResult<PyWrappedIOType> {
-        Ok(PyWrappedIOType::F32())
-    }
-
-    pub fn get_output_data_type(&self) -> PyResult<PyWrappedIOType> {
-        Ok(PyWrappedIOType::F32())
-    }
-
-    pub fn get_most_recent_output<'py>(&self, py: Python<'py>) -> PyResult<PyObject> {
-        Err(PyErr::new::<PyNotImplementedError, _>("Cannot call parent class!"))
-    }
-
-    pub fn process_new_input(&self, new_input: PyObject) -> PyResult<(PyObject)> {
-        Err(PyErr::new::<PyNotImplementedError, _>("Cannot call parent class!"))
-    }
-
-
-    //endregion
 
 
 }
