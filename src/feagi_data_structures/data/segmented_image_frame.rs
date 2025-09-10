@@ -2,12 +2,14 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::data::{SegmentedImageFrame};
 use feagi_data_structures::genomic::descriptors::CorticalGroupIndex;
+use feagi_data_structures::FeagiDataError;
 use crate::feagi_data_structures::data::image_descriptors::*;
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::{PyCorticalID, PyCorticalType};
+use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass]
-#[pyo3(name = "SegmentedImageFrame")]
+#[pyo3(name = "SegmentedImageFrame", str)]
 #[derive(Clone)]
 pub struct PySegmentedImageFrame{
     pub(crate) inner: SegmentedImageFrame,
@@ -129,3 +131,7 @@ impl PySegmentedImageFrame {
 
     //endregion
 }
+
+py_type_casts!(PySegmentedImageFrame, SegmentedImageFrame);
+py_object_cast_generic!(PySegmentedImageFrame, SegmentedImageFrame, "Unable to retrieve SegmentedImageFrame data from given!");
+project_display!(PySegmentedImageFrame);

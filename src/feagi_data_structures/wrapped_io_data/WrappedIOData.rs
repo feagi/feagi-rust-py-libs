@@ -9,11 +9,11 @@ use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 
 pub fn wrapped_io_data_to_py_object(wrapped_iodata: WrappedIOData) -> PyResult<PyObject> {
     Ok(match wrapped_iodata {
-        WrappedIOData::ImageFrame(frame) => frame.into(),
-        WrappedIOData::SegmentedImageFrame(segmented_frame) => segmented_frame.into(),
-        WrappedIOData::F32(number) => number.into(),
-        WrappedIOData::F32Normalized0To1(number) => number.into(),
-        WrappedIOData::F32NormalizedM1To1(number) => number.into(),
+        WrappedIOData::ImageFrame(frame) => PyImageFrame::from(frame).into(),
+        WrappedIOData::SegmentedImageFrame(segmented_frame) => PySegmentedImageFrame::from(segmented_frame).into(),
+        WrappedIOData::F32(number) => PyFloat::from(number),
+        WrappedIOData::F32Normalized0To1(number) => PyFloat::from(number),
+        WrappedIOData::F32NormalizedM1To1(number) => PyFloat::from(number),
     })
 }
 
