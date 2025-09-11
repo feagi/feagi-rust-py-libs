@@ -1,7 +1,8 @@
 mod WrappedIOType;
+mod WrappedIOData;
 
-use pyo3::pyclass;
 
 // Re-export all the public structs
 pub use WrappedIOType::*;
+pub use WrappedIOData::*;
 

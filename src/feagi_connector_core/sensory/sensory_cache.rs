@@ -1,4 +1,4 @@
-use crate::feagi_connector_core::data_pipeline::pipeline_stage_pytrait::PipelineStagePyTrait;
+use std::ptr::read;
 use std::time::Instant;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
@@ -12,7 +12,7 @@ use feagi_data_structures::sensor_definition;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::SensorCorticalType;
 use pyo3::types::PyList;
-use crate::feagi_connector_core::data_pipeline::PyPipelineStage;
+use crate::feagi_connector_core::data_pipeline::{extract_pipeline_stage_from_py, PyPipelineStage};
 use crate::feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage;
 use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
@@ -96,6 +96,16 @@ impl PySensorCache {
 
     }
 
+    pub fn set_pipeline_stage_f32_0_to_1(&mut self, py: Python<'_>,sensor_cortical_type: PySensorCorticalType,
+                                          cortical_group: PyObject, device_channel: PyObject, new_stage: Py<PyPipelineStage>, stage_index: u32) -> PyResult<()> {
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+        let stage = extract_pipeline_stage_from_py(py, new_stage).map_err(PyFeagiError::from)?;
+
+        self.inner.set_pipeline_stage_f32_0_to_1(sensor_cortical_type, cortical_group, device_channel, stage, stage_index.into()).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
 
     //endregion
 
@@ -148,6 +158,19 @@ impl PySensorCache {
 
 
     }
+
+    pub fn set_pipeline_stage_f32_m1_to_1(&mut self, py: Python<'_>,sensor_cortical_type: PySensorCorticalType,
+                                          cortical_group: PyObject, device_channel: PyObject, new_stage: Py<PyPipelineStage>, stage_index: u32) -> PyResult<()> {
+        let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+        let stage = extract_pipeline_stage_from_py(py, new_stage).map_err(PyFeagiError::from)?;
+
+        self.inner.set_pipeline_stage_f32_m1_to_1(sensor_cortical_type, cortical_group, device_channel, stage, stage_index.into()).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+
     //endregion
 
     //region ImageFrame
@@ -196,20 +219,19 @@ impl PySensorCache {
         Ok(self.inner.read_cache_image_frame(sensor_cortical_type, cortical_group, device_channel).unwrap().into())
     }
 
-    // TODO properly implement pyobject style import of stages!
     pub fn set_pipeline_stage_image_frame(&mut self, py: Python<'_>,sensor_cortical_type: PySensorCorticalType,
-                                          cortical_group: PyObject, device_channel: PyObject, new_stage: PyImageFrameQuickDiffStage, stage_index: u32) -> PyResult<()> {
+                                          cortical_group: PyObject, device_channel: PyObject, new_stage: Py<PyPipelineStage>, stage_index: u32) -> PyResult<()> {
         let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
         let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
         let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
-        let new_stage_box = new_stage.copy_as_box().unwrap();
+        let stage = extract_pipeline_stage_from_py(py, new_stage).map_err(PyFeagiError::from)?;
 
-        self.inner.set_pipeline_stage_image_frame(sensor_cortical_type, cortical_group, device_channel, new_stage_box, stage_index.into()).map_err(PyFeagiError::from)?;
+        self.inner.set_pipeline_stage_image_frame(sensor_cortical_type, cortical_group, device_channel, stage, stage_index.into()).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
     /*
-    // TODO properly implement pyobject style import of stages!
+
     pub fn clone_pipeline_stage_image_frame(&mut self, py: Python<'_>, sensor_cortical_type: PySensorCorticalType,
                                             cortical_group: PyObject, device_channel: PyObject, stage_index: u32) -> PyResult<PyImageFrameQuickDiffStage> {
         let sensor_cortical_type: SensorCorticalType = sensor_cortical_type.into();
@@ -269,6 +291,30 @@ impl PySensorCache {
     }
 
 
+    pub fn read_cache_image_camera_with_peripheral(&mut self, py: Python<'_>,
+                                 cortical_group: PyObject,
+                                 device_channel: PyObject) -> PyResult<(PySegmentedImageFrame)> {
+
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+
+        let result = self.inner.read_cache_segmented_image_frame(cortical_group, device_channel).map_err(PyFeagiError::from);
+        match result {
+            Ok(frame) => Ok((frame.into())),
+            Err(e) => Err(PyValueError::new_err(e.to_string())),
+        }
+    }
+
+    pub fn set_pipeline_stage_image_camera_with_peripheral(&mut self, py: Python<'_>,
+                                         cortical_group: PyObject, device_channel: PyObject, new_stage: Py<PyPipelineStage>, stage_index: u32) -> PyResult<()> {
+
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+        let stage = extract_pipeline_stage_from_py(py, new_stage).map_err(PyFeagiError::from)?;
+
+        self.inner.set_pipeline_stage_segmented_image_frame(cortical_group, device_channel, stage, stage_index.into()).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
 
     //endregion
 

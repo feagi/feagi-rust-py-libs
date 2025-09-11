@@ -1,3 +1,6 @@
+
+//region PyClass Helpers
+
 #[macro_export]
 /// Handles From for wrapped python type and back, assuming wrapper inner property is called "inner"
 macro_rules! py_type_casts { // TODO this should be procedural. Too bad!
@@ -40,6 +43,10 @@ macro_rules! project_display { // TODO this should be procedural. Too bad!
         }
     };
 }
+
+//endregion
+
+// Wrapped
 
 
 #[macro_export]

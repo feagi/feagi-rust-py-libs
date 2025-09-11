@@ -1,69 +1,79 @@
-use feagi_connector_core::data_pipeline::PipelineStage;
 use feagi_connector_core::data_pipeline::stages::*;
-use feagi_data_structures::FeagiDataError;
-use pyo3::{pyclass, pymethods, PyResult, Py};
-use pyo3::exceptions::{PyNotImplementedError, PyValueError};
+use pyo3::{pyclass, pymethods, PyResult,};
+use pyo3::exceptions::{PyValueError};
 use pyo3::prelude::*;
-use crate::{project_display, py_type_casts};
+use crate::{common_stage_implementations, project_display, py_type_casts};
 use crate::feagi_connector_core::data_pipeline::pipeline_stage::PyPipelineStage;
-use crate::feagi_connector_core::data_pipeline::pipeline_stage_pytrait::PipelineStagePyTrait;
-use crate::feagi_data_structures::wrapped_io_data::PyWrappedIOType;
+use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
 
+//region Identity Float
 #[pyclass(str, extends=PyPipelineStage)]
 #[pyo3(name = "IdentityFloatStage")]
 #[derive(Clone)]
-pub struct PyIdentityFloatStage {
-    inner: IdentityFloatStage,
-}
+pub struct PyIdentityFloatStage;
 
 #[pymethods]
 impl PyIdentityFloatStage {
 
     #[new]
-    pub fn new(initial_value: f32) -> PyResult<(PyIdentityFloatStage, PyPipelineStage)> {
-        Ok((
-            PyIdentityFloatStage {
-                inner: IdentityFloatStage::new(initial_value).map_err(|e| PyValueError::new_err(format!("{:?}", e)))?,
-            },
-            PyPipelineStage {}
-        ))
+    pub fn new(initial_value: f32) -> PyResult<(Self, PyPipelineStage)> {
+        let result_stage = IdentityFloatStage::new(initial_value);
+        if result_stage.is_err() {
+            return Err(PyValueError::new_err(format!("{:?}", result_stage.err().unwrap())))
+        }
+        Ok((PyIdentityFloatStage, PyPipelineStage::new(Box::new(result_stage.unwrap()))))
     }
-
-    //region PipelineStage
-
-    pub fn get_input_data_type(&self) -> PyResult<PyWrappedIOType> {
-        Ok(PyWrappedIOType::F32())
-    }
-
-    pub fn get_output_data_type(&self) -> PyResult<PyWrappedIOType> {
-        Ok(PyWrappedIOType::F32())
-    }
-
-    pub fn get_most_recent_output<'py>(&self, py: Python<'py>) -> PyResult<PyObject> {
-        Err(PyErr::new::<PyNotImplementedError, _>("Cannot call parent class!"))
-    }
-
-    pub fn process_new_input(&self, new_input: PyObject) -> PyResult<(PyObject)> {
-        Err(PyErr::new::<PyNotImplementedError, _>("Cannot call parent class!"))
-    }
-
-
-    //endregion
-
-
 }
 
- impl PipelineStagePyTrait for PyIdentityFloatStage {
-     fn copy_as_box(&self) -> Result<Box<dyn PipelineStage>, FeagiDataError> {
-         let stage = self.inner.clone();
-        Ok(Box::new(stage))
-     }
- }
+common_stage_implementations!(PyIdentityFloatStage,"IdentityFloatStage");
+
+//endregion
 
 
+//region Identity Image Frame
+#[pyclass(str, extends=PyPipelineStage)]
+#[pyo3(name = "IdentityImageFrameStage")]
+#[derive(Clone)]
+pub struct PyIdentityImageFrameStage;
+
+#[pymethods]
+impl PyIdentityImageFrameStage {
+
+    #[new]
+    pub fn new(initial_image: PyImageFrame) -> PyResult<(Self, PyPipelineStage)> {
+        let result_stage = IdentityImageFrameStage::new(initial_image.into());
+        if result_stage.is_err() {
+            return Err(PyValueError::new_err(format!("{:?}", result_stage.err().unwrap())))
+        }
+        Ok((PyIdentityImageFrameStage, PyPipelineStage::new(Box::new(result_stage.unwrap()))))
+    }
+}
+
+common_stage_implementations!(PyIdentityImageFrameStage, "IdentityImageFrameStage");
+
+//endregion
 
 
-project_display!(PyIdentityFloatStage);
-py_type_casts!(PyIdentityFloatStage, IdentityFloatStage);
+//region Identity Segmented Image Frame
+#[pyclass(str, extends=PyPipelineStage)]
+#[pyo3(name = "IdentitySegmentedImageFrameStage")]
+#[derive(Clone)]
+pub struct PyIdentitySegmentedImageFrameStage;
+
+#[pymethods]
+impl PyIdentitySegmentedImageFrameStage {
+
+    #[new]
+    pub fn new(initial_images: PySegmentedImageFrame) -> PyResult<(Self, PyPipelineStage)> {
+        let result_stage = IdentitySegmentedImageFrameStage::new(initial_images.into());
+        if result_stage.is_err() {
+            return Err(PyValueError::new_err(format!("{:?}", result_stage.err().unwrap())))
+        }
+        Ok((PyIdentitySegmentedImageFrameStage, PyPipelineStage::new(Box::new(result_stage.unwrap()))))
+    }
+}
+
+common_stage_implementations!(PyIdentitySegmentedImageFrameStage, "IdentitySegmentedImageFrameStage");
 
 
+//endregion
