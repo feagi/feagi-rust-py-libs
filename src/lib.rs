@@ -111,6 +111,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZP);
     
     // Processing
+    add_python_class!(py, m, "data_structures.processing", feagi_data_structures::processing::PyImageFrameProcessor);
+    add_python_class!(py, m, "data_structures.processing", feagi_data_structures::processing::PyImageFrameSegmentator);
 
 
     //endregion
@@ -129,7 +131,11 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Data Pipeline
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage);
-
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentityFloatStage);
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentityImageFrameStage);
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentitySegmentedImageFrameStage);
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameProcessorStage);
+    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameSegmentatorStage);
 
     //endregion
     
