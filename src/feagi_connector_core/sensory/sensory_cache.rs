@@ -316,6 +316,20 @@ impl PySensorCache {
         Ok(())
     }
 
+    pub fn set_pipeline_stages_image_camera_with_peripheral(&mut self, py: Python<'_>,
+                                                           cortical_group: PyObject, device_channel: PyObject, new_stages: Vec<Py<PyPipelineStage>>) -> PyResult<()> {
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+        let mut stages: Vec<Box<dyn PipelineStage + Send + Sync>> = Vec::with_capacity(new_stages.len());
+        for new_stage in new_stages {
+            let extracted_stage = extract_pipeline_stage_from_py(py, new_stage).map_err(PyFeagiError::from)?;
+            stages.push(extracted_stage);
+        };
+        self.inner.set_pipeline_stages_segmented_image_frame(cortical_group, device_channel, stages).map_err(PyFeagiError::from)?;
+        Ok(())
+
+    }
+
     //endregion
 
     //endregion
