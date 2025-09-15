@@ -44,7 +44,7 @@ jobs:
       - name: Install and test wheel
         run: |
           pip install dist/*.whl
-          python -c "import feagi_data_processing; print('✅ Package imports successfully')"
+          python -c "import feagi_rust_py_libs; print('✅ Package imports successfully')"
 
       - name: Install packaging module for version comparison
         run: pip install packaging
