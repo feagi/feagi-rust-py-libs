@@ -1,5 +1,6 @@
 mod pipeline_stage;
 pub mod stages;
+mod io_cache;
 
 pub use pipeline_stage::PyPipelineStage as PyPipelineStage;
 pub use pipeline_stage::extract_pipeline_stage_from_py as extract_pipeline_stage_from_py;
