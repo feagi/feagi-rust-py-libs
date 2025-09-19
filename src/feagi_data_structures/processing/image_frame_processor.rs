@@ -1,4 +1,3 @@
-use feagi_data_structures::data::image_descriptors::ImageFrameProperties;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyValueError};
 use pyo3::prelude::*;

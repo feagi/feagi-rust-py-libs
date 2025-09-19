@@ -1,4 +1,4 @@
-use feagi_data_structures::data::image_descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
+use feagi_data_structures::data::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
 use pyo3::{pyclass, pymethods, PyResult, Py};
 use pyo3::prelude::*;
 use feagi_data_structures::wrapped_io_data::{WrappedIOType, WrappedIOData};
@@ -21,13 +21,13 @@ impl PyWrappedIOType {
     }
 
     #[staticmethod]
-    pub fn F32Normalized0To1() -> Self {
-        PyWrappedIOType { inner: WrappedIOType::F32Normalized0To1 }
+    pub fn Percentage() -> Self {
+        PyWrappedIOType { inner: WrappedIOType::Percentage }
     }
 
     #[staticmethod]
-    pub fn F32NormalizedM1To1() -> Self {
-        PyWrappedIOType { inner: WrappedIOType::F32NormalizedM1To1 }
+    pub fn SignedPercentage() -> Self {
+        PyWrappedIOType { inner: WrappedIOType::SignedPercentage }
     }
 
     #[staticmethod]
@@ -54,7 +54,6 @@ impl PyWrappedIOType {
             }
         }
         PyWrappedIOType { inner: WrappedIOType::SegmentedImageFrame(convert(optional_image_properties)) }
-
     }
 }
 

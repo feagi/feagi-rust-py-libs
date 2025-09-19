@@ -325,6 +325,9 @@ class genome:
         ServoPosition: 'SensorCorticalType'
         """Servo position feedback sensor for monitoring actuator positions.."""
         
+        Miscellaneous: 'SensorCorticalType'
+        """Miscellaneous area for all types of data FEAGI has no specific implementation for.."""
+        
         ImageCameraCenter: 'SensorCorticalType'
         """Image camera input. Either alone or in the center of segmented/peripheral image camera setups."""
         

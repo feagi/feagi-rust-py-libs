@@ -1,4 +1,3 @@
-use std::fmt::Formatter;
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;

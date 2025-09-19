@@ -194,11 +194,6 @@ impl PyFeagiByteStructure {
         self.inner.get_wasted_capacity_count()
     }
 
-    /// Get utilized capacity as a percentage
-    pub fn get_utilized_capacity_percentage(&self) -> f32 {
-        self.inner.get_utilized_capacity_percentage()
-    }
-
     /// Ensure capacity of at least the specified size
     pub fn ensure_capacity_of_at_least(&mut self, size: usize) -> PyResult<()> {
         match self.inner.ensure_capacity_of_at_least(size) {

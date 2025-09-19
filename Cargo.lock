@@ -275,9 +275,9 @@ dependencies = [
 
 [[package]]
 name = "feagi_connector_core"
-version = "0.0.50-beta.21"
+version = "0.0.50-beta.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc6d4b5f5c17678051a06bed2dfb2577301b59595e5944fe4b7f515214a0c726"
+checksum = "c7c748e43eb396190599919999c6347ccb43cb8f3308220ab59fee5be09aa5dc"
 dependencies = [
  "feagi_data_serialization",
  "feagi_data_structures",
@@ -288,9 +288,9 @@ dependencies = [
 
 [[package]]
 name = "feagi_data_serialization"
-version = "0.0.50-beta.21"
+version = "0.0.50-beta.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "713ad6966a4a0507ebb9bafbabc1b7c27b095d2d4b9e502cef28959c8aa43c2d"
+checksum = "79e08475625b8daea149764c6ea2f511f4c706c9588dfa3ad621664f20c891d9"
 dependencies = [
  "byteorder",
  "feagi_data_structures",
@@ -299,9 +299,9 @@ dependencies = [
 
 [[package]]
 name = "feagi_data_structures"
-version = "0.0.50-beta.21"
+version = "0.0.50-beta.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d250e3b65c618efa5ce3af0cca895a6bb07406c6e49fb4e0824a4bcd8304c82"
+checksum = "46d929687b9397767802754d3c3b3d02dde66a745badbdfb90d0b5e59c10f79b"
 dependencies = [
  "image",
  "ndarray",
@@ -310,7 +310,7 @@ dependencies = [
 
 [[package]]
 name = "feagi_rust_py_libs"
-version = "0.0.54"
+version = "0.0.55"
 dependencies = [
  "feagi_connector_core",
  "feagi_data_serialization",
