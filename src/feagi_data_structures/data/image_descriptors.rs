@@ -380,15 +380,16 @@ pub struct PyGazeProperties{
 #[pymethods]
 impl PyGazeProperties {
 
-    /*
     #[new]
     fn new(eccentricity_center_xy: (f32, f32), modularity_size_xy: (f32, f32)) -> PyResult<Self> {
+
+        let eccentricity_center_xy = (GazeEccentricity::new_from_0_1_unchecked(eccentricity_center_xy.0), GazeEccentricity::new_from_0_1_unchecked(eccentricity_center_xy.1));
+        let modularity_size_xy = (GazeModulation::new_from_0_1_unchecked(modularity_size_xy.0) , GazeModulation::new_from_0_1_unchecked(modularity_size_xy.1));
 
         let inner = GazeProperties::new(eccentricity_center_xy, modularity_size_xy);
         Ok(PyGazeProperties { inner })
     }
 
-     */
 
     #[staticmethod]
     fn create_default_centered() -> Self {

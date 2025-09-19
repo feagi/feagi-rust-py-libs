@@ -78,7 +78,7 @@ macro_rules! define_output_cortical_types_py {
 
         #[pyclass]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-        #[pyo3(name = "SensorCorticalType")]
+        #[pyo3(name = "MotorCorticalType")]
         pub enum PyMotorCorticalType {
             $(
                 $cortical_type_key_name

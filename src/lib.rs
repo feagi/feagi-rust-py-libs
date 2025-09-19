@@ -104,6 +104,11 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalType);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyCorticalChannelCount);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyCorticalChannelIndex);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyAgentDeviceIndex);
 
     // neurons
     add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData);
