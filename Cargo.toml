@@ -7,7 +7,7 @@ features = ["pyo3/extension-module"]
 
 [package]
 name = "feagi_rust_py_libs"
-version = "0.0.55"
+version = "0.0.56"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,15 +16,15 @@ name = "feagi_rust_py_libs"
 crate-type = ["cdylib"]
 
 [dependencies]
-feagi_connector_core = { version = "0.0.50-beta.23"}
-feagi_data_serialization = { version = "0.0.50-beta.23"}
-feagi_data_structures = { version = "0.0.50-beta.23"}
+feagi_connector_core = { version = "0.0.50-beta.24"}
+feagi_data_serialization = { version = "0.0.50-beta.24"}
+feagi_data_structures = { version = "0.0.50-beta.24"}
 numpy = "0.24.0"
 ndarray = "0.16.1"
 paste = "1.0"
 
 [build-dependencies]
-feagi_data_structures = { version = "0.0.50-beta.23"}
+feagi_data_structures = { version = "0.0.50-beta.24"}
 
 
 [dependencies.pyo3]
