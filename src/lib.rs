@@ -126,8 +126,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     //region Feagi Connector Core Crate
     
-    // Sensory
-    add_python_class!(py, m, "connector_core", feagi_connector_core::sensory::PySensorCache);
+    // Cache
+    add_python_class!(py, m, "connector_core", feagi_connector_core::data_pipeline::PyIOCache);
 
     // Data Pipeline
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage);
