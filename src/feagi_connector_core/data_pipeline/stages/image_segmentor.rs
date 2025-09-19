@@ -1,7 +1,7 @@
 use feagi_connector_core::data_pipeline::stages::ImageFrameSegmentatorStage;
+use feagi_data_structures::data::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_data_structures::data::image_descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
 use feagi_data_structures::processing::ImageFrameSegmentator;
 use crate::{common_stage_implementations};
 use crate::feagi_connector_core::data_pipeline::pipeline_stage::PyPipelineStage;
