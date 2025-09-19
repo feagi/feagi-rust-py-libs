@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::wrapped_io_data::WrappedIOData;
 use pyo3::types::PyFloat;
-use crate::feagi_data_structures::data::{PyImageFrame, PySegmentedImageFrame};
+use crate::feagi_data_structures::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame};
 // NOTE: We don't need the actual data type as we just use PyObject. Instead, here are some conversion functions
 
 pub fn wrapped_io_data_to_py_object(wrapped_iodata: WrappedIOData) -> PyResult<PyObject> {
@@ -19,8 +19,16 @@ pub fn wrapped_io_data_to_py_object(wrapped_iodata: WrappedIOData) -> PyResult<P
                 py_segmented_frame.into_py(py)
             },
             WrappedIOData::F32(number) => PyFloat::new(py, number as f64).into(),
-            WrappedIOData::F32Normalized0To1(number) => PyFloat::new(py, number as f64).into(),
-            WrappedIOData::F32NormalizedM1To1(number) => PyFloat::new(py, number as f64).into(),
+            WrappedIOData::Percentage(number) => PyFloat::new(py, number.get_as_0_1() as f64).into(),
+            WrappedIOData::SignedPercentage(number) => PyFloat::new(py, number.get_as_m1_1() as f64).into(),
+            WrappedIOData::MiscData(misc_data) => {
+                let py_misc_data = PyMiscData::from(misc_data);
+                py_misc_data.into_py(py)
+            },
+            WrappedIOData::Percentage4D(perc4d) => {
+                let data = (perc4d.a.get_as_0_1(), perc4d.b.get_as_0_1(), perc4d.c.get_as_0_1(), perc4d.d.get_as_0_1());
+                data.into_py(py)
+            }
         })
     })
 }

@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::data::image_descriptors::*;
+use feagi_data_structures::data::descriptors::*;
 use feagi_data_structures::FeagiDataError;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::py_error::PyFeagiError;
@@ -58,18 +58,18 @@ impl PyImageXYResolution {
     #[new]
     pub fn new(width: usize, height: usize) -> PyResult<Self> {
         Ok(PyImageXYResolution {
-            inner: ImageXYResolution::new(width, height).map_err(PyFeagiError::from)?
+            inner: ImageXYResolution::new(width as u32, height as u32).map_err(PyFeagiError::from)?
         })
     }
 
     #[getter]
     pub fn width(&self) -> usize {
-        self.inner.width
+        self.inner.width as usize
     }
 
     #[getter]
     pub fn height(&self) -> usize {
-        self.inner.height
+        self.inner.height as usize
     }
 }
 
@@ -379,11 +379,16 @@ pub struct PyGazeProperties{
 
 #[pymethods]
 impl PyGazeProperties {
+
+    /*
     #[new]
     fn new(eccentricity_center_xy: (f32, f32), modularity_size_xy: (f32, f32)) -> PyResult<Self> {
+
         let inner = GazeProperties::new(eccentricity_center_xy, modularity_size_xy);
         Ok(PyGazeProperties { inner })
     }
+
+     */
 
     #[staticmethod]
     fn create_default_centered() -> Self {
@@ -392,7 +397,6 @@ impl PyGazeProperties {
         }
     }
 
-    //TODO calculate_source_corner_points_for_segmented_video_frame
 }
 
 py_type_casts!(PyGazeProperties, GazeProperties);
