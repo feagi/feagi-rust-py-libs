@@ -95,6 +95,14 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyImageFrame);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyMiscData);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PyPercentage);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PySignedPercentage);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PyPercentage2D);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PySignedPercentage2D);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PyPercentage3D);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PySignedPercentage3D);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PyPercentage4D);
+    add_python_class!(py, m, "data_structures.data.percentages", feagi_data_structures::data::PySignedPercentage4D);
     
     // Wrapped IO Data
     add_python_class!(py, m, "data_structures.wrapped_io_data", feagi_data_structures::wrapped_io_data::PyWrappedIOType);
