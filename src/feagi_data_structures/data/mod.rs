@@ -2,8 +2,17 @@ pub mod image_descriptors;
 mod image_frame;
 mod segmented_image_frame;
 mod misc_data;
+mod percentages;
 
 pub use image_frame::PyImageFrame;
 pub use segmented_image_frame::PySegmentedImageFrame;
 pub use misc_data::PyMiscData;
+
+
+pub use crate::feagi_data_structures::data::percentages::{
+    PyPercentage, PySignedPercentage,
+    PyPercentage2D, PySignedPercentage2D,
+    PyPercentage3D, PySignedPercentage3D,
+    PyPercentage4D, PySignedPercentage4D
+};
 

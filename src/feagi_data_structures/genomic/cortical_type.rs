@@ -1,8 +1,8 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::sensor_definition;
-use feagi_data_structures::genomic::{CorticalType, CoreCorticalType, SensorCorticalType, CorticalID};
+use feagi_data_structures::{motor_definition, sensor_definition};
+use feagi_data_structures::genomic::{CorticalType, CoreCorticalType, SensorCorticalType, CorticalID, MotorCorticalType};
 use feagi_data_structures::genomic::descriptors::{CorticalGroupIndex, CorticalChannelIndex};
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::PyCorticalID;
@@ -50,6 +50,56 @@ macro_rules! define_input_cortical_types_py {
                 match inner {
                 $(
                      PySensorCorticalType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name
+                ),*
+                }
+            }
+        }
+
+        // TODO expose to_cortical_id, get_type_from_bytes, get_channel_dimension_range
+    }
+}
+
+macro_rules! define_output_cortical_types_py {
+    (
+        $cortical_io_type_enum_name:ident {
+            $(
+                $(#[doc = $doc:expr])?
+                $cortical_type_key_name:ident => {
+                    friendly_name: $display_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
+                    base_ascii: $base_ascii:expr,
+                    channel_dimension_range: $channel_dimension_range:expr,
+                    default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
+                }
+            ),* $(,)?
+        }
+    ) => {
+
+        #[pyclass]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        #[pyo3(name = "MotorCorticalType")]
+        pub enum PyMotorCorticalType {
+            $(
+                $cortical_type_key_name
+            ),*
+        }
+
+        impl From<MotorCorticalType> for PyMotorCorticalType {
+            fn from(inner: MotorCorticalType) -> Self {
+                match inner {
+                $(
+                     MotorCorticalType::$cortical_type_key_name => Self::$cortical_type_key_name
+                ),*
+                }
+            }
+        }
+
+        impl From<PyMotorCorticalType> for MotorCorticalType {
+            fn from(inner: PyMotorCorticalType) -> Self {
+                match inner {
+                $(
+                     PyMotorCorticalType::$cortical_type_key_name => MotorCorticalType::$cortical_type_key_name
                 ),*
                 }
             }
@@ -195,3 +245,5 @@ impl From <CoreCorticalType> for PyCoreCorticalType {
 sensor_definition!(define_input_cortical_types_py);
 
 //endregion
+
+motor_definition!(define_output_cortical_types_py);

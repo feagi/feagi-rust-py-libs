@@ -4,7 +4,7 @@ use pyo3::exceptions::PyValueError;
 use feagi_connector_core::caching::IOCache;
 use feagi_connector_core::data_pipeline::PipelineStage;
 use feagi_data_structures::data::descriptors::{ImageFrameProperties, MiscDataDimensions};
-use feagi_data_structures::data::{ImageFrame, MiscData};
+use feagi_data_structures::data::{ImageFrame, MiscData, Percentage4D};
 use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
 use feagi_data_structures::genomic::{MotorCorticalType, SensorCorticalType};
 use pyo3::types::PyBytes;
@@ -12,7 +12,7 @@ use crate::feagi_connector_core::data_pipeline::{extract_pipeline_stage_from_py,
 use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_data_structures::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex};
-use crate::feagi_data_structures::genomic::PySensorCorticalType;
+use crate::feagi_data_structures::genomic::{PyMotorCorticalType, PySensorCorticalType};
 use crate::py_error::PyFeagiError;
 
 macro_rules! convert_common_sensor_parameters {
@@ -41,17 +41,17 @@ impl PyIOCache {
 
     //region Sensor Interfaces
 
-    /*
+
     pub fn sensor_encode_cached_data_into_bytes(&mut self) -> PyResult<()> {
-        self.inner.encode_cached_data_into_bytes(Instant::now());
+        self.inner.sensor_encode_cached_data_into_bytes(Instant::now());
         Ok(())
     }
 
     pub fn retrieve_latest_bytes(&self) -> PyResult<Vec<u8>> {
-        Ok(self.inner.retrieve_latest_bytes().unwrap().to_vec())
+        Ok(self.inner.sensor_retrieve_latest_bytes().unwrap().to_vec())
     }
 
-     */
+
 
     //region Common
 
@@ -449,6 +449,32 @@ impl PyIOCache {
         Ok(self.inner.read_cache_misc_data_motor(cortical_group, device_channel).unwrap().into())
     }
 
+    // TODO other methods?
+
+    //endregion
+
+    //region Percentage4D
+
+    pub fn register_percentage_4d_motor(&mut self, py: Python<'_>, motor_cortical_type: PyMotorCorticalType, cortical_group: PyObject, number_of_channels: PyObject,
+                                    z_depth: u32 ) -> PyResult<()> {
+
+        let motor_cortical_type: MotorCorticalType = MotorCorticalType::from(motor_cortical_type);
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+        self.inner.register_percentage_4d_data_motor(motor_cortical_type, cortical_group, number_of_channels, z_depth).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn read_cache_percentage_4d_motor(&mut self, py: Python<'_>, motor_cortical_type: PyMotorCorticalType, cortical_group: PyObject,
+                                      device_channel: PyObject)
+                                      -> PyResult<((f32, f32, f32, f32))> {
+        let motor_cortical_type: MotorCorticalType = MotorCorticalType::from(motor_cortical_type);
+        let cortical_group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, cortical_group).map_err(PyFeagiError::from)?;
+        let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
+        let result: Percentage4D = self.inner.read_cache_percentage_4d_data_motor(motor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?.into();
+
+        Ok((result.a.get_as_0_1(), result.b.get_as_0_1(), result.c.get_as_0_1(), result.d.get_as_0_1()))
+    }
 
     //endregion
 

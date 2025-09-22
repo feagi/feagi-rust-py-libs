@@ -5,6 +5,7 @@ use pyo3::exceptions::PyValueError;
 use feagi_data_structures::data::descriptors::*;
 use feagi_data_structures::FeagiDataError;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::feagi_data_structures::data::PyPercentage2D;
 use crate::py_error::PyFeagiError;
 
 //region Image XY
@@ -380,15 +381,13 @@ pub struct PyGazeProperties{
 #[pymethods]
 impl PyGazeProperties {
 
-    /*
     #[new]
-    fn new(eccentricity_center_xy: (f32, f32), modularity_size_xy: (f32, f32)) -> PyResult<Self> {
+    fn new(eccentricity_center_xy: PyPercentage2D, modularity_size_xy: PyPercentage2D) -> PyResult<Self> {
 
-        let inner = GazeProperties::new(eccentricity_center_xy, modularity_size_xy);
+        let inner = GazeProperties::new(eccentricity_center_xy.into(), modularity_size_xy.into());
         Ok(PyGazeProperties { inner })
     }
 
-     */
 
     #[staticmethod]
     fn create_default_centered() -> Self {
