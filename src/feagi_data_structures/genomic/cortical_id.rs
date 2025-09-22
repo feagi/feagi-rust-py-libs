@@ -2,10 +2,11 @@ use pyo3::{pyclass, pymethods, PyObject, PyResult, Python};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::genomic::{CoreCorticalType, CorticalID, SensorCorticalType};
+use feagi_data_structures::genomic::{CoreCorticalType, CorticalID, MotorCorticalType, SensorCorticalType};
 use crate::feagi_data_structures::genomic::cortical_type::{PyCoreCorticalType, PyCorticalType, PySensorCorticalType};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
+use crate::feagi_data_structures::genomic::PyMotorCorticalType;
 
 #[pyclass(eq, str)]
 #[derive(PartialEq, Clone, Hash)]
@@ -61,6 +62,23 @@ impl PyCorticalID {
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
     }
+
+    #[staticmethod]
+    pub fn new_motor_cortical_area_id<'py>(py: Python<'_>, motor_cortical_type: PyMotorCorticalType, input_index: PyObject)  -> PyResult<Self> {
+        let input_index_result = PyCorticalGroupIndex::try_get_from_py_object(py, input_index);
+        let input_index = match input_index_result {
+            Ok(input_index) => input_index,
+            Err(e) => return Err(PyValueError::new_err(e.to_string()))
+        };
+
+        let motor_type: MotorCorticalType = motor_cortical_type.into();
+        let result = CorticalID::new_motor_cortical_area_id(motor_type, input_index);
+        match result {
+            Ok(cortical_id) => Ok(PyCorticalID {inner: cortical_id}),
+            Err(e) => Err(PyValueError::new_err(e.to_string()))
+        }
+    }
+
 
     #[staticmethod]
     pub fn try_new_from_bytes(bytes: [u8; CorticalID::CORTICAL_ID_LENGTH]) -> PyResult<Self> {
