@@ -8,6 +8,8 @@ use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::feagi_data_structures::data::PyPercentage2D;
 use crate::py_error::PyFeagiError;
 
+//region Images
+
 //region Image XY
 
 #[pyclass(str)]
@@ -40,6 +42,12 @@ impl TryFrom<(u32, u32)> for PyImageXYPoint {
     }
 }
 
+impl From<PyImageXYPoint> for (u32, u32) {
+    fn from(value: PyImageXYPoint) -> Self {
+        (value.inner.x, value.inner.y)
+    }
+}
+
 
 py_type_casts!(PyImageXYPoint, ImageXYPoint);
 py_object_cast_generic!(PyImageXYPoint, ImageXYPoint, "Unable to retrieve ImageXYPoint data from given!");
@@ -47,7 +55,7 @@ project_display!(PyImageXYPoint);
 
 
 
-#[pyclass(str)] // TODO this should be u32!
+#[pyclass(str)]
 #[pyo3(name = "ImageXYResolution")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PyImageXYResolution {
@@ -57,33 +65,87 @@ pub struct PyImageXYResolution {
 #[pymethods]
 impl PyImageXYResolution {
     #[new]
-    pub fn new(width: usize, height: usize) -> PyResult<Self> {
+    pub fn new(width: u32, height: u32) -> PyResult<Self> {
         Ok(PyImageXYResolution {
-            inner: ImageXYResolution::new(width as u32, height as u32).map_err(PyFeagiError::from)?
+            inner: ImageXYResolution::new(width, height).map_err(PyFeagiError::from)?
         })
     }
 
     #[getter]
-    pub fn width(&self) -> usize {
-        self.inner.width as usize
+    pub fn width(&self) -> u32 {
+        self.inner.width
     }
 
     #[getter]
-    pub fn height(&self) -> usize {
-        self.inner.height as usize
+    pub fn height(&self) -> u32 {
+        self.inner.height
     }
 }
 
-impl TryFrom<(usize, usize)> for PyImageXYResolution {
+impl TryFrom<(u32, u32)> for PyImageXYResolution {
     type Error = PyErr;
-    fn try_from(value: (usize, usize)) -> Result<Self, Self::Error> {
+    fn try_from(value: (u32, u32)) -> Result<Self, Self::Error> {
         PyImageXYResolution::new(value.0, value.1)
+    }
+}
+
+impl From<PyImageXYResolution> for (u32, u32) {
+    fn from(value: PyImageXYResolution) -> Self {
+        (value.inner.width, value.inner.height)
     }
 }
 
 py_type_casts!(PyImageXYResolution, ImageXYResolution);
 py_object_cast_generic!(PyImageXYResolution, ImageXYResolution, "Unable to retrieve ImageXYResolution data from given!");
 project_display!(PyImageXYResolution);
+
+//endregion
+
+//region Image XYZ
+
+#[pyclass(str)]
+#[pyo3(name = "ImageXYZDimensions")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct PyImageXYZDimensions {
+    inner: ImageXYZDimensions
+}
+
+#[pymethods]
+impl PyImageXYZDimensions {
+    #[new]
+    pub fn new(x: u32, y: u32, z: u32) -> PyResult<Self> {
+        Ok(PyImageXYZDimensions {
+            inner: ImageXYZDimensions::new(x, y, z).map_err(PyFeagiError::from)?
+        })
+    }
+
+    #[getter]
+    pub fn width(&self) -> u32 {self.inner.width}
+
+    #[getter]
+    pub fn height(&self) -> u32 { self.inner.height }
+
+    #[getter]
+    pub fn depth(&self) -> u32 { self.inner.depth }
+}
+
+impl TryFrom<(u32, u32, u32)> for PyImageXYZDimensions {
+    type Error = PyErr;
+    fn try_from(value: (u32, u32, u32)) -> Result<Self, Self::Error> {
+        PyImageXYZDimensions::new(value.0, value.1, value.2)
+    }
+}
+
+impl From<PyImageXYZDimensions> for (u32, u32, u32) {
+    fn from(value: PyImageXYZDimensions) -> Self {
+        (value.inner.width, value.inner.height, value.inner.depth)
+    }
+}
+
+
+py_type_casts!(PyImageXYZDimensions, ImageXYZDimensions);
+py_object_cast_generic!(PyImageXYZDimensions, ImageXYZDimensions, "Unable to retrieve ImageXYZDimensions data from given!");
+project_display!(PyImageXYZDimensions);
 
 //endregion
 
@@ -401,5 +463,7 @@ impl PyGazeProperties {
 py_type_casts!(PyGazeProperties, GazeProperties);
 py_object_cast_generic!(PyGazeProperties, GazeProperties, "Unable to retrieve GazeProperties data from given!");
 project_display!(PyGazeProperties);
+
+//endregion
 
 //endregion

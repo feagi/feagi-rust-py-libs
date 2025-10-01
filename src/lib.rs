@@ -83,15 +83,15 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region Feagi Data Structures Crate
     
     // Data
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYPoint);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYResolution);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedXYImageResolutions);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyColorSpace);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyColorChannelLayout);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageFrameProperties);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedImageFrameProperties);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyGazeProperties);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyImageXYPoint);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyImageXYResolution);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PySegmentedXYImageResolutions);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyColorSpace);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyColorChannelLayout);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyMemoryOrderLayout);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyImageFrameProperties);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PySegmentedImageFrameProperties);
+    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::descriptors::PyGazeProperties);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyImageFrame);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
     add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyMiscData);

@@ -304,56 +304,173 @@ class genome:
         Each sensor type has specific characteristics and use cases.
         """
         
-        Infrared: 'SensorCorticalType'
-        """Infrared distance sensor for object detection."""
+        InfraredInstantLinear: 'SensorCorticalType'
+        """Infrared distance sensor for object detection. Instantaneous change. Neurons encoded linearly."""
         
-        ReverseInfrared: 'SensorCorticalType'
-        """Inverted infrared sensor that provides reverse object detection readings.."""
+        InfraredInstantFractional: 'SensorCorticalType'
+        """Infrared distance sensor for object detection. Instantaneous change. Neurons encoded fractionally exponentially."""
         
-        DigitalGPIOInput: 'SensorCorticalType'
-        """Digital GPIO input pin for reading binary signals (high/low states).."""
+        InfraredIncrementalLinear: 'SensorCorticalType'
+        """Infrared distance sensor for object detection. Incremental change. Neurons encoded linearly."""
         
-        Proximity: 'SensorCorticalType'
-        """Proximity sensor for detecting nearby objects and measuring distances.."""
+        InfraredIncrementalFractional: 'SensorCorticalType'
+        """Infrared distance sensor for object detection. Incremental change. Neurons encoded fractionally exponentially."""
         
-        Shock: 'SensorCorticalType'
-        """Shock sensor for sensing 'pain'."""
+        ReverseInfraredInstantLinear: 'SensorCorticalType'
+        """Inverted infrared sensor that provides reverse object detection readings. Instantaneous change. Neurons encoded linearly."""
         
-        Battery: 'SensorCorticalType'
-        """Battery level sensor for monitoring power remaining.."""
+        ReverseInfraredInstantFractional: 'SensorCorticalType'
+        """Inverted infrared sensor that provides reverse object detection readings. Instantaneous change. Neurons encoded fractionally exponentially."""
         
-        ServoPosition: 'SensorCorticalType'
-        """Servo position feedback sensor for monitoring actuator positions.."""
+        ReverseInfraredIncrementalLinear: 'SensorCorticalType'
+        """Inverted infrared sensor that provides reverse object detection readings. Incremental change. Neurons encoded linearly."""
         
-        Miscellaneous: 'SensorCorticalType'
-        """Miscellaneous area for all types of data FEAGI has no specific implementation for.."""
+        ReverseInfraredIncrementalFractional: 'SensorCorticalType'
+        """Inverted infrared sensor that provides reverse object detection readings. Incremental change. Neurons encoded fractionally exponentially."""
         
-        ImageCameraCenter: 'SensorCorticalType'
-        """Image camera input. Either alone or in the center of segmented/peripheral image camera setups."""
+        DigitalGPIOInputInstantLinear: 'SensorCorticalType'
+        """Digital GPIO input pin for reading binary signals (high/low states). Instantaneous change. Neurons encoded linearly."""
         
-        ImageCameraTopLeft: 'SensorCorticalType'
-        """Top Left peripheral image camera input.."""
+        DigitalGPIOInputInstantFractional: 'SensorCorticalType'
+        """Digital GPIO input pin for reading binary signals (high/low states). Instantaneous change. Neurons encoded fractionally exponentially."""
         
-        ImageCameraTopMiddle: 'SensorCorticalType'
-        """Top Middle peripheral image camera input.."""
+        DigitalGPIOInputIncrementalLinear: 'SensorCorticalType'
+        """Digital GPIO input pin for reading binary signals (high/low states). Incremental change. Neurons encoded linearly."""
         
-        ImageCameraTopRight: 'SensorCorticalType'
-        """Top Right peripheral image camera input.."""
+        DigitalGPIOInputIncrementalFractional: 'SensorCorticalType'
+        """Digital GPIO input pin for reading binary signals (high/low states). Incremental change. Neurons encoded fractionally exponentially."""
         
-        ImageCameraMiddleLeft: 'SensorCorticalType'
-        """Middle Left peripheral image camera input.."""
+        ProximityInstantLinear: 'SensorCorticalType'
+        """Proximity sensor for detecting nearby objects and measuring distances. Instantaneous change. Neurons encoded linearly."""
         
-        ImageCameraMiddleRight: 'SensorCorticalType'
-        """Middle Right peripheral image camera input.."""
+        ProximityInstantFractional: 'SensorCorticalType'
+        """Proximity sensor for detecting nearby objects and measuring distances. Instantaneous change. Neurons encoded fractionally exponentially."""
         
-        ImageCameraBottomLeft: 'SensorCorticalType'
-        """Bottom Left peripheral image camera input.."""
+        ProximityIncrementalLinear: 'SensorCorticalType'
+        """Proximity sensor for detecting nearby objects and measuring distances. Incremental change. Neurons encoded linearly."""
         
-        ImageCameraBottomMiddle: 'SensorCorticalType'
-        """Bottom Middle peripheral image camera input.."""
+        ProximityIncrementalFractional: 'SensorCorticalType'
+        """Proximity sensor for detecting nearby objects and measuring distances. Incremental change. Neurons encoded fractionally exponentially."""
         
-        ImageCameraBottomRight: 'SensorCorticalType'
-        """Bottom Right peripheral image camera input.."""
+        ShockInstantLinear: 'SensorCorticalType'
+        """Shock sensor for sensing 'pain'. Instantaneous change. Neurons encoded linearly."""
+        
+        ShockInstantFractional: 'SensorCorticalType'
+        """Shock sensor for sensing 'pain'. Instantaneous change. Neurons encoded fractionally exponentially."""
+        
+        ShockIncrementalLinear: 'SensorCorticalType'
+        """Shock sensor for sensing 'pain'. Incremental change. Neurons encoded linearly."""
+        
+        ShockIncrementalFractional: 'SensorCorticalType'
+        """Shock sensor for sensing 'pain'. Incremental change. Neurons encoded fractionally exponentially."""
+        
+        BatteryInstantLinear: 'SensorCorticalType'
+        """Battery level sensor for monitoring power remaining. Instantaneous change. Neurons encoded linearly."""
+        
+        BatteryInstantFractional: 'SensorCorticalType'
+        """Battery level sensor for monitoring power remaining. Instantaneous change. Neurons encoded fractionally exponentially."""
+        
+        BatteryIncrementalLinear: 'SensorCorticalType'
+        """Battery level sensor for monitoring power remaining. Incremental change. Neurons encoded linearly."""
+        
+        BatteryIncrementalFractional: 'SensorCorticalType'
+        """Battery level sensor for monitoring power remaining. Incremental change. Neurons encoded fractionally exponentially."""
+        
+        AnalogGPIOInputInstantLinear: 'SensorCorticalType'
+        """Analog GPIO input pin for reading binary signals (high/low states). Instantaneous change. Neurons encoded linearly."""
+        
+        AnalogGPIOInputInstantFractional: 'SensorCorticalType'
+        """Analog GPIO input pin for reading binary signals (high/low states). Instantaneous change. Neurons encoded fractionally exponentially."""
+        
+        AnalogGPIOInputIncrementalLinear: 'SensorCorticalType'
+        """Analog GPIO input pin for reading binary signals (high/low states). Incremental change. Neurons encoded linearly."""
+        
+        AnalogGPIOInputIncrementalFractional: 'SensorCorticalType'
+        """Analog GPIO input pin for reading binary signals (high/low states). Incremental change. Neurons encoded fractionally exponentially."""
+        
+        ServoPositionInstantLinear: 'SensorCorticalType'
+        """Servo position feedback sensor for monitoring actuator positions. Instantaneous change. Neurons encoded linearly."""
+        
+        ServoPositionInstantFractional: 'SensorCorticalType'
+        """Servo position feedback sensor for monitoring actuator positions. Instantaneous change. Neurons encoded fractionally exponentially."""
+        
+        ServoPositionIncrementalLinear: 'SensorCorticalType'
+        """Servo position feedback sensor for monitoring actuator positions. Incremental change. Neurons encoded linearly."""
+        
+        ServoPositionIncrementalFractional: 'SensorCorticalType'
+        """Servo position feedback sensor for monitoring actuator positions. Incremental change. Neurons encoded fractionally exponentially."""
+        
+        ServoMotionInstantLinear: 'SensorCorticalType'
+        """Servo motion feedback sensor for monitoring actuator positions. Instantaneous change. Neurons encoded linearly."""
+        
+        ServoMotionInstantFractional: 'SensorCorticalType'
+        """Servo motion feedback sensor for monitoring actuator positions. Instantaneous change. Neurons encoded fractionally exponentially."""
+        
+        ServoMotionIncrementalLinear: 'SensorCorticalType'
+        """Servo motion feedback sensor for monitoring actuator positions. Incremental change. Neurons encoded linearly."""
+        
+        ServoMotionIncrementalFractional: 'SensorCorticalType'
+        """Servo motion feedback sensor for monitoring actuator positions. Incremental change. Neurons encoded fractionally exponentially."""
+        
+        MiscellaneousInstant: 'SensorCorticalType'
+        """Miscellaneous area for all types of data FEAGI has no specific implementation for. Instantaneous change.."""
+        
+        MiscellaneousIncremental: 'SensorCorticalType'
+        """Miscellaneous area for all types of data FEAGI has no specific implementation for. Incremental change.."""
+        
+        ImageCameraCenterInstant: 'SensorCorticalType'
+        """Image camera input. Either alone or in the center of segmented/peripheral image camera setups. Instantaneous change.."""
+        
+        ImageCameraCenterIncremental: 'SensorCorticalType'
+        """Image camera input. Either alone or in the center of segmented/peripheral image camera setups. Incremental change.."""
+        
+        ImageCameraTopLeftInstant: 'SensorCorticalType'
+        """Top Left peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraTopLeftIncremental: 'SensorCorticalType'
+        """Top Left peripheral image camera input. Incremental change.."""
+        
+        ImageCameraTopMiddleInstant: 'SensorCorticalType'
+        """Top Middle peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraTopMiddleIncremental: 'SensorCorticalType'
+        """Top Middle peripheral image camera input. Incremental change.."""
+        
+        ImageCameraTopRightInstant: 'SensorCorticalType'
+        """Top Right peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraTopRightIncremental: 'SensorCorticalType'
+        """Top Right peripheral image camera input. Incremental change.."""
+        
+        ImageCameraMiddleLeftInstant: 'SensorCorticalType'
+        """Middle Left peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraMiddleLeftIncremental: 'SensorCorticalType'
+        """Middle Left peripheral image camera input. Incremental change.."""
+        
+        ImageCameraMiddleRightInstant: 'SensorCorticalType'
+        """Middle Right peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraMiddleRightIncremental: 'SensorCorticalType'
+        """Middle Right peripheral image camera input. Incremental change.."""
+        
+        ImageCameraBottomLeftInstant: 'SensorCorticalType'
+        """Bottom Left peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraBottomLeftIncremental: 'SensorCorticalType'
+        """Bottom Left peripheral image camera input. Incremental change.."""
+        
+        ImageCameraBottomMiddleInstant: 'SensorCorticalType'
+        """Bottom Middle peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraBottomMiddleIncremental: 'SensorCorticalType'
+        """Bottom Middle peripheral image camera input. Incremental change.."""
+        
+        ImageCameraBottomRightInstant: 'SensorCorticalType'
+        """Bottom Right peripheral image camera input. Instantaneous change.."""
+        
+        ImageCameraBottomRightIncremental: 'SensorCorticalType'
+        """Bottom Right peripheral image camera input. Incremental change.."""
         
         class CorticalGroupingIndex:
         """Index for grouping cortical areas."""

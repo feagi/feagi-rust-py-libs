@@ -2,7 +2,7 @@ use feagi_data_structures::data::descriptors::{ImageFrameProperties, SegmentedIm
 use pyo3::{pyclass, pymethods, PyResult, Py};
 use pyo3::prelude::*;
 use feagi_data_structures::wrapped_io_data::{WrappedIOType, WrappedIOData};
-use crate::feagi_data_structures::data::image_descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_data_structures::data::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass(subclass, str)]

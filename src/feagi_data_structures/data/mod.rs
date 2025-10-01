@@ -1,4 +1,4 @@
-pub mod image_descriptors;
+pub mod descriptors;
 mod image_frame;
 mod segmented_image_frame;
 mod misc_data;

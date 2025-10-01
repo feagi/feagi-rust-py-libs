@@ -35,6 +35,11 @@ impl PyMiscData {
         Ok(Py::from(PyArray3::from_array(py, &self.inner.get_internal_data())))
     }
 
+    pub fn blank_data(&mut self) -> PyResult<()> {
+        self.inner.blank_data();
+        Ok(())
+    }
+
 }
 
 py_type_casts!(PyMiscData, MiscData);

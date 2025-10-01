@@ -5,7 +5,7 @@ use feagi_data_structures::processing::{ImageFrameProcessor, ImageFrameSegmentat
 use pyo3::exceptions::PyValueError;
 use crate::{common_stage_implementations};
 use crate::feagi_connector_core::data_pipeline::pipeline_stage::PyPipelineStage;
-use crate::feagi_data_structures::data::image_descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_data_structures::data::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_data_structures::processing::{PyImageFrameProcessor, PyImageFrameSegmentator};
 
 #[pyclass(str, extends=PyPipelineStage)]
