@@ -5,10 +5,10 @@ use numpy::PyArray1;
 use feagi_data_structures::neurons::xyzp::{CorticalMappedXYZPNeuronData};
 use feagi_data_serialization::FeagiSerializable;
 use crate::feagi_data_structures::genomic::{PyCorticalID};
-use crate::feagi_data_serialization::{PyFeagiByteStructure, PyFeagiByteStructureCompatible, PyFeagiByteStructureType};
+use crate::feagi_data_serialization::{PyFeagiSerializable, PyFeagiByteStructureType};
 use super::neuron_xyzp_arrays::{PyNeuronXYZPArrays, tuple_nd_array_to_tuple_np_array};
 
-#[pyclass(str, extends=PyFeagiByteStructureCompatible)]
+#[pyclass(str, extends=PyFeagiSerializable)]
 #[derive(Clone)]
 #[pyo3(name = "CorticalMappedXYZPNeuronData")]
 pub struct PyCorticalMappedXYZPNeuronData { // HashMap<CorticalID, NeuronYXCPArrays>
@@ -19,7 +19,7 @@ impl PyCorticalMappedXYZPNeuronData {
     /// Create the object with proper inheritance in python
     pub(crate) fn instantiate_inherited_cortical_data(py: Python, cortical_mapped_data: CorticalMappedXYZPNeuronData) -> PyResult<PyObject> where Self: Sized {
         let child = PyCorticalMappedXYZPNeuronData { inner: cortical_mapped_data };
-        let parent = PyFeagiByteStructureCompatible::new();
+        let parent = PyFeagiSerializable::new();
         let py_obj = Py::new(py, (child, parent))?;
         Ok(py_obj.into())
     }
@@ -34,7 +34,7 @@ impl PyCorticalMappedXYZPNeuronData {
 
     #[getter]
     pub fn byte_structure_type(&self) -> PyFeagiByteStructureType {
-        PyFeagiByteStructureType::NeuronCategoricalXYZP
+        PyFeagiByteStructureType::NeuronCategoricalXYZP()
     }
 
     #[getter]
@@ -51,12 +51,12 @@ impl PyCorticalMappedXYZPNeuronData {
 
 
     #[new]
-    pub fn new() -> (PyCorticalMappedXYZPNeuronData, PyFeagiByteStructureCompatible) {
+    pub fn new() -> (PyCorticalMappedXYZPNeuronData, PyFeagiSerializable) {
         (
             PyCorticalMappedXYZPNeuronData {
                 inner: CorticalMappedXYZPNeuronData::new()
             },
-            PyFeagiByteStructureCompatible::new()
+            PyFeagiSerializable::new()
         )
     }
 

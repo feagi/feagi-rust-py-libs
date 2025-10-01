@@ -7,7 +7,7 @@ use crate::feagi_data_structures::data::descriptors::{PyImageFrameProperties, Py
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::py_error::PyFeagiError;
 
-#[pyclass(subclass, str)]
+#[pyclass(subclass, str)] //TODO subclass?
 #[pyo3(name = "WrappedIOType")]
 #[derive(Clone)]
 pub struct PyWrappedIOType {
