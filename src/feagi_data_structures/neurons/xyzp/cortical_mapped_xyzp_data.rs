@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use numpy::PyArray1;
 use feagi_data_structures::neurons::xyzp::{CorticalMappedXYZPNeuronData};
-use feagi_data_serialization::{FeagiByteStructureCompatible};
+use feagi_data_serialization::FeagiSerializable;
 use crate::feagi_data_structures::genomic::{PyCorticalID};
 use crate::feagi_data_serialization::{PyFeagiByteStructure, PyFeagiByteStructureCompatible, PyFeagiByteStructureType};
 use super::neuron_xyzp_arrays::{PyNeuronXYZPArrays, tuple_nd_array_to_tuple_np_array};
@@ -25,6 +25,8 @@ impl PyCorticalMappedXYZPNeuronData {
     }
 }
 
+// TODO split this up as per implementation
+
 #[pymethods]
 impl PyCorticalMappedXYZPNeuronData {
 
@@ -42,26 +44,7 @@ impl PyCorticalMappedXYZPNeuronData {
 
     #[getter]
     pub fn max_number_bytes_needed(&self) -> usize {
-        self.inner.max_number_bytes_needed()
-    }
-
-    #[staticmethod]
-    pub fn new_from_feagi_byte_structure<'py>(py: Python<'py>, byte_structure: PyFeagiByteStructure) -> PyResult<PyObject> where Self: Sized {
-        let result = CorticalMappedXYZPNeuronData::new_from_feagi_byte_structure(&byte_structure.inner);
-        match result {
-            Ok(inner) => {
-                Self::instantiate_inherited_cortical_data(py, inner)
-            },
-            Err(e) => Err(PyValueError::new_err(e.to_string()))
-        }
-    }
-
-    pub fn as_new_feagi_byte_structure(&self) -> PyResult<PyFeagiByteStructure> {
-        let result = self.inner.as_new_feagi_byte_structure();
-        match result {
-            Ok(result) => Ok(PyFeagiByteStructure { inner: result }),
-            Err(error) => Err(PyValueError::new_err(error.to_string())),
-        }
+        self.inner.get_number_of_bytes_needed()
     }
 
     //endregion
