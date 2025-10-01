@@ -126,7 +126,7 @@ impl PyImageFrame {
 
     #[getter]
     pub fn get_dimensions(&self) -> PyImageXYZDimensions {
-
+        self.inner.get_dimensions().into()
     }
 
     pub fn copy_to_numpy_array<'py>(&self, py: Python) -> PyResult<Py<PyArray3<u8>>> {
