@@ -1,9 +1,9 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::data::{SegmentedImageFrame};
 use feagi_data_structures::genomic::descriptors::CorticalGroupIndex;
 use feagi_data_structures::FeagiDataError;
-use crate::feagi_data_structures::data::descriptors::*;
+use feagi_connector_core::data_types::{SegmentedImageFrame};
+use crate::feagi_connector_core::data::descriptors::*;
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::{PyCorticalID, PyCorticalType};
 use crate::{project_display, py_object_cast_generic, py_type_casts};

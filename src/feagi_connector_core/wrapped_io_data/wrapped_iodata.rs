@@ -1,10 +1,8 @@
-use feagi_data_structures::data::{ImageFrame, SegmentedImageFrame, MiscData, Percentage, Percentage2D, Percentage3D, Percentage4D, SignedPercentage, SignedPercentage2D, SignedPercentage3D, SignedPercentage4D};
-use pyo3::{PyResult, pyclass, pymethods};
+use pyo3::{PyResult };
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::wrapped_io_data::WrappedIOData;
 use pyo3::types::PyFloat;
-use crate::feagi_data_structures::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D};
+use crate::feagi_connector_core::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::py_error::PyFeagiError;
 

@@ -1,5 +1,5 @@
-use feagi_data_structures::data::descriptors::MiscDataDimensions;
-use feagi_data_structures::data::{ImageFrame, MiscData};
+use feagi_connector_core::data_types::descriptors::MiscDataDimensions;
+use feagi_connector_core::data_types::{MiscData};
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;

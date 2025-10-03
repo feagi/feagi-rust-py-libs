@@ -9,7 +9,7 @@ pub use segmented_image_frame::PySegmentedImageFrame;
 pub use misc_data::PyMiscData;
 
 
-pub use crate::feagi_data_structures::data::percentages::{
+pub use crate::feagi_connector_core::data::percentages::{
     PyPercentage, PySignedPercentage,
     PyPercentage2D, PySignedPercentage2D,
     PyPercentage3D, PySignedPercentage3D,

@@ -2,7 +2,7 @@ use feagi_data_structures::wrapped_io_data::WrappedIOType;
 use pyo3::{pyclass, pymethods, PyResult,};
 use pyo3::prelude::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
-use crate::feagi_data_structures::wrapped_io_data::PyWrappedIOType;
+use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
 use crate::py_error::PyFeagiError;
 
 #[pyclass(str, extends=PyPipelineStageProperties)]

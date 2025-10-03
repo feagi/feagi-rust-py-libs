@@ -2,9 +2,9 @@ use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::data::ImageFrame;
+use feagi_connector_core::data_types::ImageFrame;
 use pyo3::types::PyBytes;
-use crate::feagi_data_structures::data::descriptors::*;
+use crate::feagi_connector_core::data::descriptors::*;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass(str)]

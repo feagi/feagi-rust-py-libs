@@ -2,10 +2,10 @@ use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::data::descriptors::*;
 use feagi_data_structures::FeagiDataError;
+use feagi_connector_core::data_types::descriptors::*;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::feagi_data_structures::data::{PyImageFrame, PyPercentage2D, PySegmentedImageFrame};
+use crate::feagi_connector_core::data::{PyImageFrame, PyPercentage2D, PySegmentedImageFrame};
 use crate::py_error::PyFeagiError;
 
 //region Images

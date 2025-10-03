@@ -9,8 +9,8 @@ use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, Cortical
 use feagi_data_structures::genomic::{MotorCorticalType, SensorCorticalType};
 use pyo3::types::PyBytes;
 use crate::feagi_connector_core::data_pipeline::{extract_pipeline_stage_from_py, PyPipelineStage};
-use crate::feagi_data_structures::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
-use crate::feagi_data_structures::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame};
+use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_connector_core::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex};
 use crate::feagi_data_structures::genomic::{PyMotorCorticalType, PySensorCorticalType};
 use crate::py_error::PyFeagiError;
