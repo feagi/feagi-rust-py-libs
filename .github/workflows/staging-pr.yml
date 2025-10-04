@@ -31,6 +31,13 @@ jobs:
           path: base
           fetch-depth: 1
 
+      - name: Checkout feagi-data-processing
+        uses: actions/checkout@v4
+        with:
+          repository: feagi/feagi-data-processing
+          ref: main
+          path: feagi-data-processing
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
