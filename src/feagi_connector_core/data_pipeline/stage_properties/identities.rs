@@ -14,7 +14,7 @@ pub struct PyIdentityStageProperties;
 #[pymethods]
 impl PyIdentityStageProperties {
     #[new]
-    pub fn new(wrapped_type: PyWrappedIOType) -> PyResult<Self> {
+    pub fn new(wrapped_type: PyWrappedIOType) -> PyResult<(Self, PyPipelineStageProperties)> {
         let wrapped_type: WrappedIOType = wrapped_type.into();
         let result_stage: IdentityStageProperties = IdentityStageProperties::new(wrapped_type);
         Ok((PyIdentityStageProperties, PyPipelineStageProperties::new(Box::new(result_stage))))
