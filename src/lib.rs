@@ -104,11 +104,10 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     //region Feagi Data Serialization Crate
     
-    // Byte Structure API (for FEAGI Core)
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructure);
+    // Byte Structure API (for FEAGI Core) - PyFeagiByteStructure disabled (unavailable in beta.33)
+    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructure);
     add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
     add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiJSON);
     
     //endregion
     
