@@ -114,7 +114,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region Feagi Connector Core Crate
     
     // Cache
-    add_python_class!(py, m, "connector_core.caching", feagi_connector_core::data_pipeline::PyIOCache);
+    add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyIOCache);
 
     // Data
     add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyImageFrame);
@@ -147,7 +147,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 
     // Data Pipeline Stage Properties
-    add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
 
 
     // Data Pipeline Stages
