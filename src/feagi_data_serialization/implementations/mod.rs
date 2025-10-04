@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
-use feagi_data_structures::data::FeagiJSON;
-use feagi_data_serialization::{FeagiByteStructure, FeagiByteStructureCompatible, FeagiByteStructureType};
+use ::feagi_data_structures::data::FeagiJSON;
+use ::feagi_data_serialization::{FeagiByteStructure, FeagiByteStructureCompatible, FeagiByteStructureType};
 
 #[pyclass]
 #[pyo3(name = "FeagiJSON")]
