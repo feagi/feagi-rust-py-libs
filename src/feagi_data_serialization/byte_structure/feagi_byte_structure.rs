@@ -4,7 +4,8 @@ use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyBytes, PyList};
 use feagi_data_serialization::{FeagiByteStructure, FeagiByteStructureType, FeagiByteStructureCompatible};
 
-use crate::feagi_data_serialization::{PyFeagiByteStructureCompatible, PyFeagiByteStructureType};
+use crate::feagi_data_serialization::byte_structure::PyFeagiByteStructureCompatible;
+use crate::feagi_data_serialization::PyFeagiByteStructureType;
 use crate::feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData;
 
 /// Helper function to convert a Box<dyn FeagiByteStructureCompatible> to the appropriate Python object
