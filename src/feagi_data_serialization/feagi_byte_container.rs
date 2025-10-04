@@ -3,7 +3,7 @@ use pyo3::{pyclass};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
-#[pyclass(str)]
+#[pyclass]
 #[derive(Clone)]
 #[pyo3(name = "FeagiByteContainer")]
 pub struct PyFeagiByteContainer {

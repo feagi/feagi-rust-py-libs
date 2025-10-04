@@ -195,7 +195,7 @@ impl PySegmentedXYImageResolutions {
 
     pub fn as_ordered_array(&self) -> Vec<PyImageXYResolution> {
         let refs = self.inner.as_ordered_array();
-        refs.iter().map(|&res| res.into()).collect()
+        refs.iter().map(|&res| res.clone().into()).collect()
     }
 
     #[getter]

@@ -23,11 +23,7 @@ impl PyFeagiByteStructureType {
     pub fn NeuronCategoricalXYZP() -> Self {
         PyFeagiByteStructureType {inner: FeagiByteStructureType::NeuronCategoricalXYZP}
     }
-
-    #[getter]
-    pub fn byte(&self) -> u8 {
-        self.inner.into()
-    }
+    
 }
 
 project_display!(PyFeagiByteStructureType);
