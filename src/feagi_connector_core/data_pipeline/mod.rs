@@ -1,7 +1,7 @@
 //mod pipeline_stage;
 //pub mod stages;
 mod stage_properties;
-mod pipeline_stage_properties;
+pub mod pipeline_stage_properties;
 mod descriptors;
 //pub use pipeline_stage::PyPipelineStage as PyPipelineStage;
 //pub use pipeline_stage::extract_pipeline_stage_from_py as extract_pipeline_stage_from_py;

@@ -3,14 +3,14 @@ use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::IOCache;
 use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
-use feagi_data_structures::FeagiSignalIndex;
 use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_connector_core::data::PyPercentage4D;
+use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{extract_pipeline_stage_properties_from_py, PyPipelineStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
 use crate::py_error::PyFeagiError;
 
-#[pyclass(str)]
+#[pyclass]
 #[pyo3(name = "IOCache")]
 #[derive()]
 pub struct PyIOCache {
@@ -53,14 +53,14 @@ impl PyIOCache {
         Ok(())
     }
 
-    pub fn sensor_update_stage_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, 
-                                                         pipeline_stage_property_index: PyObject, stage: PyPipelineStageProperty) -> PyResult<()> {
+    pub fn sensor_update_stage_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject,
+                                                         pipeline_stage_property_index: PyObject, stage: PyPipelineStageProperties) -> PyResult<()> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_property_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
         let pipeline_stage_properties = extract_pipeline_stage_properties_from_py(py, stage).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_update_stage_segmented_vision_absolute(cortical_group_index, cortical_channel_index, 
+        self.inner.sensor_update_stage_segmented_vision_absolute(cortical_group_index, cortical_channel_index,
                                                                  stage_property_index, pipeline_stage_properties)
             .map_err(PyFeagiError::from)?;
         Ok(())
