@@ -39,7 +39,7 @@ jobs:
         with:
           repository: feagi/feagi-data-processing
           ref: main
-          path: feagi-data-processing
+          path: ../feagi-data-processing
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -80,7 +80,7 @@ jobs:
         with:
           repository: feagi/feagi-data-processing
           ref: main
-          path: feagi-data-processing
+          path: ../feagi-data-processing
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -116,7 +116,7 @@ jobs:
         with:
           repository: feagi/feagi-data-processing
           ref: main
-          path: feagi-data-processing
+          path: ../feagi-data-processing
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -152,7 +152,7 @@ jobs:
         with:
           repository: feagi/feagi-data-processing
           ref: main
-          path: feagi-data-processing
+          path: ../feagi-data-processing
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -180,7 +180,7 @@ jobs:
         with:
           repository: feagi/feagi-data-processing
           ref: main
-          path: feagi-data-processing
+          path: ../feagi-data-processing
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:

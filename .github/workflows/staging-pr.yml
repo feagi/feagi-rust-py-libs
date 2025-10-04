@@ -36,7 +36,7 @@ jobs:
         with:
           repository: feagi/feagi-data-processing
           ref: main
-          path: feagi-data-processing
+          path: ../feagi-data-processing
 
       - uses: actions/setup-python@v5
         with:
