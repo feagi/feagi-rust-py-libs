@@ -54,11 +54,14 @@ impl PyIOCache {
     }
 
     pub fn sensor_update_stage_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject,
-                                                         pipeline_stage_property_index: PyObject, stage: PyPipelineStageProperties) -> PyResult<()> {
+                                                         pipeline_stage_property_index: PyObject, stage: PyObject) -> PyResult<()> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_property_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
-        let pipeline_stage_properties = extract_pipeline_stage_properties_from_py(py, stage).map_err(PyFeagiError::from)?;
+        
+        // Extract PyObject to Py<PyPipelineStageProperties>
+        let stage_py: Py<PyPipelineStageProperties> = stage.extract(py)?;
+        let pipeline_stage_properties = extract_pipeline_stage_properties_from_py(py, stage_py).map_err(PyFeagiError::from)?;
 
         self.inner.sensor_update_stage_segmented_vision_absolute(cortical_group_index, cortical_channel_index,
                                                                  stage_property_index, pipeline_stage_properties)
