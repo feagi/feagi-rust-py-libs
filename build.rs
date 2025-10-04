@@ -23,7 +23,7 @@ fn main() {
     println!("Generated feagi_data_processing.pyi with SensorCorticalType");
 }
 
-use feagi_data_structures_core::sensor_definition;
+use feagi_data_structures::sensor_definition;
 
 // TODO: Rename to feagi_data_libraries?
 // TODO add macro(s) / funcs for going from PyObject to index types?

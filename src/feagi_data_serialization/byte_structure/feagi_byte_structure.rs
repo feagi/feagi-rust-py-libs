@@ -2,7 +2,7 @@ use pyo3::{pyclass, pymethods, PyResult, PyObject};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyBytes, PyList};
-use crate::feagi_data_serialization::byte_structure::{FeagiByteStructure, FeagiByteStructureType, FeagiByteStructureCompatible};
+use feagi_data_serialization::byte_structure::{FeagiByteStructure, FeagiByteStructureType, FeagiByteStructureCompatible};
 
 use crate::feagi_data_serialization::byte_structure::PyFeagiByteStructureCompatible;
 use crate::feagi_data_serialization::PyFeagiByteStructureType;

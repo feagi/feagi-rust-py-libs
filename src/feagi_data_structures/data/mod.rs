@@ -1,4 +1,2 @@
-mod feagi_json;
-
-pub use feagi_json::PyFeagiJSON;
+// No local wrappers; use external crates directly in callers
 
