@@ -1,27 +1,27 @@
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
-use ::feagi_data_structures::data::FeagiJSON;
+use ::feagi_data_structures::data::FeagiJSON as CoreFeagiJSON;
 use ::feagi_data_serialization::byte_structure::{FeagiByteStructure, FeagiByteStructureCompatible, FeagiByteStructureType};
 
 #[pyclass]
 #[pyo3(name = "FeagiJSON")]
 pub struct PyFeagiJSON {
-    inner: FeagiJSON,
+    inner: CoreFeagiJSON,
 }
 
 #[pymethods]
 impl PyFeagiJSON {
     #[new]
     pub fn new() -> Self {
-        Self { inner: FeagiJSON::new_empty() }
+        Self { inner: CoreFeagiJSON::from_json_value(serde_json::Value::Null) }
     }
 
     #[staticmethod]
     pub fn from_json_str(s: &str) -> PyResult<Self> {
         let val: serde_json::Value = serde_json::from_str(s)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-        Ok(Self { inner: FeagiJSON::from_json_value(val) })
+        Ok(Self { inner: CoreFeagiJSON::from_json_value(val) })
     }
 
     pub fn to_json_str(&self) -> PyResult<String> {
@@ -49,7 +49,7 @@ impl PyFeagiJSON {
         if st != FeagiByteStructureType::JSON {
             return Err(pyo3::exceptions::PyValueError::new_err("Not a JSON byte structure"));
         }
-        let json = <FeagiJSON as FeagiByteStructureCompatible>::new_from_feagi_byte_structure(&fbs)
+        let json = <CoreFeagiJSON as FeagiByteStructureCompatible>::new_from_feagi_byte_structure(&fbs)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
         Ok(Self { inner: json })
     }
