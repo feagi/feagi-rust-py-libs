@@ -108,7 +108,6 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructure);
     add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
     add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiJSON);
     
     //endregion
     
