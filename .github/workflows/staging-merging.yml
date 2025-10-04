@@ -151,12 +151,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: staging
-      - name: Checkout feagi-data-processing
-        uses: actions/checkout@v4
-        with:
-          repository: feagi/feagi-data-processing
-          ref: main
-          path: ../feagi-data-processing
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
