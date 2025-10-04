@@ -82,50 +82,22 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     //region Feagi Data Structures Crate
     
-    // Data
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYPoint);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageXYResolution);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedXYImageResolutions);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyColorSpace);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyColorChannelLayout);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyImageFrameProperties);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PySegmentedImageFrameProperties);
-    add_python_class!(py, m, "data_structures.data.image_descriptors", feagi_data_structures::data::image_descriptors::PyGazeProperties);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyImageFrame);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySegmentedImageFrame);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyMiscData);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyPercentage);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySignedPercentage);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyPercentage2D);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySignedPercentage2D);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyPercentage3D);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySignedPercentage3D);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PyPercentage4D);
-    add_python_class!(py, m, "data_structures.data", feagi_data_structures::data::PySignedPercentage4D);
-    
-    // Wrapped IO Data
-    add_python_class!(py, m, "data_structures.wrapped_io_data", feagi_data_structures::wrapped_io_data::PyWrappedIOType);
-    
     // Genomic
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalID);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalType);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyCorticalChannelCount);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyCorticalChannelIndex);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::descriptors::PyAgentDeviceIndex);
+    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyCorticalChannelCount);
+    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyCorticalChannelIndex);
+    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex);
+    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyAgentDeviceIndex);
+    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyPipelineStagePropertyIndex);
 
-    // neurons
+    // Neurons
     add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData);
     add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZPArrays);
     add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZP);
-    
-    // Processing
-    add_python_class!(py, m, "data_structures.processing", feagi_data_structures::processing::PyImageFrameProcessor);
-    add_python_class!(py, m, "data_structures.processing", feagi_data_structures::processing::PyImageFrameSegmentator);
 
 
     //endregion
@@ -133,24 +105,64 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region Feagi Data Serialization Crate
     
     // Byte Structure
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructure);
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
     
     //endregion
     
     //region Feagi Connector Core Crate
     
     // Cache
-    add_python_class!(py, m, "connector_core", feagi_connector_core::data_pipeline::PyIOCache);
+    add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyIOCache);
 
-    // Data Pipeline
+    // Data
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyImageFrame);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySegmentedImageFrame);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyMiscData);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage2D);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage2D);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage3D);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage3D);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage4D);
+    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage4D);
+    
+    // Data Descriptors
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYPoint);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYResolution);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYZDimensions);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedXYImageResolutions);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorSpace);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorChannelLayout);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMemoryOrderLayout);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageFrameProperties);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedImageFrameProperties);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyCornerPoints);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyGazeProperties);
+    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMiscDataDimensions);
+    
+    // Wrapped IO Data
+    add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
+
+    // Data Pipeline Stage Properties
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
+
+
+    // Data Pipeline Stages
+    /*
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage);
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentityFloatStage);
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentityImageFrameStage);
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentitySegmentedImageFrameStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentitySegmentedImageFrameStage);
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameProcessorStage);
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameSegmentatorStage);
     add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImagePixelValueCountThresholdStage);
+
+     */
 
     //endregion
     

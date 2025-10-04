@@ -3,7 +3,7 @@ use pyo3::exceptions::{PyValueError};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::processing::ImageFrameProcessor;
-use crate::feagi_data_structures::data::image_descriptors::PyImageFrameProperties;
+use crate::feagi_connector_core::data::descriptors::PyImageFrameProperties;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass(str)]

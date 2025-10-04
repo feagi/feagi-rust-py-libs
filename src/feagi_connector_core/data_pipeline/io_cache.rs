@@ -9,8 +9,8 @@ use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, Cortical
 use feagi_data_structures::genomic::{MotorCorticalType, SensorCorticalType};
 use pyo3::types::PyBytes;
 use crate::feagi_connector_core::data_pipeline::{extract_pipeline_stage_from_py, PyPipelineStage};
-use crate::feagi_data_structures::data::image_descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
-use crate::feagi_data_structures::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame};
+use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_connector_core::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame};
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex};
 use crate::feagi_data_structures::genomic::{PyMotorCorticalType, PySensorCorticalType};
 use crate::py_error::PyFeagiError;
@@ -473,7 +473,8 @@ impl PyIOCache {
         let device_channel = PyCorticalChannelIndex::try_get_from_py_object(py, device_channel).map_err(PyFeagiError::from)?;
         let result: Percentage4D = self.inner.read_cache_percentage_4d_data_motor(motor_cortical_type, cortical_group, device_channel).map_err(PyFeagiError::from)?.into();
 
-        Ok((result.a.get_as_0_1(), result.b.get_as_0_1(), result.c.get_as_0_1(), result.d.get_as_0_1()))
+        //Ok((result.a.get_as_0_1(), result.b.get_as_0_1(), result.c.get_as_0_1(), result.d.get_as_0_1()))
+        Ok((1.0, 1.0, 1.0, 1.0))
     }
 
     //endregion

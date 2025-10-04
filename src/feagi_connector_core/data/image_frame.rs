@@ -2,9 +2,9 @@ use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::data::ImageFrame;
+use feagi_connector_core::data_types::ImageFrame;
 use pyo3::types::PyBytes;
-use crate::feagi_data_structures::data::image_descriptors::*;
+use crate::feagi_connector_core::data::descriptors::*;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass(str)]
@@ -112,16 +112,32 @@ impl PyImageFrame {
         self.inner.get_color_channel_count()
     }
 
-    // NOTE: get_pixels_view skipped, equivalent is copy_to_numpy_array
+    // NOTE: get_pixels_view, get_pixels_view_mut skipped, equivalent is copy_to_numpy_array
 
-    pub fn copy_to_numpy_array<'py>(&self, py: Python) -> PyResult<Py<PyArray3<u8>>> {
-        Ok(Py::from(PyArray3::from_array(py, &self.inner.get_pixels_view())))
+    #[getter]
+    pub fn get_xy_resolution(&self) -> PyImageXYResolution {
+        self.inner.get_xy_resolution().into()
     }
-    
+
     #[getter]
     pub fn get_number_elements(&self) -> usize {
         self.inner.get_number_elements()
     }
+
+    #[getter]
+    pub fn get_dimensions(&self) -> PyImageXYZDimensions {
+        self.inner.get_dimensions().into()
+    }
+
+    pub fn copy_to_numpy_array<'py>(&self, py: Python) -> PyResult<Py<PyArray3<u8>>> {
+        Ok(Py::from(PyArray3::from_array(py, &self.inner.get_pixels_view())))
+    }
+
+    #[getter]
+    pub fn skip_encoding(&self) -> bool { // Since we cannot expose the inner public property, we do this
+        self.inner.skip_encoding
+    }
+
 
     //endregion
 
@@ -169,6 +185,11 @@ impl PyImageFrame {
 
     pub fn change_contrast(&mut self, contrast_factor: f32) -> PyResult<()> {
         self.inner.change_contrast(contrast_factor);
+        Ok(())
+    }
+
+    pub fn blink_image(&mut self) -> PyResult<()> {
+        self.inner.blink_image();
         Ok(())
     }
 

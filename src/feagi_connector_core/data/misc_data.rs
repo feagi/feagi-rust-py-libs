@@ -1,5 +1,5 @@
-use feagi_data_structures::data::descriptors::MiscDataDimensions;
-use feagi_data_structures::data::{ImageFrame, MiscData};
+use feagi_connector_core::data_types::descriptors::MiscDataDimensions;
+use feagi_connector_core::data_types::{MiscData};
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
@@ -33,6 +33,11 @@ impl PyMiscData {
 
     pub fn copy_to_numpy_array<'py>(&self, py: Python) -> PyResult<Py<PyArray3<f32>>> {
         Ok(Py::from(PyArray3::from_array(py, &self.inner.get_internal_data())))
+    }
+
+    pub fn blank_data(&mut self) -> PyResult<()> {
+        self.inner.blank_data();
+        Ok(())
     }
 
 }

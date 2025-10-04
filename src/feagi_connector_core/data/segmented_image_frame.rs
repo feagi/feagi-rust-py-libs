@@ -1,9 +1,9 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::data::{SegmentedImageFrame};
 use feagi_data_structures::genomic::descriptors::CorticalGroupIndex;
 use feagi_data_structures::FeagiDataError;
-use crate::feagi_data_structures::data::image_descriptors::*;
+use feagi_connector_core::data_types::{SegmentedImageFrame};
+use crate::feagi_connector_core::data::descriptors::*;
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::{PyCorticalID, PyCorticalType};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
@@ -50,9 +50,9 @@ impl PySegmentedImageFrame {
     //region Static Methods
 
     #[staticmethod]
-    pub fn create_ordered_cortical_ids_for_segmented_vision(camera_index: PyCorticalGroupIndex) -> PyResult<[PyCorticalID; 9]> {
+    pub fn create_ordered_cortical_ids_for_segmented_vision(camera_index: PyCorticalGroupIndex, is_incremental: bool) -> PyResult<[PyCorticalID; 9]> {
         let camera_index: CorticalGroupIndex = camera_index.into();
-        let ids = SegmentedImageFrame::create_ordered_cortical_ids_for_segmented_vision(camera_index);
+        let ids = SegmentedImageFrame::create_ordered_cortical_ids_for_segmented_vision(camera_index, is_incremental);
         Ok([
             ids[0].into(),
             ids[1].into(),
@@ -67,8 +67,8 @@ impl PySegmentedImageFrame {
     }
 
     #[staticmethod]
-    pub fn create_ordered_cortical_types_for_segmented_vision() -> PyResult<[PyCorticalType; 9]> {
-        let cortical_types = SegmentedImageFrame::create_ordered_cortical_types_for_segmented_vision();
+    pub fn create_ordered_cortical_types_for_segmented_vision(is_incremental: bool) -> PyResult<[PyCorticalType; 9]> {
+        let cortical_types = SegmentedImageFrame::create_ordered_cortical_types_for_segmented_vision(is_incremental);
         Ok([
             cortical_types[0].into(),
             cortical_types[1].into(),
@@ -112,6 +112,8 @@ impl PySegmentedImageFrame {
 
 
     //region Neuron Export
+
+    /*
     pub fn export_as_new_cortical_mapped_neuron_data<'py>(&mut self, py: Python<'py>, camera_index: u8) -> PyResult<PyObject> {
 
         /*
@@ -128,6 +130,8 @@ impl PySegmentedImageFrame {
          */
         Err(PyErr::new::<PyValueError, _>("Camera does not support neuron data")) // TODO
     }
+
+     */
 
     //endregion
 }

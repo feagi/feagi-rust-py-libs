@@ -5,7 +5,7 @@ use feagi_connector_core::data_pipeline::PipelineStage;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::wrapped_io_data::WrappedIOData;
 use pyo3::exceptions::PyValueError;
-use crate::feagi_data_structures::wrapped_io_data::{py_object_to_wrapped_io_data, wrapped_io_data_to_py_object, PyWrappedIOType};
+use crate::feagi_connector_core::wrapped_io_data::{py_object_to_wrapped_io_data, wrapped_io_data_to_py_object, PyWrappedIOType};
 
 #[macro_export]
 /// Adds common implementations to stages
