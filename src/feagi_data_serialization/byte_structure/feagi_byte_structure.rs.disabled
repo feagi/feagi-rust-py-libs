@@ -2,11 +2,11 @@ use pyo3::{pyclass, pymethods, PyResult, PyObject};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyBytes, PyList};
-use feagi_data_serialization::{FeagiByteStructure, FeagiByteStructureType, FeagiByteStructureCompatible};
+use ::feagi_data_serialization::{FeagiByteStructure, FeagiByteStructureType, FeagiByteStructureCompatible};
 
-use crate::feagi_data_serialization::{PyFeagiByteStructureCompatible, PyFeagiByteStructureType};
+use crate::feagi_data_serialization::byte_structure::PyFeagiByteStructureCompatible;
+use crate::feagi_data_serialization::PyFeagiByteStructureType;
 use crate::feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData;
-//use crate::miscellaneous_types::json_structure::PyJsonStructure;
 
 /// Helper function to convert a Box<dyn FeagiByteStructureCompatible> to the appropriate Python object
 pub fn convert_compatible_to_python(py: Python, boxed_object: Box<dyn FeagiByteStructureCompatible>, structure_type: FeagiByteStructureType) -> PyResult<PyObject> {
@@ -16,9 +16,7 @@ pub fn convert_compatible_to_python(py: Python, boxed_object: Box<dyn FeagiByteS
             // We'll create it from a byte structure instead
             let temp_byte_struct = boxed_object.as_new_feagi_byte_structure().map_err(|e| PyValueError::new_err(format!("{:?}", e)))?;
             let py_byte_struct = PyFeagiByteStructure { inner: temp_byte_struct };
-            Err(PyErr::new::<PyValueError, _>(py_byte_struct)) // TODO temp
-
-            //PyJsonStructure::new_from_feagi_byte_structure(py, py_byte_struct)
+            Err(PyErr::new::<PyValueError, _>(py_byte_struct))
         },
         FeagiByteStructureType::NeuronCategoricalXYZP => {
             // Convert the boxed trait object back to concrete type
@@ -49,7 +47,7 @@ impl PyFeagiByteStructure {
     //region Constructors
     /// Create a new FeagiByteStructure from bytes
     #[new]
-    pub fn create_from_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>) -> PyResult<Self> {
+    pub fn create_from_bytes<'py>(_py: Python<'py>, bytes: Bound<'py, PyBytes>) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
         match FeagiByteStructure::create_from_bytes(bytes_vec) {
             Ok(inner) => Ok(PyFeagiByteStructure { inner }),
@@ -213,6 +211,6 @@ impl PyFeagiByteStructure {
     }
 
     //endregion
-
-
 }
+
+
