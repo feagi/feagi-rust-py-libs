@@ -1,7 +1,7 @@
-use feagi_data_structures::data::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties, MiscDataDimensions};
+use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, MiscDataDimensions, SegmentedImageFrameProperties};
+use feagi_connector_core::wrapped_io_data::WrappedIOType;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_data_structures::wrapped_io_data::{WrappedIOType, WrappedIOData};
 use feagi_data_structures::FeagiDataError;
 use crate::feagi_connector_core::data::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties, PyMiscDataDimensions};
 use crate::{project_display, py_object_cast_generic, py_type_casts};

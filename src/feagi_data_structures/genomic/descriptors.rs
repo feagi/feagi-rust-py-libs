@@ -1,3 +1,4 @@
+use feagi_connector_core::data_pipeline::PipelineStagePropertyIndex;
 use pyo3::types::PyInt;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
@@ -6,6 +7,7 @@ use feagi_data_structures::genomic::descriptors::{AgentDeviceIndex, CorticalChan
 use crate::{project_display, py_object_cast_int, py_type_casts};
 
 //region macros
+
 
 macro_rules! typed_number {
     ($py_struct:ident, $feagi_struct:ident, $number_type:ty, $class_name:expr, $error_msg:expr) => {
@@ -59,3 +61,6 @@ typed_number!(PyCorticalChannelCount, CorticalChannelCount, u32, "CorticalChanne
 //endregion
 
 
+
+// TODO move form here
+typed_number!(PyPipelineStagePropertyIndex, PipelineStagePropertyIndex, u32, "PipelineStagePropertyIndex", "Unable to retrieve PipelineStagePropertyIndex data from given!");

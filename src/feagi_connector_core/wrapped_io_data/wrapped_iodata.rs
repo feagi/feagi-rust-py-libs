@@ -1,3 +1,5 @@
+use feagi_connector_core::data_types::{ImageFrame, MiscData, Percentage, Percentage2D, Percentage3D, Percentage4D, SegmentedImageFrame, SignedPercentage, SignedPercentage2D, SignedPercentage3D, SignedPercentage4D};
+use feagi_connector_core::wrapped_io_data::WrappedIOData;
 use pyo3::{PyResult };
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;

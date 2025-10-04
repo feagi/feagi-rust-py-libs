@@ -1,13 +1,13 @@
+use feagi_connector_core::data_pipeline::PipelineStagePropertyIndex;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::IOCache;
 use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
-use feagi_data_structures::data_pipeline::PipelineStagePropertyIndex;
+use feagi_data_structures::FeagiSignalIndex;
 use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_connector_core::data::PyPercentage4D;
 use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
-use crate::feagi_connector_core::data_pipeline::extract_pipeline_stage_properties_from_py;
-use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex};
-use crate::feagi_data_structures::data_pipeline::PyPipelineStagePropertyIndex;
+use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
 use crate::py_error::PyFeagiError;
 
 #[pyclass(str)]
@@ -54,7 +54,7 @@ impl PyIOCache {
     }
 
     pub fn sensor_update_stage_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, 
-                                                         pipeline_stage_property_index: PyObject, stage: PyObject) -> PyResult<()> {
+                                                         pipeline_stage_property_index: PyObject, stage: PyPipelineStageProperty) -> PyResult<()> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_property_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
@@ -68,6 +68,54 @@ impl PyIOCache {
 
     //endregion
 
-    
+    //region Motors
+
+    //region Gaze
+
+    pub fn motor_register_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, number_of_channels: PyObject, z_depth: u32) -> PyResult<()> {
+        let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+
+        self.inner.motor_register_gaze_absolute(cortical_group_index, number_of_channels, z_depth)
+            .map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_read_post_processed_gaze_absolute(&self, py: Python<'_>, group: PyObject, channel: PyObject) -> PyResult<PyPercentage4D> {
+        let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let percentage_4d = self.inner.motor_read_post_processed_gaze_absolute(cortical_group_index, cortical_channel_index)
+            .map_err(PyFeagiError::from)?;
+        
+        Ok(PyPercentage4D::from(percentage_4d))
+    }
+
+    /*
+    pub fn motor_add_callback_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, callback: PyObject) -> PyResult<PyFeagiSignalIndex> {
+        let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        // Create a closure that calls the Python callback
+        let py_callback = callback.clone();
+        let rust_callback = move |_data: &()| {
+            Python::with_gil(|py| {
+                if let Err(e) = py_callback.call0(py) {
+                    eprintln!("Error calling Python callback: {:?}", e);
+                }
+            });
+        };
+
+        let signal_index: FeagiSignalIndex = self.inner.motor_add_callback_gaze_absolute(cortical_group_index, cortical_channel_index, rust_callback)
+            .map_err(PyFeagiError::from)?;
+        
+        Ok(PyFeagiSignalIndex::from(signal_index))
+    }
+
+     */
+
+    //endregion
+
+    //endregion
 
 }
