@@ -99,6 +99,34 @@ macro_rules! py_object_cast_int {
 }
 
 #[macro_export]
+/// Simple system to try to match a py object to an int type
+macro_rules! py_object_try_cast_int {
+    ($py_type:ty, $feagi_type:ty, $number_type:ty, $error_msg:expr
+    ) => {
+        impl $py_type{
+            pub(crate) fn try_get_from_py_object<'py>(py: Python<'_>, any: PyObject) -> Result<$feagi_type, FeagiDataError> {
+                let bound = any.bind(py);
+
+                match () {
+                    _ if bound.is_instance_of::<$py_type>() => {
+                        let py_obj = any.extract::<$py_type>(py).unwrap();
+                        Ok(py_obj.into())
+                    }
+
+                    _ if bound.is_instance_of::<PyInt>() => {
+                        let py_int = any.extract::<$number_type>(py).unwrap();
+                        py_int.try_into()
+                    }
+
+                    _ => Err(FeagiDataError::BadParameters($error_msg.into()))
+
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
 /// Simple system to try to match a py object to a float type
 macro_rules! py_object_cast_float {
     (
