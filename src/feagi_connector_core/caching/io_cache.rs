@@ -3,6 +3,7 @@ use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::IOCache;
 use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
+use pyo3::types::PyBytes;
 use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_connector_core::data::PyPercentage4D;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{extract_pipeline_stage_properties_from_py, PyPipelineStageProperties};
@@ -69,9 +70,20 @@ impl PyIOCache {
         Ok(())
     }
 
+    pub fn sensor_get_bytes(&mut self, py: Python<'_>) -> PyResult<Vec<u8>> {
+        let bytes = self.inner.sensor_get_bytes().map_err(PyFeagiError::from)?;
+        Ok(bytes.to_vec())
+
+    }
+
     //endregion
 
     //region Motors
+
+    pub fn motor_send_bytes(&mut self, py: Python<'_>, bytes: Vec<u8>) -> PyResult<()> {
+        self.inner.motor_send_bytes(&bytes).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
 
     //region Gaze
 
