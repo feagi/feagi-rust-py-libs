@@ -25,13 +25,15 @@ fn main() {
 
     // Update IOCache stuff
     // Update motor registration section in io_cache.rs
+    let motor_registration_functions = generate_motor_registration_functions();
     replace_code_segment("src/feagi_connector_core/caching/io_cache.rs",
                          "//BUILDRS_MOTOR_REGISTRATION_START",
                          "//BUILDRS_MOTOR_REGISTRATION_END",
-                         "\n    // hello world!\n".to_string());
+                         motor_registration_functions);
 }
 
 use feagi_data_structures::sensor_definition;
+use feagi_data_structures::motor_definition;
 
 // TODO: Rename to feagi_data_libraries?
 // TODO add macro(s) / funcs for going from PyObject to index types?
@@ -78,6 +80,180 @@ struct SensorVariant {
 
 fn get_sensor_variants() -> Vec<SensorVariant> {
     sensor_definition!(collect_sensor_variants)
+}
+
+// Macro to collect motor variant information
+macro_rules! collect_motor_variants {
+    (
+        MotorCorticalType {
+            $(
+                #[doc = $doc:expr]
+                $variant:ident => {
+                    friendly_name: $friendly_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
+                    base_ascii: $base_ascii:expr,
+                    channel_dimension_range: $channel_dimension_range:expr,
+                    default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
+                }$(,)?
+            )*
+        }
+    ) => {
+        vec![
+            $(
+                MotorVariant {
+                    snake_case_identifier: $snake_case_identifier.to_string(),
+                    default_coder_type: stringify!($default_coder_type).to_string(),
+                }
+            ),*
+        ]
+    };
+}
+
+#[derive(Debug)]
+struct MotorVariant {
+    snake_case_identifier: String,
+    default_coder_type: String,
+}
+
+fn get_motor_variants() -> Vec<MotorVariant> {
+    motor_definition!(collect_motor_variants)
+}
+
+fn generate_function_for_coder_type(snake_case_identifier: &str, coder_type: &str) -> String {
+    // This function generates registration functions based on the coder type.
+    // Each coder type can have:
+    // - Different function parameters
+    // - Different parameter types
+    // - Different internal logic
+    // - Different error handling
+    //
+    // Example customization for a hypothetical future coder type:
+    // "CustomType_With_Extra_Params" => format!(
+    //     r#"
+    //     pub fn motor_register_{0}(
+    //         &mut self,
+    //         py: Python<'_>,
+    //         group: PyObject,
+    //         number_of_channels: PyObject,
+    //         z_neuron_depth: PyObject,
+    //         extra_param: PyObject  // <-- Additional parameter
+    //     ) -> PyResult<()>
+    //     {{
+    //         // Custom conversion logic
+    //         let extra_value = extract_custom_type(py, extra_param)?;
+    //         // ... custom implementation
+    //         self.inner.motor_register_{0}(group, number_of_channels, z_neuron_depth, extra_value)
+    //             .map_err(PyFeagiError::from)?;
+    //         Ok(())
+    //     }}
+    //     "#,
+    //     snake_case_identifier
+    // ),
+    
+    // Common function template (used by most types currently)
+    let function_template = format!(
+        r#"
+    pub fn motor_register_{}(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        number_of_channels: PyObject,
+        z_neuron_depth: PyObject
+    ) -> PyResult<()>
+    {{
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+        let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+        self.inner.motor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+        Ok(())
+    }}
+"#,
+        snake_case_identifier,
+        snake_case_identifier
+    );
+    
+    // Match on coder type to generate appropriate function
+    // Currently all types use the same template, but each can be customized independently
+    match coder_type {
+        // Percentage types
+        "Percentage_Absolute_Linear" => function_template,
+        "Percentage_Absolute_Fractional" => function_template,
+        "Percentage_Incremental_Linear" => function_template,
+        "Percentage_Incremental_Fractional" => function_template,
+        
+        // Percentage2D types
+        "Percentage2D_Absolute_Linear" => function_template,
+        "Percentage2D_Absolute_Fractional" => function_template,
+        "Percentage2D_Incremental_Linear" => function_template,
+        "Percentage2D_Incremental_Fractional" => function_template,
+        
+        // Percentage3D types
+        "Percentage3D_Absolute_Linear" => function_template,
+        "Percentage3D_Absolute_Fractional" => function_template,
+        "Percentage3D_Incremental_Linear" => function_template,
+        "Percentage3D_Incremental_Fractional" => function_template,
+        
+        // Percentage4D types
+        "Percentage4D_Absolute_Linear" => function_template,
+        "Percentage4D_Absolute_Fractional" => function_template,
+        "Percentage4D_Incremental_Linear" => function_template,
+        "Percentage4D_Incremental_Fractional" => function_template,
+        
+        // SignedPercentage types
+        "SignedPercentage_Absolute_Linear" => function_template,
+        "SignedPercentage_Absolute_Fractional" => function_template,
+        "SignedPercentage_Incremental_Linear" => function_template,
+        "SignedPercentage_Incremental_Fractional" => function_template,
+        
+        // SignedPercentage2D types
+        "SignedPercentage2D_Absolute_Linear" => function_template,
+        "SignedPercentage2D_Absolute_Fractional" => function_template,
+        "SignedPercentage2D_Incremental_Linear" => function_template,
+        "SignedPercentage2D_Incremental_Fractional" => function_template,
+        
+        // SignedPercentage3D types
+        "SignedPercentage3D_Absolute_Linear" => function_template,
+        "SignedPercentage3D_Absolute_Fractional" => function_template,
+        "SignedPercentage3D_Incremental_Linear" => function_template,
+        "SignedPercentage3D_Incremental_Fractional" => function_template,
+        
+        // SignedPercentage4D types
+        "SignedPercentage4D_Absolute_Linear" => function_template,
+        "SignedPercentage4D_Absolute_Fractional" => function_template,
+        "SignedPercentage4D_Incremental_Linear" => function_template,
+        "SignedPercentage4D_Incremental_Fractional" => function_template,
+        
+        // MiscData types
+        "MiscData_Absolute" => function_template,
+        "MiscData_Incremental" => function_template,
+        
+        // ImageFrame types
+        "ImageFrame_Absolute" => function_template,
+        "ImageFrame_Incremental" => function_template,
+        
+        // Default case for any future types
+        _ => {
+            println!("cargo:warning=Unknown coder type '{}', using default template", coder_type);
+            function_template
+        }
+    }
+}
+
+fn generate_motor_registration_functions() -> String {
+    let variants = get_motor_variants();
+    let mut functions = String::new();
+    
+    for variant in &variants {
+        functions.push_str(&generate_function_for_coder_type(
+            &variant.snake_case_identifier,
+            &variant.default_coder_type
+        ));
+    }
+    
+    functions
 }
 
 fn generate_sensor_cortical_type_class() -> String {
@@ -148,19 +324,19 @@ fn insert_sensor_cortical_type(template: String, sensor_class_def: String) -> St
 }
 
 fn replace_code_segment(file_path: &str, start_marker: &str, end_marker: &str, replacing_string: String) {
-    // Read the io_cache.rs file
+    // Read the file
     let content = fs::read_to_string(file_path)
-        .expect(format!("Failed to read {}", file_path).as_str());
+        .unwrap_or_else(|_| panic!("Failed to read {}", file_path));
 
     // Find the positions of the markers
     let start_pos = content.find(start_marker)
-        .expect(format!("Could not find {} marker in io_cache.rs", start_marker).as_str());
+        .unwrap_or_else(|| panic!("Could not find {} marker in {}", start_marker, file_path));
     let end_pos = content.find(end_marker)
-        .expect(format!("Could not find {} marker in io_cache.rs", end_marker).as_str());
+        .unwrap_or_else(|| panic!("Could not find {} marker in {}", end_marker, file_path));
 
     // Ensure the markers are in the correct order
     if start_pos >= end_pos {
-        panic!("{}", format!("Markers are in the wrong order in {}", file_path).as_str());
+        panic!("Markers are in the wrong order in {}", file_path);
     }
 
     // Calculate the position after the start marker (including the newline)
@@ -181,14 +357,12 @@ fn replace_code_segment(file_path: &str, start_marker: &str, end_marker: &str, r
     // Build the new content
     let mut new_content = String::new();
     new_content.push_str(&content[..replace_start]);
-    new_content.push_str(&*replacing_string);
+    new_content.push_str(&replacing_string);
     new_content.push_str(&content[replace_end..]);
 
     // Write the updated content back to the file
-    fs::write(file_path, new_content)
-        .expect(format!("Failed to write {}", file_path).as_str());
+    fs::write(file_path, &new_content)
+        .unwrap_or_else(|_| panic!("Failed to write {}", file_path));
 
-    println!("{}", format!("Updated {}", file_path).as_str());
-
-
+    println!("Updated {}", file_path);
 }
