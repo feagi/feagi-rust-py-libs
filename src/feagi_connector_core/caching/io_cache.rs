@@ -11,6 +11,7 @@ use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyNeuronDepth, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
 use crate::py_error::PyFeagiError;
 
+
 macro_rules! motor_registrations {
     (
         $cortical_io_type_enum_name:ident {
@@ -1020,6 +1021,8 @@ pub struct PyIOCache {
     inner: IOCache
 }
 
+
+/*
 #[pymethods]
 impl PyIOCache {
 
@@ -1031,7 +1034,7 @@ impl PyIOCache {
     }
 
 
-    /*
+
     //region Sensors
 
     pub fn sensor_register_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject,
@@ -1074,8 +1077,7 @@ impl PyIOCache {
     }
 
 
-     */
-    /*
+
     pub fn sensor_get_bytes(&mut self, py: Python<'_>) -> PyResult<Vec<u8>> {
         let bytes = self.inner.sensor_get_bytes().map_err(PyFeagiError::from)?;
         Ok(bytes.to_vec())
@@ -1092,7 +1094,7 @@ impl PyIOCache {
         Ok(())
     }
 
-     */
+
 
     //region Motors
 
@@ -1101,17 +1103,7 @@ impl PyIOCache {
 
     //region Gaze
 
-    pub fn motor_read_post_processed_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject) -> PyResult<PyPercentage4D> {
-        let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
-        let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let percentage_4d = self.inner.motor_try_read_postprocessed_cached_value_gaze_absolute_linear(cortical_group_index, cortical_channel_index)
-            .map_err(PyFeagiError::from)?;
-        
-        Ok(PyPercentage4D::from(percentage_4d))
-    }
-
-    /*
     pub fn motor_add_callback_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, callback: PyObject) -> PyResult<PyFeagiSignalIndex> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
@@ -1132,9 +1124,11 @@ impl PyIOCache {
         Ok(PyFeagiSignalIndex::from(signal_index))
     }
 
-     */
+
 
     //endregion
 
 
 }
+
+ */
