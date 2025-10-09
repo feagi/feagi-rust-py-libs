@@ -21,6 +21,7 @@ macro_rules! define_input_cortical_types_py {
                     channel_dimension_range: $channel_dimension_range:expr,
                     default_coder_type: $default_coder_type:ident,
                     wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
                 }
             ),* $(,)?
         }
@@ -71,6 +72,7 @@ macro_rules! define_output_cortical_types_py {
                     channel_dimension_range: $channel_dimension_range:expr,
                     default_coder_type: $default_coder_type:ident,
                     wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
                 }
             ),* $(,)?
         }

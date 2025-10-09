@@ -91,19 +91,19 @@ impl PyIOCache {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
 
-        self.inner.motor_register_gaze_absolute(cortical_group_index, number_of_channels, z_depth)
+        self.inner.motor_register_gaze_absolute_linear(cortical_group_index, number_of_channels, z_depth.try_into().unwrap())
             .map_err(PyFeagiError::from)?;
         Ok(())
     }
 
-    pub fn motor_read_post_processed_gaze_absolute(&self, py: Python<'_>, group: PyObject, channel: PyObject) -> PyResult<PyPercentage4D> {
+    pub fn motor_read_post_processed_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject) -> PyResult<PyPercentage4D> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let percentage_4d = self.inner.motor_read_post_processed_gaze_absolute(cortical_group_index, cortical_channel_index)
+        let percentage_4d = self.inner.motor_try_read_postprocessed_cached_value_gaze_absolute_linear(cortical_group_index, cortical_channel_index)
             .map_err(PyFeagiError::from)?;
         
-        Ok(PyPercentage4D::from(percentage_4d))
+        Ok(PyPercentage4D::from(percentage_4d.clone()))
     }
 
     /*

@@ -5,26 +5,26 @@ use pyo3::exceptions::PyValueError;
 use pyo3::types::{PyList};
 use numpy::{PyArray1, PyReadonlyArray1};
 use ndarray::Array1;
-use feagi_data_structures::neurons::xyzp::{NeuronXYZPArrays, NeuronXYZP};
+use feagi_data_structures::neuron_voxels::xyzp::{NeuronVoxelXYZPArrays, NeuronVoxelXYZP};
 use crate::{project_display, py_type_casts};
-use super::neuron_xyzp::PyNeuronXYZP;
+use super::neuron_voxel_xyzp::PyNeuronVoxelXYZP;
 
 
 #[pyclass(str)]
 #[derive(Clone)]
-#[pyo3(name = "NeuronXYZPArrays")]
-pub struct PyNeuronXYZPArrays {
-    pub(crate) inner: NeuronXYZPArrays,
+#[pyo3(name = "NeuronVoxelXYZPArrays")]
+pub struct PyNeuronVoxelXYZPArrays {
+    pub(crate) inner: NeuronVoxelXYZPArrays,
 }
 
 #[pymethods]
-impl PyNeuronXYZPArrays {
+impl PyNeuronVoxelXYZPArrays {
     
     //region Unique Constructors
     #[new]
     pub fn new() -> PyResult<Self> {
-        let inner = NeuronXYZPArrays::new();
-        Ok(PyNeuronXYZPArrays {inner})
+        let inner = NeuronVoxelXYZPArrays::new();
+        Ok(PyNeuronVoxelXYZPArrays {inner})
     }
 
     #[staticmethod]
@@ -33,8 +33,8 @@ impl PyNeuronXYZPArrays {
         let y_nd = y.as_array().to_owned();
         let z_nd = z.as_array().to_owned();
         let p_nd = p.as_array().to_owned();
-        match NeuronXYZPArrays::new_from_ndarrays(x_nd, y_nd, z_nd, p_nd) {
-            Ok(inner) => Ok(PyNeuronXYZPArrays {inner}),
+        match NeuronVoxelXYZPArrays::new_from_ndarrays(x_nd, y_nd, z_nd, p_nd) {
+            Ok(inner) => Ok(PyNeuronVoxelXYZPArrays {inner}),
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
     }
@@ -50,8 +50,8 @@ impl PyNeuronXYZPArrays {
 
     #[staticmethod]
     pub fn with_capacity(number_of_neurons_initial: usize) -> PyResult<Self> {
-        let inner = NeuronXYZPArrays::with_capacity(number_of_neurons_initial);
-        Ok(PyNeuronXYZPArrays{inner})
+        let inner = NeuronVoxelXYZPArrays::with_capacity(number_of_neurons_initial);
+        Ok(PyNeuronVoxelXYZPArrays{inner})
     }
 
     pub fn capacity(&self) -> PyResult<usize> {
@@ -78,22 +78,22 @@ impl PyNeuronXYZPArrays {
         self.inner.reserve(additional_neuron_count)
     }
 
-    pub fn push(&mut self, new_neuron: PyNeuronXYZP) {
+    pub fn push(&mut self, new_neuron: PyNeuronVoxelXYZP) {
         self.inner.push(&new_neuron.into())
     }
 
-    pub fn get(&mut self, index: usize) -> PyResult<PyNeuronXYZP> { // TODO fix mut
+    pub fn get(&mut self, index: usize) -> PyResult<PyNeuronVoxelXYZP> { // TODO fix mut
         let result = &self.inner.get(index);
         match result {
-            Ok(neuron) => Ok(PyNeuronXYZP{inner: neuron.clone()}),
+            Ok(neuron) => Ok(PyNeuronVoxelXYZP{inner: neuron.clone()}),
             Err(e) => Err(PyValueError::new_err(e.to_string()))
         }
     }
 
-    pub fn pop(&mut self) -> PyResult<PyNeuronXYZP> {
+    pub fn pop(&mut self) -> PyResult<PyNeuronVoxelXYZP> {
         let option = self.inner.pop();
         match option {
-            Some(neuron) => Ok(PyNeuronXYZP{inner: neuron}),
+            Some(neuron) => Ok(PyNeuronVoxelXYZP{inner: neuron}),
             None => Err(PyValueError::new_err("Array is Empty!"))
         }
     }
@@ -114,7 +114,7 @@ impl PyNeuronXYZPArrays {
 
         let py_objects: Vec<PyObject> = items
             .into_iter()
-            .map(|item| Py::new(py, PyNeuronXYZP{inner: item}).map(|obj| obj.into()))
+            .map(|item| Py::new(py, PyNeuronVoxelXYZP{inner: item}).map(|obj| obj.into()))
             .collect::<PyResult<_>>()?;
 
         PyList::new(py, py_objects)
@@ -147,8 +147,8 @@ impl PyNeuronXYZPArrays {
 
 }
 
-py_type_casts!(PyNeuronXYZPArrays, NeuronXYZPArrays);
-project_display!(PyNeuronXYZPArrays);
+py_type_casts!(PyNeuronVoxelXYZPArrays, NeuronVoxelXYZPArrays);
+project_display!(PyNeuronVoxelXYZPArrays);
 
 pub fn tuple_nd_array_to_tuple_np_array<'py>(input: (Array1<u32>, Array1<u32>, Array1<u32>, Array1<f32>), py: Python<'py>)
                                              -> PyResult<(Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<u32>>, Bound<'py, PyArray1<f32>>)> {
@@ -167,7 +167,7 @@ pub fn tuple_nd_array_to_tuple_np_array<'py>(input: (Array1<u32>, Array1<u32>, A
 /// the Python iterator protocol through the `__iter__` and `__next__` magic methods.
 #[pyclass]
 pub struct PyNeuronXYZPArraysIterator {
-    inner: std::vec::IntoIter<NeuronXYZP>,
+    inner: std::vec::IntoIter<NeuronVoxelXYZP>,
 }
 
 #[pymethods]
@@ -176,7 +176,7 @@ impl PyNeuronXYZPArraysIterator {
         slf
     }
 
-    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyNeuronXYZP> {
-        slf.inner.next().map(|neuron| PyNeuronXYZP { inner: neuron })
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<PyNeuronVoxelXYZP> {
+        slf.inner.next().map(|neuron| PyNeuronVoxelXYZP { inner: neuron })
     }
 }

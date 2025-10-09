@@ -43,6 +43,7 @@ macro_rules! collect_sensor_variants {
                     channel_dimension_range: $channel_dimension_range:expr,
                     default_coder_type: $default_coder_type:ident,
                     wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
                 }$(,)?
             )*
         }
