@@ -2,6 +2,7 @@ use feagi_data_serialization::FeagiByteContainer;
 use pyo3::{pyclass};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
+use crate::feagi_data_serialization::PyFeagiSerializable;
 use crate::py_error::PyFeagiError;
 
 #[pyclass]
@@ -78,4 +79,14 @@ impl PyFeagiByteContainer {
 
     //endregion
 
+
+
+    //region Extracting Struct Data
+
+    pub fn try_create_new_struct_from_index(&self, index: u8) -> PyResult<PyFeagiSerializable> {
+        let deserialized = self.inner.try_create_new_struct_from_index(index).map_err(PyFeagiError::from)?;
+
+    }
+
+    //endregion
 }
