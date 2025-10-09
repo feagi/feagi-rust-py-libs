@@ -3,13 +3,71 @@ use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::IOCache;
 use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
-use pyo3::types::PyBytes;
 use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_connector_core::data::PyPercentage4D;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{extract_pipeline_stage_properties_from_py, PyPipelineStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
-use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
+use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyNeuronDepth, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
 use crate::py_error::PyFeagiError;
+
+macro_rules! motor_registrations {
+    (
+        $cortical_io_type_enum_name:ident {
+            $(
+                $(#[doc = $doc:expr])?
+                $cortical_type_key_name:ident => {
+                    friendly_name: $display_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
+                    base_ascii: $base_ascii:expr,
+                    channel_dimension_range: $channel_dimension_range:expr,
+                    default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
+                }
+            ),* $(,)?
+        }
+    ) => {
+        $(
+            motor_registrations!(@generate_function
+                $cortical_type_key_name,
+                $snake_case_identifier,
+                $default_coder_type,
+                $wrapped_data_type,
+                $data_type
+            );
+        )*
+    };
+
+    // Arm for Percentage with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+
+}
+
 
 #[pyclass]
 #[pyo3(name = "IOCache")]
@@ -70,6 +128,7 @@ impl PyIOCache {
         Ok(())
     }
 
+    /*
     pub fn sensor_get_bytes(&mut self, py: Python<'_>) -> PyResult<Vec<u8>> {
         let bytes = self.inner.sensor_get_bytes().map_err(PyFeagiError::from)?;
         Ok(bytes.to_vec())
@@ -78,12 +137,15 @@ impl PyIOCache {
 
     //endregion
 
+
     //region Motors
 
     pub fn motor_send_bytes(&mut self, py: Python<'_>, bytes: Vec<u8>) -> PyResult<()> {
         self.inner.motor_send_bytes(&bytes).map_err(PyFeagiError::from)?;
         Ok(())
     }
+
+     */
 
     //region Gaze
 
@@ -131,6 +193,5 @@ impl PyIOCache {
 
     //endregion
 
-    //endregion
 
 }
