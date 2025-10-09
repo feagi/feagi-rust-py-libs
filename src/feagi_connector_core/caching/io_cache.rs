@@ -1035,9 +1035,14 @@ impl PyIOCache {
 
     //BUILDRS_MOTOR_REGISTRATION_START
 
+    // hello world!
     //BUILDRS_MOTOR_REGISTRATION_END
-
     /*
+
+
+
+
+    
     //region Sensors
 
     pub fn sensor_register_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject,

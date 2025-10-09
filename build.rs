@@ -2,6 +2,7 @@ use std::fs;
 
 fn main() {
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
+    println!("cargo:rerun-if-changed=src/feagi_connector_core/caching/io_cache.rs");
     
     let template_path = "feagi_data_processing.pyi.template";
     let output_path = "feagi_data_processing.pyi";
@@ -21,6 +22,13 @@ fn main() {
         .expect("Failed to write feagi_data_processing.pyi");
     
     println!("Generated feagi_data_processing.pyi with SensorCorticalType");
+
+    // Update IOCache stuff
+    // Update motor registration section in io_cache.rs
+    replace_code_segment("src/feagi_connector_core/caching/io_cache.rs",
+                         "//BUILDRS_MOTOR_REGISTRATION_START",
+                         "//BUILDRS_MOTOR_REGISTRATION_END",
+                         "\n    // hello world!\n".to_string());
 }
 
 use feagi_data_structures::sensor_definition;
@@ -137,4 +145,50 @@ fn insert_sensor_cortical_type(template: String, sensor_class_def: String) -> St
             }
         }
     }
+}
+
+fn replace_code_segment(file_path: &str, start_marker: &str, end_marker: &str, replacing_string: String) {
+    // Read the io_cache.rs file
+    let content = fs::read_to_string(file_path)
+        .expect(format!("Failed to read {}", file_path).as_str());
+
+    // Find the positions of the markers
+    let start_pos = content.find(start_marker)
+        .expect(format!("Could not find {} marker in io_cache.rs", start_marker).as_str());
+    let end_pos = content.find(end_marker)
+        .expect(format!("Could not find {} marker in io_cache.rs", end_marker).as_str());
+
+    // Ensure the markers are in the correct order
+    if start_pos >= end_pos {
+        panic!("{}", format!("Markers are in the wrong order in {}", file_path).as_str());
+    }
+
+    // Calculate the position after the start marker (including the newline)
+    let replace_start = start_pos + start_marker.len();
+
+    // Find the newline after the start marker
+    let replace_start = if content[replace_start..].starts_with('\r') {
+        replace_start + 2 // Skip \r\n
+    } else if content[replace_start..].starts_with('\n') {
+        replace_start + 1 // Skip \n
+    } else {
+        replace_start
+    };
+
+    // Find the position before the end marker (including any leading whitespace on that line)
+    let replace_end = content[..end_pos].rfind('\n').map(|pos| pos + 1).unwrap_or(end_pos);
+
+    // Build the new content
+    let mut new_content = String::new();
+    new_content.push_str(&content[..replace_start]);
+    new_content.push_str(&*replacing_string);
+    new_content.push_str(&content[replace_end..]);
+
+    // Write the updated content back to the file
+    fs::write(file_path, new_content)
+        .expect(format!("Failed to write {}", file_path).as_str());
+
+    println!("{}", format!("Updated {}", file_path).as_str());
+
+
 }
