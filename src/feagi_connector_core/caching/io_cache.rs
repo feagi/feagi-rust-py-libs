@@ -1033,6 +1033,9 @@ impl PyIOCache {
         }
     }
 
+    //BUILDRS_MOTOR_REGISTRATION_START
+
+    //BUILDRS_MOTOR_REGISTRATION_END
 
     /*
     //region Sensors
@@ -1098,8 +1101,6 @@ impl PyIOCache {
 
     //region Motors
 
-    // Generate all motor registration methods using the macro
-    motor_definition!(motor_registrations);
 
     //region Gaze
 
