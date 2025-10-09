@@ -2,7 +2,8 @@ use feagi_connector_core::data_pipeline::PipelineStagePropertyIndex;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::IOCache;
-use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
+use feagi_data_structures::genomic::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex, NeuronDepth};
+use feagi_data_structures::motor_definition;
 use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_connector_core::data::PyPercentage4D;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{extract_pipeline_stage_properties_from_py, PyPipelineStageProperties};
@@ -65,7 +66,950 @@ macro_rules! motor_registrations {
          }
     };
 
+    // Arm for Percentage with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
 
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage2D with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage2D_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage2D with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage2D_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage2D with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage2D_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage2D with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage2D_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage3D with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage3D_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage3D with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage3D_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage3D with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage3D_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage3D with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage3D_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage4D with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage4D_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage4D with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage4D_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage4D with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage4D_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for Percentage4D with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        Percentage4D_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage2D with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage2D_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage2D with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage2D_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage2D with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage2D_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage2D with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage2D_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage3D with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage3D_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage3D with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage3D_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage3D with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage3D_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage3D with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage3D_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage4D with Absolute Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage4D_Absolute_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage4D with Absolute Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage4D_Absolute_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage4D with Incremental Linear encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage4D_Incremental_Linear,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for SignedPercentage4D with Incremental Fractional encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        SignedPercentage4D_Incremental_Fractional,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for MiscData with Absolute encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        MiscData_Absolute,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for MiscData with Incremental encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        MiscData_Incremental,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for ImageFrame with Absolute encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        ImageFrame_Absolute,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
+
+    // Arm for ImageFrame with Incremental encoding
+    (@generate_function
+        $cortical_type_key_name:ident,
+        $snake_case_identifier:expr,
+        ImageFrame_Incremental,
+        $wrapped_data_type:expr,
+        $data_type:ident
+    ) => {
+        ::paste::paste! {
+            pub fn [<motor_register_ $snake_case_identifier>](
+                &mut self,
+                py: Python<'_>,
+                group: PyObject,
+                number_of_channels: PyObject,
+                z_neuron_depth: PyObject
+            ) -> PyResult<()>
+            {
+                let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+                let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+                let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+                self.inner.[<motor_register_ $snake_case_identifier>](group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+                Ok(())
+            }
+         }
+    };
 }
 
 
@@ -87,6 +1031,7 @@ impl PyIOCache {
     }
 
 
+    /*
     //region Sensors
 
     pub fn sensor_register_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject,
@@ -128,6 +1073,8 @@ impl PyIOCache {
         Ok(())
     }
 
+
+     */
     /*
     pub fn sensor_get_bytes(&mut self, py: Python<'_>) -> PyResult<Vec<u8>> {
         let bytes = self.inner.sensor_get_bytes().map_err(PyFeagiError::from)?;
@@ -147,16 +1094,12 @@ impl PyIOCache {
 
      */
 
+    //region Motors
+
+    // Generate all motor registration methods using the macro
+    motor_definition!(motor_registrations);
+
     //region Gaze
-
-    pub fn motor_register_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, number_of_channels: PyObject, z_depth: u32) -> PyResult<()> {
-        let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
-        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-
-        self.inner.motor_register_gaze_absolute_linear(cortical_group_index, number_of_channels, z_depth.try_into().unwrap())
-            .map_err(PyFeagiError::from)?;
-        Ok(())
-    }
 
     pub fn motor_read_post_processed_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject) -> PyResult<PyPercentage4D> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
@@ -165,7 +1108,7 @@ impl PyIOCache {
         let percentage_4d = self.inner.motor_try_read_postprocessed_cached_value_gaze_absolute_linear(cortical_group_index, cortical_channel_index)
             .map_err(PyFeagiError::from)?;
         
-        Ok(PyPercentage4D::from(percentage_4d.clone()))
+        Ok(PyPercentage4D::from(percentage_4d))
     }
 
     /*
