@@ -1022,7 +1022,7 @@ pub struct PyIOCache {
 }
 
 
-/*
+
 #[pymethods]
 impl PyIOCache {
 
@@ -1034,7 +1034,7 @@ impl PyIOCache {
     }
 
 
-
+    /*
     //region Sensors
 
     pub fn sensor_register_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject,
@@ -1093,7 +1093,7 @@ impl PyIOCache {
         self.inner.motor_send_bytes(&bytes).map_err(PyFeagiError::from)?;
         Ok(())
     }
-
+    */
 
 
     //region Motors
@@ -1103,6 +1103,7 @@ impl PyIOCache {
 
     //region Gaze
 
+    /*
 
     pub fn motor_add_callback_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, callback: PyObject) -> PyResult<PyFeagiSignalIndex> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
@@ -1124,11 +1125,10 @@ impl PyIOCache {
         Ok(PyFeagiSignalIndex::from(signal_index))
     }
 
+     */
 
 
     //endregion
 
 
 }
-
- */
