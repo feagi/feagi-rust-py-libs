@@ -10,12 +10,13 @@ use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{extr
 use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
 use crate::py_error::PyFeagiError;
+use std::sync::{Arc, Mutex};
 
 #[pyclass]
 #[pyo3(name = "IOCache")]
 #[derive()]
 pub struct PyIOCache {
-    inner: IOCache
+    inner: Arc<Mutex<IOCache>>
 }
 
 #[pymethods]
@@ -24,10 +25,21 @@ impl PyIOCache {
     #[new]
     pub fn new() -> Self {
         PyIOCache {
-            inner: IOCache::new()
+            inner: Arc::new(Mutex::new(IOCache::new()))
         }
     }
 
+    // Helper method to acquire lock and handle errors
+    fn with_cache<F, R>(&self, f: F) -> PyResult<R>
+    where
+        F: FnOnce(&mut IOCache) -> Result<R, feagi_data_structures::FeagiDataError>,
+    {
+        let mut cache = self.inner.lock()
+            .map_err(|e| PyFeagiError::from(feagi_data_structures::FeagiDataError::InternalError(
+                format!("Mutex poisoned: {}", e)
+            )))?;
+        f(&mut cache).map_err(PyFeagiError::from)
+    }
 
     //region Sensors
 
@@ -38,10 +50,15 @@ impl PyIOCache {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_register_segmented_vision_absolute(cortical_group_index,
-                                                             number_of_channels, input_image_properties.into(),
-                                                             output_segment_properties.into(), gaze.into()).map_err(PyFeagiError::from)?;
-        Ok(())
+        self.with_cache(|cache| {
+            cache.sensor_register_segmented_vision_absolute(
+                cortical_group_index,
+                number_of_channels, 
+                input_image_properties.into(),
+                output_segment_properties.into(), 
+                gaze.into()
+            )
+        })
     }
 
     pub fn sensor_write_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, data: PyObject) -> PyResult<()> {
@@ -49,9 +66,9 @@ impl PyIOCache {
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let wrapped_io_data = py_object_to_wrapped_io_data(py, data).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_write_segmented_vision_absolute(cortical_group_index, cortical_channel_index, &wrapped_io_data)
-            .map_err(PyFeagiError::from)?;
-        Ok(())
+        self.with_cache(|cache| {
+            cache.sensor_write_segmented_vision_absolute(cortical_group_index, cortical_channel_index, &wrapped_io_data)
+        })
     }
 
     pub fn sensor_update_stage_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject,
@@ -64,16 +81,20 @@ impl PyIOCache {
         let stage_py: Py<PyPipelineStageProperties> = stage.extract(py)?;
         let pipeline_stage_properties = extract_pipeline_stage_properties_from_py(py, stage_py).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_update_stage_segmented_vision_absolute(cortical_group_index, cortical_channel_index,
-                                                                 stage_property_index, pipeline_stage_properties)
-            .map_err(PyFeagiError::from)?;
-        Ok(())
+        self.with_cache(|cache| {
+            cache.sensor_update_stage_segmented_vision_absolute(
+                cortical_group_index, 
+                cortical_channel_index,
+                stage_property_index, 
+                pipeline_stage_properties
+            )
+        })
     }
 
     pub fn sensor_get_bytes(&mut self, py: Python<'_>) -> PyResult<Vec<u8>> {
-        let bytes = self.inner.sensor_get_bytes().map_err(PyFeagiError::from)?;
-        Ok(bytes.to_vec())
-
+        self.with_cache(|cache| {
+            cache.sensor_get_bytes().map(|bytes| bytes.to_vec())
+        })
     }
 
     //endregion
@@ -81,8 +102,9 @@ impl PyIOCache {
     //region Motors
 
     pub fn motor_send_bytes(&mut self, py: Python<'_>, bytes: Vec<u8>) -> PyResult<()> {
-        self.inner.motor_send_bytes(&bytes).map_err(PyFeagiError::from)?;
-        Ok(())
+        self.with_cache(|cache| {
+            cache.motor_send_bytes(&bytes)
+        })
     }
 
     //region Gaze
@@ -91,19 +113,19 @@ impl PyIOCache {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
 
-        self.inner.motor_register_gaze_absolute_linear(cortical_group_index, number_of_channels, z_depth.try_into().unwrap())
-            .map_err(PyFeagiError::from)?;
-        Ok(())
+        self.with_cache(|cache| {
+            cache.motor_register_gaze_absolute_linear(cortical_group_index, number_of_channels, z_depth.try_into().unwrap())
+        })
     }
 
     pub fn motor_read_post_processed_gaze_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject) -> PyResult<PyPercentage4D> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let percentage_4d = self.inner.motor_try_read_postprocessed_cached_value_gaze_absolute_linear(cortical_group_index, cortical_channel_index)
-            .map_err(PyFeagiError::from)?;
-        
-        Ok(PyPercentage4D::from(percentage_4d.clone()))
+        self.with_cache(|cache| {
+            cache.motor_try_read_postprocessed_cached_value_gaze_absolute_linear(cortical_group_index, cortical_channel_index)
+                .map(|percentage_4d| PyPercentage4D::from(percentage_4d.clone()))
+        })
     }
 
     /*
