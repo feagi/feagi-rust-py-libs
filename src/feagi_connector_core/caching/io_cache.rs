@@ -525,6 +525,11 @@ impl PyIOCache {
 
     //region Sensors
 
+    pub fn sensors_encode_cached_data_to_bytes(&mut self) -> PyResult<()> {
+        self.inner.sensor_encode_data_to_bytes(0).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
     pub fn sensor_get_byte_container(&mut self, py: Python<'_>) -> PyResult<PyFeagiByteContainer> {
         let byte_container = self.inner.sensor_copy_feagi_byte_container();
         Ok(byte_container.into())
@@ -578,6 +583,11 @@ impl PyIOCache {
 
 
     //region Motors
+
+    pub fn encode_data_from_bytes_to_cache(&mut self, py: Python<'_>) -> PyResult<()> {
+        self.inner.motor_update_data_from_bytes().map_err(|err| PyFeagiError::from(err))?;
+        Ok(())
+    }
 
     pub fn motor_get_byte_container(&mut self, py: Python<'_>) -> PyResult<PyFeagiByteContainer> {
         let byte_container = self.inner.motor_copy_feagi_byte_container();
