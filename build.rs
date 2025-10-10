@@ -2,6 +2,7 @@ use std::fs;
 
 fn main() {
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
+    println!("cargo:rerun-if-changed=src/feagi_connector_core/caching/io_cache.rs");
     
     let template_path = "feagi_data_processing.pyi.template";
     let output_path = "feagi_data_processing.pyi";
@@ -21,9 +22,18 @@ fn main() {
         .expect("Failed to write feagi_data_processing.pyi");
     
     println!("Generated feagi_data_processing.pyi with SensorCorticalType");
+
+    // Update IOCache stuff
+    // Update motor registration section in io_cache.rs
+    let motor_registration_functions = generate_motor_registration_functions();
+    replace_code_segment("src/feagi_connector_core/caching/io_cache.rs",
+                         "//BUILDRS_MOTOR_DEVICE_START",
+                         "//BUILDRS_MOTOR_DEVICE_END",
+                         motor_registration_functions);
 }
 
 use feagi_data_structures::sensor_definition;
+use feagi_data_structures::motor_definition;
 
 // TODO: Rename to feagi_data_libraries?
 // TODO add macro(s) / funcs for going from PyObject to index types?
@@ -43,6 +53,7 @@ macro_rules! collect_sensor_variants {
                     channel_dimension_range: $channel_dimension_range:expr,
                     default_coder_type: $default_coder_type:ident,
                     wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
                 }$(,)?
             )*
         }
@@ -69,6 +80,217 @@ struct SensorVariant {
 
 fn get_sensor_variants() -> Vec<SensorVariant> {
     sensor_definition!(collect_sensor_variants)
+}
+
+// Macro to collect motor variant information
+macro_rules! collect_motor_variants {
+    (
+        MotorCorticalType {
+            $(
+                #[doc = $doc:expr]
+                $variant:ident => {
+                    friendly_name: $friendly_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
+                    base_ascii: $base_ascii:expr,
+                    channel_dimension_range: $channel_dimension_range:expr,
+                    default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
+                }$(,)?
+            )*
+        }
+    ) => {
+        vec![
+            $(
+                MotorVariant {
+                    snake_case_identifier: $snake_case_identifier.to_string(),
+                    default_coder_type: stringify!($default_coder_type).to_string(),
+                    rust_data_type: stringify!($data_type).to_string()
+                }
+            ),*
+        ]
+    };
+}
+
+#[derive(Debug)]
+struct MotorVariant {
+    snake_case_identifier: String,
+    default_coder_type: String,
+    rust_data_type: String,
+}
+
+fn get_motor_variants() -> Vec<MotorVariant> {
+    motor_definition!(collect_motor_variants)
+}
+
+fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_type: &str, rust_data_type: &str) -> String {
+    // This function generates registration functions based on the coder type.
+
+    let percentage_functions = format!(
+        r#"
+    pub fn motor_register_{}(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        number_of_channels: PyObject,
+        z_neuron_depth: PyObject
+    ) -> PyResult<()>
+    {{
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+        let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+        self.inner.motor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+        Ok(())
+    }}
+
+    pub fn motor_try_read_preprocessed_cached_value_{}(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Py{}>
+    {{
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let unwrapped: {} = self.inner.motor_try_read_preprocessed_cached_value_{}(group, channel).map_err(PyFeagiError::from)?;
+        Ok(unwrapped.into())
+    }}
+
+    pub fn motor_try_read_postprocessed_cached_value_{}(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Py{}>
+    {{
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let unwrapped: {} = self.inner.motor_try_read_postprocessed_cached_value_{}(group, channel).map_err(PyFeagiError::from)?;
+        Ok(unwrapped.into())
+    }}
+
+"#,
+        snake_case_identifier,
+        snake_case_identifier,
+        snake_case_identifier,
+        rust_data_type,
+        rust_data_type,
+        snake_case_identifier,
+        snake_case_identifier,
+        rust_data_type,
+        rust_data_type,
+        snake_case_identifier,
+    );
+
+    let misc_data_functions = format!(
+        r#"
+    pub fn motor_register_{}(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        number_of_channels: PyObject,
+        misc_dimensions: PyMiscDimensions,
+    ) -> PyResult<()>
+    {{
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
+        let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
+
+        self.inner.motor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+        Ok(())
+    }}
+"#,
+        snake_case_identifier,
+        snake_case_identifier
+    );
+    
+    // Match on coder type to generate appropriate function
+    // Currently all types use the same template, but each can be customized independently
+    match coder_type {
+        // Percentage types
+        "Percentage_Absolute_Linear" => percentage_functions,
+        "Percentage_Absolute_Fractional" => percentage_functions,
+        "Percentage_Incremental_Linear" => percentage_functions,
+        "Percentage_Incremental_Fractional" => percentage_functions,
+        
+        // Percentage2D types
+        "Percentage2D_Absolute_Linear" => percentage_functions,
+        "Percentage2D_Absolute_Fractional" => percentage_functions,
+        "Percentage2D_Incremental_Linear" => percentage_functions,
+        "Percentage2D_Incremental_Fractional" => percentage_functions,
+        
+        // Percentage3D types
+        "Percentage3D_Absolute_Linear" => percentage_functions,
+        "Percentage3D_Absolute_Fractional" => percentage_functions,
+        "Percentage3D_Incremental_Linear" => percentage_functions,
+        "Percentage3D_Incremental_Fractional" => percentage_functions,
+        
+        // Percentage4D types
+        "Percentage4D_Absolute_Linear" => percentage_functions,
+        "Percentage4D_Absolute_Fractional" => percentage_functions,
+        "Percentage4D_Incremental_Linear" => percentage_functions,
+        "Percentage4D_Incremental_Fractional" => percentage_functions,
+        
+        // SignedPercentage types
+        "SignedPercentage_Absolute_Linear" => percentage_functions,
+        "SignedPercentage_Absolute_Fractional" => percentage_functions,
+        "SignedPercentage_Incremental_Linear" => percentage_functions,
+        "SignedPercentage_Incremental_Fractional" => percentage_functions,
+        
+        // SignedPercentage2D types
+        "SignedPercentage2D_Absolute_Linear" => percentage_functions,
+        "SignedPercentage2D_Absolute_Fractional" => percentage_functions,
+        "SignedPercentage2D_Incremental_Linear" => percentage_functions,
+        "SignedPercentage2D_Incremental_Fractional" => percentage_functions,
+        
+        // SignedPercentage3D types
+        "SignedPercentage3D_Absolute_Linear" => percentage_functions,
+        "SignedPercentage3D_Absolute_Fractional" => percentage_functions,
+        "SignedPercentage3D_Incremental_Linear" => percentage_functions,
+        "SignedPercentage3D_Incremental_Fractional" => percentage_functions,
+        
+        // SignedPercentage4D types
+        "SignedPercentage4D_Absolute_Linear" => percentage_functions,
+        "SignedPercentage4D_Absolute_Fractional" => percentage_functions,
+        "SignedPercentage4D_Incremental_Linear" => percentage_functions,
+        "SignedPercentage4D_Incremental_Fractional" => percentage_functions,
+        
+        // MiscData types
+        "MiscData_Absolute" => misc_data_functions,
+        "MiscData_Incremental" => misc_data_functions,
+        
+        // ImageFrame types
+        "ImageFrame_Absolute" => percentage_functions,
+        "ImageFrame_Incremental" => percentage_functions,
+        
+        // Default case for any future types
+        _ => {
+            println!("cargo:warning=Unknown coder type '{}', using default template", coder_type);
+            percentage_functions
+        }
+    }
+}
+
+fn generate_motor_registration_functions() -> String {
+    let variants = get_motor_variants();
+    let mut functions = String::new();
+    
+    for variant in &variants {
+        functions.push_str("    //region ");
+        functions.push_str(&variant.snake_case_identifier);
+        functions.push_str("\n");
+        functions.push_str(&generate_motor_functions_for_coder_type(
+            &variant.snake_case_identifier,
+            &variant.default_coder_type,
+            &variant.rust_data_type
+        ));
+        functions.push_str("    //endregion\n\n");
+    }
+    
+    functions
 }
 
 fn generate_sensor_cortical_type_class() -> String {
@@ -136,4 +358,48 @@ fn insert_sensor_cortical_type(template: String, sensor_class_def: String) -> St
             }
         }
     }
+}
+
+fn replace_code_segment(file_path: &str, start_marker: &str, end_marker: &str, replacing_string: String) {
+    // Read the file
+    let content = fs::read_to_string(file_path)
+        .unwrap_or_else(|_| panic!("Failed to read {}", file_path));
+
+    // Find the positions of the markers
+    let start_pos = content.find(start_marker)
+        .unwrap_or_else(|| panic!("Could not find {} marker in {}", start_marker, file_path));
+    let end_pos = content.find(end_marker)
+        .unwrap_or_else(|| panic!("Could not find {} marker in {}", end_marker, file_path));
+
+    // Ensure the markers are in the correct order
+    if start_pos >= end_pos {
+        panic!("Markers are in the wrong order in {}", file_path);
+    }
+
+    // Calculate the position after the start marker (including the newline)
+    let replace_start = start_pos + start_marker.len();
+
+    // Find the newline after the start marker
+    let replace_start = if content[replace_start..].starts_with('\r') {
+        replace_start + 2 // Skip \r\n
+    } else if content[replace_start..].starts_with('\n') {
+        replace_start + 1 // Skip \n
+    } else {
+        replace_start
+    };
+
+    // Find the position before the end marker (including any leading whitespace on that line)
+    let replace_end = content[..end_pos].rfind('\n').map(|pos| pos + 1).unwrap_or(end_pos);
+
+    // Build the new content
+    let mut new_content = String::new();
+    new_content.push_str(&content[..replace_start]);
+    new_content.push_str(&replacing_string);
+    new_content.push_str(&content[replace_end..]);
+
+    // Write the updated content back to the file
+    fs::write(file_path, &new_content)
+        .unwrap_or_else(|_| panic!("Failed to write {}", file_path));
+
+    println!("Updated {}", file_path);
 }

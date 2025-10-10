@@ -95,9 +95,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyPipelineStagePropertyIndex);
 
     // Neurons
-    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyCorticalMappedXYZPNeuronData);
-    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZPArrays);
-    add_python_class!(py, m, "data_structures.neurons.xyzp", feagi_data_structures::neurons::xyzp::PyNeuronXYZP);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
 
 
     //endregion

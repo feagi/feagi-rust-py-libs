@@ -3,7 +3,7 @@ use pyo3::types::PyInt;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::genomic::descriptors::{AgentDeviceIndex, CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex};
+use feagi_data_structures::genomic::descriptors::{AgentDeviceIndex, CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex, NeuronDepth};
 use crate::{project_display, py_object_cast_int, py_type_casts, py_object_try_cast_int};
 use crate::py_error::PyFeagiError;
 
@@ -87,6 +87,8 @@ typed_number!(PyAgentDeviceIndex, AgentDeviceIndex, u32, "AgentDeviceIndex", "Un
 //region Count
 
 typed_non_zero_number!(PyCorticalChannelCount, CorticalChannelCount, u32, "CorticalChannelCount", "Unable to retrieve CorticalChannelCount data from given!");
+
+typed_non_zero_number!(PyNeuronDepth, NeuronDepth, u32, "NeuronDepth", "Unable to retrieve NeuronDepth data from given!");
 
 //endregion
 
