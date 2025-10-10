@@ -8,6 +8,7 @@ use pyo3::exceptions::PyValueError;
 use crate::feagi_data_serialization::PyFeagiSerializable;
 use crate::feagi_data_structures::neurons_voxels::xyzp::{PyCorticalMappedXYZPNeuronVoxels};
 use crate::py_error::PyFeagiError;
+use crate::py_type_casts;
 
 #[pyclass]
 #[derive(Clone)]
@@ -138,3 +139,5 @@ impl PyFeagiByteContainer {
 
     //endregion
 }
+
+py_type_casts!(PyFeagiByteContainer, FeagiByteContainer);
