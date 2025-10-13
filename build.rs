@@ -1,4 +1,4 @@
-mod build_scripts;
+mod rust_build_scripts;
 use std::fs;
 use feagi_data_structures::sensor_definition;
 use feagi_data_structures::motor_definition;
@@ -15,7 +15,7 @@ fn main() {
 
 
     // Update IOCache stuff
-    build_scripts::io_cache_template_writer::update_io_cache_source_file(io_cache_path);
+    rust_build_scripts::io_cache_template_writer::update_io_cache_source_file(io_cache_path);
 }
 
 
@@ -103,6 +103,9 @@ macro_rules! collect_motor_variants {
         vec![
             $(
                 MotorVariant {
+                    name: stringify!($variant).to_string(),
+                    doc: Some($doc.to_string()),
+                    friendly_name: $friendly_name.to_string(),
                     snake_case_identifier: $snake_case_identifier.to_string(),
                     default_coder_type: stringify!($default_coder_type).to_string(),
                     rust_data_type: stringify!($data_type).to_string()
@@ -135,6 +138,9 @@ macro_rules! collect_sensor_variants {
                     name: stringify!($variant).to_string(),
                     doc: Some($doc.to_string()),
                     friendly_name: $friendly_name.to_string(),
+                    snake_case_identifier: $snake_case_identifier.to_string(),
+                    default_coder_type: stringify!($default_coder_type).to_string(),
+                    rust_data_type: stringify!($data_type).to_string()
                 }
             ),*
         ]
@@ -143,6 +149,9 @@ macro_rules! collect_sensor_variants {
 
 #[derive(Debug)]
 struct MotorVariant {
+    name: String,
+    doc: Option<String>,
+    friendly_name: String,
     snake_case_identifier: String,
     default_coder_type: String,
     rust_data_type: String,
@@ -153,6 +162,9 @@ struct SensorVariant {
     name: String,
     doc: Option<String>,
     friendly_name: String,
+    snake_case_identifier: String,
+    default_coder_type: String,
+    rust_data_type: String,
 }
 
 fn get_sensor_variants() -> Vec<SensorVariant> {
