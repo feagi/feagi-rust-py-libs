@@ -13,7 +13,7 @@ __pycache__/
 .venv/
 env/
 bin/
-build/
+build_scripts/
 develop-eggs/
 dist/
 eggs/
