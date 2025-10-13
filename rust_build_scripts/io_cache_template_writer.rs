@@ -245,7 +245,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
 
         self.inner.sensor_write_{}(group, channel, &WrappedIOData::from(data)).map_err(PyFeagiError::from)?;
         Ok(())
-    }} 
+    }}
 
 "#,
         snake_case_identifier,
@@ -263,12 +263,12 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         py: Python<'_>,
         group: PyObject,
         number_of_channels: PyObject,
-        misc_dimensions: PyObject,
+        misc_dimensions: PyMiscDataDimensions,
     ) -> PyResult<()>
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-        let misc_dimensions: MiscDataDimensions = PyMiscDataDimensions::try_get_from_py_object(py, misc_dimensions).map_err(PyFeagiError::from)?;
+        let misc_dimensions: MiscDataDimensions = misc_dimensions.into();
 
         self.inner.sensor_register_{}(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
@@ -306,12 +306,12 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         py: Python<'_>,
         group: PyObject,
         number_of_channels: PyObject,
-        image_properties: PyObject,
+        image_properties: PyImageFrameProperties,
     ) -> PyResult<()>
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-        let image_properties: ImageFrameProperties = PyImageFrameProperties::try_get_from_py_object(py, image_properties).map_err(PyFeagiError::from)?;
+        image_properties: ImageFrameProperties = image_properties.into();
 
         self.inner.sensor_register_{}(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
