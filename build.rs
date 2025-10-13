@@ -1,379 +1,57 @@
+mod rust_build_scripts;
 use std::fs;
+use feagi_data_structures::sensor_definition;
+use feagi_data_structures::motor_definition;
 
 fn main() {
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
     println!("cargo:rerun-if-changed=src/feagi_connector_core/caching/io_cache.rs");
     
     let template_path = "feagi_data_processing.pyi.template";
-    let output_path = "feagi_data_processing.pyi";
-    
-    // Read the template file
-    let template_content = fs::read_to_string(template_path)
-        .expect("Failed to read feagi_data_processing.pyi.template");
-    
-    // Generate the SensorCorticalType class definition using the macro
-    let sensor_class_def = generate_sensor_cortical_type_class();
-    
-    // Insert the SensorCorticalType into the template
-    let final_content = insert_sensor_cortical_type(template_content, sensor_class_def);
-    
-    // Write the final .pyi file
-    fs::write(output_path, final_content)
-        .expect("Failed to write feagi_data_processing.pyi");
-    
-    println!("Generated feagi_data_processing.pyi with SensorCorticalType");
+    let pyi_output_path = "feagi_data_processing.pyi";
+
+    let io_cache_path = "src/feagi_connector_core/caching/io_cache.rs";
+
+
 
     // Update IOCache stuff
-    // Update motor registration section in io_cache.rs
-    let motor_registration_functions = generate_motor_registration_functions();
-    replace_code_segment("src/feagi_connector_core/caching/io_cache.rs",
-                         "//BUILDRS_MOTOR_DEVICE_START",
-                         "//BUILDRS_MOTOR_DEVICE_END",
-                         motor_registration_functions);
+    rust_build_scripts::io_cache_template_writer::update_io_cache_source_file(io_cache_path);
 }
 
-use feagi_data_structures::sensor_definition;
-use feagi_data_structures::motor_definition;
 
 // TODO: Rename to feagi_data_libraries?
 // TODO add macro(s) / funcs for going from PyObject to index types?
 // TODO: confirm func for building inheritance?
 
-
-// Macro to collect sensor variant information
-macro_rules! collect_sensor_variants {
-    (
-        SensorCorticalType {
-            $(
-                #[doc = $doc:expr]
-                $variant:ident => {
-                    friendly_name: $friendly_name:expr,
-                    snake_case_identifier: $snake_case_identifier:expr,
-                    base_ascii: $base_ascii:expr,
-                    channel_dimension_range: $channel_dimension_range:expr,
-                    default_coder_type: $default_coder_type:ident,
-                    wrapped_data_type: $wrapped_data_type:expr,
-                    data_type: $data_type:ident,
-                }$(,)?
-            )*
-        }
-    ) => {
-        vec![
-            $(
-                SensorVariant {
-                    name: stringify!($variant).to_string(),
-                    doc: Some($doc.to_string()),
-                    friendly_name: $friendly_name.to_string(),
-                }
-            ),*
-        ]
-    };
-}
-
-#[derive(Debug)]
-struct SensorVariant {
-    name: String,
-    doc: Option<String>,
-    #[allow(dead_code)]
-    friendly_name: String,
-}
-
-fn get_sensor_variants() -> Vec<SensorVariant> {
-    sensor_definition!(collect_sensor_variants)
-}
-
-// Macro to collect motor variant information
-macro_rules! collect_motor_variants {
-    (
-        MotorCorticalType {
-            $(
-                #[doc = $doc:expr]
-                $variant:ident => {
-                    friendly_name: $friendly_name:expr,
-                    snake_case_identifier: $snake_case_identifier:expr,
-                    base_ascii: $base_ascii:expr,
-                    channel_dimension_range: $channel_dimension_range:expr,
-                    default_coder_type: $default_coder_type:ident,
-                    wrapped_data_type: $wrapped_data_type:expr,
-                    data_type: $data_type:ident,
-                }$(,)?
-            )*
-        }
-    ) => {
-        vec![
-            $(
-                MotorVariant {
-                    snake_case_identifier: $snake_case_identifier.to_string(),
-                    default_coder_type: stringify!($default_coder_type).to_string(),
-                    rust_data_type: stringify!($data_type).to_string()
-                }
-            ),*
-        ]
-    };
-}
-
-#[derive(Debug)]
-struct MotorVariant {
-    snake_case_identifier: String,
-    default_coder_type: String,
-    rust_data_type: String,
-}
-
-fn get_motor_variants() -> Vec<MotorVariant> {
-    motor_definition!(collect_motor_variants)
-}
-
-fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_type: &str, rust_data_type: &str) -> String {
-    // This function generates registration functions based on the coder type.
-
-    let percentage_functions = format!(
-        r#"
-    pub fn motor_register_{}(
-        &mut self,
-        py: Python<'_>,
-        group: PyObject,
-        number_of_channels: PyObject,
-        z_neuron_depth: PyObject
-    ) -> PyResult<()>
-    {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
-        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-        let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
-
-        self.inner.motor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
-        Ok(())
-    }}
-
-    pub fn motor_try_read_preprocessed_cached_value_{}(
-        &mut self,
-        py: Python<'_>,
-        group: PyObject,
-        channel: PyObject,
-    ) -> PyResult<Py{}>
-    {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
-        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
-
-        let unwrapped: {} = self.inner.motor_try_read_preprocessed_cached_value_{}(group, channel).map_err(PyFeagiError::from)?;
-        Ok(unwrapped.into())
-    }}
-
-    pub fn motor_try_read_postprocessed_cached_value_{}(
-        &mut self,
-        py: Python<'_>,
-        group: PyObject,
-        channel: PyObject,
-    ) -> PyResult<Py{}>
-    {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
-        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
-
-        let unwrapped: {} = self.inner.motor_try_read_postprocessed_cached_value_{}(group, channel).map_err(PyFeagiError::from)?;
-        Ok(unwrapped.into())
-    }}
-
-"#,
-        snake_case_identifier,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
-    );
-
-    let misc_data_functions = format!(
-        r#"
-    pub fn motor_register_{}(
-        &mut self,
-        py: Python<'_>,
-        group: PyObject,
-        number_of_channels: PyObject,
-        misc_dimensions: PyMiscDimensions,
-    ) -> PyResult<()>
-    {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
-        let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
-        let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
-
-        self.inner.motor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
-        Ok(())
-    }}
-"#,
-        snake_case_identifier,
-        snake_case_identifier
-    );
-    
-    // Match on coder type to generate appropriate function
-    // Currently all types use the same template, but each can be customized independently
-    match coder_type {
-        // Percentage types
-        "Percentage_Absolute_Linear" => percentage_functions,
-        "Percentage_Absolute_Fractional" => percentage_functions,
-        "Percentage_Incremental_Linear" => percentage_functions,
-        "Percentage_Incremental_Fractional" => percentage_functions,
-        
-        // Percentage2D types
-        "Percentage2D_Absolute_Linear" => percentage_functions,
-        "Percentage2D_Absolute_Fractional" => percentage_functions,
-        "Percentage2D_Incremental_Linear" => percentage_functions,
-        "Percentage2D_Incremental_Fractional" => percentage_functions,
-        
-        // Percentage3D types
-        "Percentage3D_Absolute_Linear" => percentage_functions,
-        "Percentage3D_Absolute_Fractional" => percentage_functions,
-        "Percentage3D_Incremental_Linear" => percentage_functions,
-        "Percentage3D_Incremental_Fractional" => percentage_functions,
-        
-        // Percentage4D types
-        "Percentage4D_Absolute_Linear" => percentage_functions,
-        "Percentage4D_Absolute_Fractional" => percentage_functions,
-        "Percentage4D_Incremental_Linear" => percentage_functions,
-        "Percentage4D_Incremental_Fractional" => percentage_functions,
-        
-        // SignedPercentage types
-        "SignedPercentage_Absolute_Linear" => percentage_functions,
-        "SignedPercentage_Absolute_Fractional" => percentage_functions,
-        "SignedPercentage_Incremental_Linear" => percentage_functions,
-        "SignedPercentage_Incremental_Fractional" => percentage_functions,
-        
-        // SignedPercentage2D types
-        "SignedPercentage2D_Absolute_Linear" => percentage_functions,
-        "SignedPercentage2D_Absolute_Fractional" => percentage_functions,
-        "SignedPercentage2D_Incremental_Linear" => percentage_functions,
-        "SignedPercentage2D_Incremental_Fractional" => percentage_functions,
-        
-        // SignedPercentage3D types
-        "SignedPercentage3D_Absolute_Linear" => percentage_functions,
-        "SignedPercentage3D_Absolute_Fractional" => percentage_functions,
-        "SignedPercentage3D_Incremental_Linear" => percentage_functions,
-        "SignedPercentage3D_Incremental_Fractional" => percentage_functions,
-        
-        // SignedPercentage4D types
-        "SignedPercentage4D_Absolute_Linear" => percentage_functions,
-        "SignedPercentage4D_Absolute_Fractional" => percentage_functions,
-        "SignedPercentage4D_Incremental_Linear" => percentage_functions,
-        "SignedPercentage4D_Incremental_Fractional" => percentage_functions,
-        
-        // MiscData types
-        "MiscData_Absolute" => misc_data_functions,
-        "MiscData_Incremental" => misc_data_functions,
-        
-        // ImageFrame types
-        "ImageFrame_Absolute" => percentage_functions,
-        "ImageFrame_Incremental" => percentage_functions,
-        
-        // Default case for any future types
-        _ => {
-            println!("cargo:warning=Unknown coder type '{}', using default template", coder_type);
-            percentage_functions
-        }
-    }
-}
-
-fn generate_motor_registration_functions() -> String {
-    let variants = get_motor_variants();
-    let mut functions = String::new();
-    
-    for variant in &variants {
-        functions.push_str("    //region ");
-        functions.push_str(&variant.snake_case_identifier);
-        functions.push_str("\n");
-        functions.push_str(&generate_motor_functions_for_coder_type(
-            &variant.snake_case_identifier,
-            &variant.default_coder_type,
-            &variant.rust_data_type
-        ));
-        functions.push_str("    //endregion\n\n");
-    }
-    
-    functions
-}
-
-fn generate_sensor_cortical_type_class() -> String {
-    let variants = get_sensor_variants();
-    let mut class_def = String::new();
-    
-    class_def.push_str("    class SensorCorticalType:\n");
-    class_def.push_str("        \"\"\"Enum representing different types of sensor cortical areas.\n");
-    class_def.push_str("        \n");
-    class_def.push_str("        This enum defines all the available sensor types that can be used\n");
-    class_def.push_str("        in FEAGI for processing input data from various sensors and devices.\n");
-    class_def.push_str("        Each sensor type has specific characteristics and use cases.\n");
-    class_def.push_str("        \"\"\"\n");
-    class_def.push_str("        \n");
-    
-    // Add each variant as a class attribute with docstrings
-    for variant in &variants {
-        class_def.push_str(&format!("        {}: 'SensorCorticalType'\n", variant.name));
-        if let Some(doc) = &variant.doc {
-            class_def.push_str(&format!("        \"\"\"{}.\"\"\"\n", doc));
-        }
-        class_def.push_str("        \n");
-    }
-    
-    class_def
-}
-
-fn insert_sensor_cortical_type(template: String, sensor_class_def: String) -> String {
-    // Find the insertion point - after CoreCorticalType but before CorticalGroupingIndex
-    let insertion_marker = "    class CoreCorticalType:\n        \"\"\"Enum representing core cortical area types.\"\"\"\n        Death: 'CoreCorticalType'\n        Power: 'CoreCorticalType'\n    \n";
-    
-    if let Some(pos) = template.find(insertion_marker) {
-        let end_pos = pos + insertion_marker.len();
-        let mut result = String::new();
-        result.push_str(&template[..end_pos]);
-        result.push_str(&sensor_class_def);
-        result.push_str(&template[end_pos..]);
-        result
-    } else {
-        // Fallback: try to find a different marker
-        let fallback_marker = "    class CorticalGroupingIndex:";
-        if let Some(pos) = template.find(fallback_marker) {
-            let mut result = String::new();
-            result.push_str(&template[..pos]);
-            result.push_str(&sensor_class_def);
-            result.push_str("    ");
-            result.push_str(&template[pos..]);
-            result
-        } else {
-            // If we can't find the insertion point, just append at the end of the genome module
-            let genome_end_marker = "\n# IO Data module";
-            if let Some(pos) = template.find(genome_end_marker) {
-                let mut result = String::new();
-                result.push_str(&template[..pos]);
-                result.push_str("\n");
-                result.push_str(&sensor_class_def);
-                result.push_str(&template[pos..]);
-                result
-            } else {
-                // Last resort: just return template with sensor class appended
-                let mut result = template;
-                result.push_str("\n");
-                result.push_str(&sensor_class_def);
-                result
-            }
-        }
-    }
-}
-
-fn replace_code_segment(file_path: &str, start_marker: &str, end_marker: &str, replacing_string: String) {
-    // Read the file
+fn read_source_file(file_path: &str) -> String {
     let content = fs::read_to_string(file_path)
         .unwrap_or_else(|_| panic!("Failed to read {}", file_path));
+    content
+}
+
+fn save_source_file(data: String, file_path: &str) {
+    // Write the updated content back to the file
+    fs::write(file_path, &data)
+        .unwrap_or_else(|_| panic!("Failed to write {}", file_path));
+}
+
+fn check_for_segment(source_string: &String, checking: &str) {
+    _ = source_string.find(checking)
+        .unwrap_or_else(|| panic!("Could not find '{}' requirement in source file!", checking));
+}
+fn replace_code_segment(source_string: String, start_marker: &str, end_marker: &str, replacing_string: String) -> String {
+    // Read the file
+    let content = source_string;
 
     // Find the positions of the markers
     let start_pos = content.find(start_marker)
-        .unwrap_or_else(|| panic!("Could not find {} marker in {}", start_marker, file_path));
+        .unwrap_or_else(|| panic!("Could not find {} marker in source file!", start_marker));
     let end_pos = content.find(end_marker)
-        .unwrap_or_else(|| panic!("Could not find {} marker in {}", end_marker, file_path));
+        .unwrap_or_else(|| panic!("Could not find {} marker in source file!", end_marker));
 
     // Ensure the markers are in the correct order
     if start_pos >= end_pos {
-        panic!("Markers are in the wrong order in {}", file_path);
+        panic!("Markers are in the wrong order in source file!");
     }
 
     // Calculate the position after the start marker (including the newline)
@@ -397,9 +75,101 @@ fn replace_code_segment(file_path: &str, start_marker: &str, end_marker: &str, r
     new_content.push_str(&replacing_string);
     new_content.push_str(&content[replace_end..]);
 
-    // Write the updated content back to the file
-    fs::write(file_path, &new_content)
-        .unwrap_or_else(|_| panic!("Failed to write {}", file_path));
-
-    println!("Updated {}", file_path);
+    new_content
 }
+
+
+
+//region Collect Sensor / Motor context
+
+// Macro to collect motor variant information
+macro_rules! collect_motor_variants {
+    (
+        MotorCorticalType {
+            $(
+                #[doc = $doc:expr]
+                $variant:ident => {
+                    friendly_name: $friendly_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
+                    base_ascii: $base_ascii:expr,
+                    channel_dimension_range: $channel_dimension_range:expr,
+                    default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
+                }$(,)?
+            )*
+        }
+    ) => {
+        vec![
+            $(
+                MotorVariant {
+                    name: stringify!($variant).to_string(),
+                    doc: Some($doc.to_string()),
+                    friendly_name: $friendly_name.to_string(),
+                    snake_case_identifier: $snake_case_identifier.to_string(),
+                    default_coder_type: stringify!($default_coder_type).to_string(),
+                    rust_data_type: stringify!($data_type).to_string()
+                }
+            ),*
+        ]
+    };
+}
+
+macro_rules! collect_sensor_variants {
+    (
+        SensorCorticalType {
+            $(
+                #[doc = $doc:expr]
+                $variant:ident => {
+                    friendly_name: $friendly_name:expr,
+                    snake_case_identifier: $snake_case_identifier:expr,
+                    base_ascii: $base_ascii:expr,
+                    channel_dimension_range: $channel_dimension_range:expr,
+                    default_coder_type: $default_coder_type:ident,
+                    wrapped_data_type: $wrapped_data_type:expr,
+                    data_type: $data_type:ident,
+                }$(,)?
+            )*
+        }
+    ) => {
+        vec![
+            $(
+                SensorVariant {
+                    name: stringify!($variant).to_string(),
+                    doc: Some($doc.to_string()),
+                    friendly_name: $friendly_name.to_string(),
+                    snake_case_identifier: $snake_case_identifier.to_string(),
+                    default_coder_type: stringify!($default_coder_type).to_string(),
+                    rust_data_type: stringify!($data_type).to_string()
+                }
+            ),*
+        ]
+    };
+}
+
+#[derive(Debug)]
+struct MotorVariant {
+    name: String,
+    doc: Option<String>,
+    friendly_name: String,
+    snake_case_identifier: String,
+    default_coder_type: String,
+    rust_data_type: String,
+}
+
+#[derive(Debug)]
+struct SensorVariant {
+    name: String,
+    doc: Option<String>,
+    friendly_name: String,
+    snake_case_identifier: String,
+    default_coder_type: String,
+    rust_data_type: String,
+}
+
+fn get_sensor_variants() -> Vec<SensorVariant> {
+    sensor_definition!(collect_sensor_variants)
+}
+fn get_motor_variants() -> Vec<MotorVariant> {motor_definition!(collect_motor_variants)}
+
+//endregion
