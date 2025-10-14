@@ -313,7 +313,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_{}(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_{}(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
