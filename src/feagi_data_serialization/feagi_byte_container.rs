@@ -40,13 +40,7 @@ impl PyFeagiByteContainer {
 
     pub fn load_bytes_and_verify<'py>(&mut self, py: Python<'py>, bytes: Bound<'py, PyBytes>) -> PyResult<()> {
         let byte_arr: Vec<u8> = bytes.as_bytes().to_vec();
-        self.inner.try_write_data_to_container_and_verify(
-            &mut | current_bytes| {
-                current_bytes.clear();
-                current_bytes.extend_from_slice(&byte_arr);
-                Ok(())
-            }
-        ).map_err(PyFeagiError::from)?;
+        self.inner.try_write_data_by_ownership_to_container_and_verify(byte_arr).map_err(PyFeagiError::from)?;
         Ok(())
     }
 

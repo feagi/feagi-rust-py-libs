@@ -1947,7 +1947,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_center_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_center_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -1983,7 +1983,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_center_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_center_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2019,7 +2019,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_top_left_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_top_left_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2055,7 +2055,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_top_left_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_top_left_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2091,7 +2091,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_top_middle_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_top_middle_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2127,7 +2127,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_top_middle_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_top_middle_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2163,7 +2163,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_top_right_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_top_right_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2199,7 +2199,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_top_right_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_top_right_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2235,7 +2235,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_middle_left_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_middle_left_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2271,7 +2271,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_middle_left_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_middle_left_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2307,7 +2307,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_middle_right_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_middle_right_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2343,7 +2343,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_middle_right_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_middle_right_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2379,7 +2379,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_bottom_left_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_bottom_left_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2415,7 +2415,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_bottom_left_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_bottom_left_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2451,7 +2451,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_bottom_middle_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_bottom_middle_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2487,7 +2487,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_bottom_middle_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_bottom_middle_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2523,7 +2523,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_bottom_right_absolute(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_bottom_right_absolute(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
@@ -2559,7 +2559,7 @@ impl PyIOCache {
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_image_camera_bottom_right_incremental(group, number_of_channels, &image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_image_camera_bottom_right_incremental(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
