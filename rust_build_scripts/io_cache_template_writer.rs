@@ -90,7 +90,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: {rust_data_type} = self.inner.motor_{snake_case_identifier}_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: {rust_data_type} = self.inner.motor_{snake_case_identifier}_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }}
 
@@ -129,7 +129,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
 
     let misc_data_functions = format!(
         r#"
-    pub fn motor_{snake_case_identifier}_register(
+    pub fn motor_{snake_case_identifier}_try_register(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -144,6 +144,8 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         self.inner.motor_{snake_case_identifier}_try_register(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }}
+
+
 "#,
     );
 
@@ -219,7 +221,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
 
     let percentage_functions = format!(
         r#"
-    pub fn sensor_register_{}(
+    pub fn sensor_register_{snake_case_identifier}(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -231,11 +233,11 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_{snake_case_identifier}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
-    pub fn sensor_write_{}(
+    pub fn sensor_write_{snake_case_identifier}(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -245,24 +247,18 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
-        let data: {} = Py{}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
+        let data: {rust_data_type} = Py{rust_data_type}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_write_{}(group, channel, data).map_err(PyFeagiError::from)?;
+        self.inner.sensor_write_{snake_case_identifier}(group, channel, data).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
 "#,
-        snake_case_identifier,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
     );
 
     let misc_data_functions = format!(
         r#"
-    pub fn sensor_register_{}(
+    pub fn sensor_register_{snake_case_identifier}(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -274,11 +270,11 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let misc_dimensions: MiscDataDimensions = misc_dimensions.into();
 
-        self.inner.sensor_register_{}(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_{snake_case_identifier}(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
-    pub fn sensor_write_{}(
+    pub fn sensor_write_{snake_case_identifier}(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -288,24 +284,18 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
-        let data: {} = Py{}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
+        let data: {rust_data_type} = Py{rust_data_type}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_write_{}(group, channel, data).map_err(PyFeagiError::from)?;
+        self.inner.sensor_write_{snake_case_identifier}(group, channel, data).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
 "#,
-        snake_case_identifier,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
     );
 
     let image_frame_functions = format!(
         r#"
-    pub fn sensor_register_{}(
+    pub fn sensor_register_{snake_case_identifier}(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -317,11 +307,11 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
-        self.inner.sensor_register_{}(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
+        self.inner.sensor_register_{snake_case_identifier}(group, number_of_channels, image_properties).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
-    pub fn sensor_write_{}(
+    pub fn sensor_write_{snake_case_identifier}(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -331,19 +321,13 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
-        let data: {} = Py{}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
+        let data: {rust_data_type} = Py{rust_data_type}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_write_{}(group, channel, data).map_err(PyFeagiError::from)?;
+        self.inner.sensor_write_{snake_case_identifier}(group, channel, data).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
 "#,
-        snake_case_identifier,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
     );
 
     // Match on coder type to generate appropriate function

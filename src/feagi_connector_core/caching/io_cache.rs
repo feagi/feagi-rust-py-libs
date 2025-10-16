@@ -70,7 +70,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_absolute_linear_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_absolute_linear_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -134,7 +134,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_absolute_fractional_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_absolute_fractional_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -198,7 +198,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_incremental_linear_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_incremental_linear_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -262,7 +262,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_incremental_fractional_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_rotary_motor_incremental_fractional_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -326,7 +326,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_absolute_linear_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_absolute_linear_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -390,7 +390,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_absolute_fractional_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_absolute_fractional_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -454,7 +454,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_incremental_linear_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_incremental_linear_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -518,7 +518,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_incremental_fractional_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: SignedPercentage = self.inner.motor_positional_servo_incremental_fractional_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -582,7 +582,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: Percentage4D = self.inner.motor_gaze_absolute_linear_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: Percentage4D = self.inner.motor_gaze_absolute_linear_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -646,7 +646,7 @@ impl PyIOCache {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: Percentage4D = self.inner.motor_gaze_incremental_linear_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
+        let unwrapped: Percentage4D = self.inner.motor_gaze_incremental_linear_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
     }
 
@@ -684,7 +684,7 @@ impl PyIOCache {
 
     //region miscellaneous_absolute
 
-    pub fn motor_miscellaneous_absolute_register(
+    pub fn motor_miscellaneous_absolute_try_register(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -699,11 +699,13 @@ impl PyIOCache {
         self.inner.motor_miscellaneous_absolute_try_register(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    
+    
     //endregion
 
     //region miscellaneous_incremental
 
-    pub fn motor_miscellaneous_incremental_register(
+    pub fn motor_miscellaneous_incremental_try_register(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -718,6 +720,8 @@ impl PyIOCache {
         self.inner.motor_miscellaneous_incremental_try_register(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    
+    
     //endregion
 
     //BUILDRS_MOTOR_DEVICE_END
