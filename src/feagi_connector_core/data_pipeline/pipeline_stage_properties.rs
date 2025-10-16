@@ -29,6 +29,12 @@ impl PyPipelineStageProperties {
     }
 }
 
+impl From<Box<dyn PipelineStageProperties + Sync + Send>> for PyPipelineStageProperties {
+    fn from(inner: Box<dyn PipelineStageProperties + Sync + Send>) -> Self {
+        PyPipelineStageProperties { inner }
+    }
+}
+
 pub fn extract_pipeline_stage_properties_from_py(py: Python, py_stage: Py<PyPipelineStageProperties>) -> Result<Box<dyn PipelineStageProperties>, FeagiDataError> {
     let stage_ref = py_stage.borrow(py);
     Ok(stage_ref.inner.clone_box())

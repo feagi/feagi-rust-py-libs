@@ -64,7 +64,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
 
     let percentage_functions = format!(
         r#"
-    pub fn motor_register_{}(
+    pub fn motor_{snake_case_identifier}_try_register(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -76,54 +76,60 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
 
-        self.inner.motor_register_{}(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
+        self.inner.motor_{snake_case_identifier}_try_register(group, number_of_channels, z_neuron_depth).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 
-    pub fn motor_try_read_preprocessed_cached_value_{}(
+    pub fn motor_{snake_case_identifier}_try_read_preprocessed_cached_value(
         &mut self,
         py: Python<'_>,
         group: PyObject,
         channel: PyObject,
-    ) -> PyResult<Py{}>
+    ) -> PyResult<Py{rust_data_type}>
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: {} = self.inner.motor_try_read_preprocessed_cached_value_{}(group, channel).map_err(PyFeagiError::from)?;
+        let unwrapped: {rust_data_type} = self.inner.motor_{snake_case_identifier}_try_read_preprocessed_cached_value_(group, channel).map_err(PyFeagiError::from)?; // TODO Typo
         Ok(unwrapped.into())
     }}
 
-    pub fn motor_try_read_postprocessed_cached_value_{}(
+    pub fn motor_{snake_case_identifier}_try_read_postprocessed_cached_value(
         &mut self,
         py: Python<'_>,
         group: PyObject,
         channel: PyObject,
-    ) -> PyResult<Py{}>
+    ) -> PyResult<Py{rust_data_type}>
     {{
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
-        let unwrapped: {} = self.inner.motor_try_read_postprocessed_cached_value_{}(group, channel).map_err(PyFeagiError::from)?;
+        let unwrapped: {rust_data_type} = self.inner.motor_{snake_case_identifier}_try_read_postprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
         Ok(unwrapped.into())
+    }}
+
+    pub fn motor_{snake_case_identifier}_try_get_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+    ) -> PyResult<PyPipelineStageProperties>
+    {{
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+
+        let boxed_stage: Box<dyn PipelineStageProperties + Sync + Send> = self.inner.motor_{snake_case_identifier}_try_get_single_stage_properties(group, channel, stage_index).map_err(PyFeagiError::from)?;
+        Ok(boxed_stage.into())
     }}
 
 "#,
-        snake_case_identifier,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
-        snake_case_identifier,
-        rust_data_type,
-        rust_data_type,
-        snake_case_identifier,
     );
 
     let misc_data_functions = format!(
         r#"
-    pub fn motor_register_{}(
+    pub fn motor_{snake_case_identifier}_register(
         &mut self,
         py: Python<'_>,
         group: PyObject,
@@ -135,12 +141,10 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let misc_dimensions: MiscDataDimensions = PyMiscDataDimensions::try_get_from_py_object(py, misc_dimensions).map_err(PyFeagiError::from)?;
 
-        self.inner.motor_register_{}(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
+        self.inner.motor_{snake_case_identifier}_try_register(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }}
 "#,
-        snake_case_identifier,
-        snake_case_identifier
     );
 
     // Match on coder type to generate appropriate function
