@@ -88,6 +88,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_rotary_motor_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -220,6 +221,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -269,6 +271,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_rotary_motor_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -401,6 +404,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -450,6 +454,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_rotary_motor_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -582,6 +587,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -631,6 +637,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_rotary_motor_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -763,6 +770,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -812,6 +820,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_positional_servo_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -944,6 +953,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -993,6 +1003,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_positional_servo_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -1125,6 +1136,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -1174,6 +1186,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_positional_servo_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -1306,6 +1319,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -1355,6 +1369,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_positional_servo_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -1487,6 +1502,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -1536,6 +1552,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_gaze_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -1668,6 +1685,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -1717,6 +1735,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn motor_gaze_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -1849,6 +1868,7 @@ impl PyIOCache {
         
         Ok(signal_index.into())
     }
+    */
 
     //endregion
 
@@ -1898,7 +1918,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
-    //*
+    /*
     pub fn motor_miscellaneous_absolute_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -2032,7 +2052,7 @@ impl PyIOCache {
         Ok(signal_index.into())
     }
 
-    *//
+    */
 
     //endregion
 
@@ -2082,7 +2102,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
-    //*
+    /*
     pub fn motor_miscellaneous_incremental_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -2216,7 +2236,7 @@ impl PyIOCache {
         Ok(signal_index.into())
     }
 
-    *//
+    */
 
     //endregion
 
@@ -2273,6 +2293,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -2383,6 +2404,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -2434,6 +2456,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -2544,6 +2567,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -2595,6 +2619,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -2705,6 +2730,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -2756,6 +2782,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -2866,6 +2893,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -2917,6 +2945,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_inverted_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3027,6 +3056,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_inverted_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -3078,6 +3108,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_inverted_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3188,6 +3219,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_inverted_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -3239,6 +3271,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_inverted_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3349,6 +3382,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_inverted_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -3400,6 +3434,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_infrared_inverted_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3510,6 +3545,7 @@ impl PyIOCache {
         self.inner.sensor_infrared_inverted_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -3561,6 +3597,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_digital_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3671,6 +3708,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_digital_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -3722,6 +3760,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_digital_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3832,6 +3871,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_digital_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -3883,6 +3923,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_digital_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -3993,6 +4034,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_digital_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -4044,6 +4086,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_digital_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -4154,6 +4197,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_digital_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -4205,6 +4249,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_proximity_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -4315,6 +4360,7 @@ impl PyIOCache {
         self.inner.sensor_proximity_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -4366,6 +4412,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_proximity_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -4476,6 +4523,7 @@ impl PyIOCache {
         self.inner.sensor_proximity_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -4527,6 +4575,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_proximity_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -4637,6 +4686,7 @@ impl PyIOCache {
         self.inner.sensor_proximity_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -4688,6 +4738,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_proximity_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -4798,6 +4849,7 @@ impl PyIOCache {
         self.inner.sensor_proximity_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -4849,6 +4901,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_shock_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -4959,6 +5012,7 @@ impl PyIOCache {
         self.inner.sensor_shock_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5010,6 +5064,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_shock_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -5120,6 +5175,7 @@ impl PyIOCache {
         self.inner.sensor_shock_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5171,6 +5227,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_shock_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -5281,6 +5338,7 @@ impl PyIOCache {
         self.inner.sensor_shock_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5332,6 +5390,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_shock_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -5442,6 +5501,7 @@ impl PyIOCache {
         self.inner.sensor_shock_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5493,6 +5553,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_battery_gauge_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -5603,6 +5664,7 @@ impl PyIOCache {
         self.inner.sensor_battery_gauge_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5654,6 +5716,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_battery_gauge_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -5764,6 +5827,7 @@ impl PyIOCache {
         self.inner.sensor_battery_gauge_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5815,6 +5879,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_battery_gauge_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -5925,6 +5990,7 @@ impl PyIOCache {
         self.inner.sensor_battery_gauge_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -5976,6 +6042,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_battery_gauge_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -6086,6 +6153,7 @@ impl PyIOCache {
         self.inner.sensor_battery_gauge_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -6137,6 +6205,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_analog_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -6247,6 +6316,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_analog_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -6298,6 +6368,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_analog_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -6408,6 +6479,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_analog_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -6459,6 +6531,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_analog_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -6569,6 +6642,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_analog_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -6620,6 +6694,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_gpio_analog_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -6730,6 +6805,7 @@ impl PyIOCache {
         self.inner.sensor_gpio_analog_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -6781,6 +6857,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_position_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -6891,6 +6968,7 @@ impl PyIOCache {
         self.inner.sensor_servo_position_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -6942,6 +7020,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_position_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -7052,6 +7131,7 @@ impl PyIOCache {
         self.inner.sensor_servo_position_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -7103,6 +7183,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_position_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -7213,6 +7294,7 @@ impl PyIOCache {
         self.inner.sensor_servo_position_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -7264,6 +7346,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_position_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -7374,6 +7457,7 @@ impl PyIOCache {
         self.inner.sensor_servo_position_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -7425,6 +7509,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_motion_absolute_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -7535,6 +7620,7 @@ impl PyIOCache {
         self.inner.sensor_servo_motion_absolute_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -7586,6 +7672,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_motion_absolute_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -7696,6 +7783,7 @@ impl PyIOCache {
         self.inner.sensor_servo_motion_absolute_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -7747,6 +7835,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_motion_incremental_linear_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -7857,6 +7946,7 @@ impl PyIOCache {
         self.inner.sensor_servo_motion_incremental_linear_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -7908,6 +7998,7 @@ impl PyIOCache {
         Ok(unwrapped.into())
     }
 
+    /*
     pub fn sensor_servo_motion_incremental_fractional_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -8018,6 +8109,7 @@ impl PyIOCache {
         self.inner.sensor_servo_motion_incremental_fractional_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }
+    */
 
     //endregion
 
@@ -11299,29 +11391,30 @@ impl PyIOCache {
 
     //region Segmented Vision
 
-    pub fn sensor_register_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject,
+    pub fn sensor_segmented_vision_absolute_try_register(&mut self, py: Python<'_>, group: PyObject,
                                                      number_of_channels: PyObject, input_image_properties: PyImageFrameProperties,
                                                      output_segment_properties: PySegmentedImageFrameProperties, gaze: PyGazeProperties) -> PyResult<()> {
 
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_register_segmented_vision_absolute(cortical_group_index,
+        self.inner.sensor_segmented_vision_absolute_try_register(cortical_group_index,
                                                              number_of_channels, input_image_properties.into(),
                                                              output_segment_properties.into(), gaze.into()).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
-    pub fn sensor_write_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, data: PyObject) -> PyResult<()> {
+    pub fn sensor_segmented_vision_absolute_try_write(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, data: PyObject) -> PyResult<()> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let cortical_channel_index: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let wrapped_io_data = py_object_to_wrapped_io_data(py, data).map_err(PyFeagiError::from)?;
 
-        self.inner.sensor_write_segmented_vision_absolute(cortical_group_index, cortical_channel_index, &wrapped_io_data)
+        self.inner.sensor_segmented_vision_absolute_try_write(cortical_group_index, cortical_channel_index, &wrapped_io_data)
             .map_err(PyFeagiError::from)?;
         Ok(())
     }
 
+    /*
     pub fn sensor_update_stage_segmented_vision_absolute(&mut self, py: Python<'_>, group: PyObject, channel: PyObject,
                                                          pipeline_stage_property_index: PyObject, stage: PyObject) -> PyResult<()> {
         let cortical_group_index: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
@@ -11337,6 +11430,8 @@ impl PyIOCache {
             .map_err(PyFeagiError::from)?;
         Ok(())
     }
+
+     */
 
     //endregion
 

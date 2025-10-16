@@ -108,6 +108,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         Ok(unwrapped.into())
     }}
 
+    /*
     pub fn motor_{snake_case_identifier}_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -240,6 +241,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         
         Ok(signal_index.into())
     }}
+    */
 
 "#,
     );
@@ -290,7 +292,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         Ok(unwrapped.into())
     }}
 
-    //*
+    /*
     pub fn motor_{snake_case_identifier}_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -424,7 +426,7 @@ fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_ty
         Ok(signal_index.into())
     }}
 
-    *//
+    */
 
 "#,
     );
@@ -547,6 +549,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         Ok(unwrapped.into())
     }}
 
+    /*
     pub fn sensor_{snake_case_identifier}_try_get_single_stage_properties(
         &mut self,
         py: Python<'_>,
@@ -657,6 +660,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_identifier: &str, coder_t
         self.inner.sensor_{snake_case_identifier}_try_replace_all_stages(group, channel, stages).map_err(PyFeagiError::from)?;
         Ok(())
     }}
+    */
 
 "#,
     );
