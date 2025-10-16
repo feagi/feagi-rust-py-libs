@@ -48,6 +48,25 @@ macro_rules! project_display { // TODO this should be procedural. Too bad!
 
 // Wrapped
 
+#[macro_export]
+macro_rules! py_object_cast_generic_no_unwrap {
+    ($py_type:ty, $error_msg:expr) => {
+        impl $py_type{
+            pub(crate) fn try_get_from_py_object<'py>(py: Python<'_>, any: PyObject) -> Result<$py_type, FeagiDataError> {
+                let bound = any.bind(py);
+
+                match () {
+                    _ if bound.is_instance_of::<$py_type>() => {
+                        let py_obj = any.extract::<$py_type>(py).unwrap();
+                        Ok(py_obj)
+                    },
+                    _ => Err(FeagiDataError::BadParameters($error_msg.into())) // TODO
+                }
+            }
+
+        }
+    }
+}
 
 #[macro_export]
 /// Simple system to try to match a py object to the given type
