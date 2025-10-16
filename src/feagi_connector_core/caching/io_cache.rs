@@ -104,6 +104,66 @@ impl PyIOCache {
         Ok(boxed_stage.into())
     }
 
+    pub fn motor_rotary_motor_absolute_linear_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_absolute_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_rotary_motor_absolute_linear_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_rotary_motor_absolute_linear_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_rotary_motor_absolute_linear_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_absolute_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
     //endregion
 
     //region rotary_motor_absolute_fractional
@@ -166,6 +226,66 @@ impl PyIOCache {
 
         let boxed_stage: Box<dyn PipelineStageProperties + Sync + Send> = self.inner.motor_rotary_motor_absolute_fractional_try_get_single_stage_properties(group, channel, stage_index).map_err(PyFeagiError::from)?;
         Ok(boxed_stage.into())
+    }
+
+    pub fn motor_rotary_motor_absolute_fractional_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_absolute_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_rotary_motor_absolute_fractional_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_rotary_motor_absolute_fractional_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_rotary_motor_absolute_fractional_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_absolute_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
     }
 
     //endregion
@@ -232,6 +352,66 @@ impl PyIOCache {
         Ok(boxed_stage.into())
     }
 
+    pub fn motor_rotary_motor_incremental_linear_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_incremental_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_rotary_motor_incremental_linear_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_rotary_motor_incremental_linear_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_rotary_motor_incremental_linear_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_incremental_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
     //endregion
 
     //region rotary_motor_incremental_fractional
@@ -294,6 +474,66 @@ impl PyIOCache {
 
         let boxed_stage: Box<dyn PipelineStageProperties + Sync + Send> = self.inner.motor_rotary_motor_incremental_fractional_try_get_single_stage_properties(group, channel, stage_index).map_err(PyFeagiError::from)?;
         Ok(boxed_stage.into())
+    }
+
+    pub fn motor_rotary_motor_incremental_fractional_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_incremental_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_rotary_motor_incremental_fractional_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_rotary_motor_incremental_fractional_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_rotary_motor_incremental_fractional_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_rotary_motor_incremental_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
     }
 
     //endregion
@@ -360,6 +600,66 @@ impl PyIOCache {
         Ok(boxed_stage.into())
     }
 
+    pub fn motor_positional_servo_absolute_linear_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_absolute_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_positional_servo_absolute_linear_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_positional_servo_absolute_linear_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_positional_servo_absolute_linear_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_absolute_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
     //endregion
 
     //region positional_servo_absolute_fractional
@@ -422,6 +722,66 @@ impl PyIOCache {
 
         let boxed_stage: Box<dyn PipelineStageProperties + Sync + Send> = self.inner.motor_positional_servo_absolute_fractional_try_get_single_stage_properties(group, channel, stage_index).map_err(PyFeagiError::from)?;
         Ok(boxed_stage.into())
+    }
+
+    pub fn motor_positional_servo_absolute_fractional_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_absolute_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_positional_servo_absolute_fractional_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_positional_servo_absolute_fractional_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_positional_servo_absolute_fractional_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_absolute_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
     }
 
     //endregion
@@ -488,6 +848,66 @@ impl PyIOCache {
         Ok(boxed_stage.into())
     }
 
+    pub fn motor_positional_servo_incremental_linear_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_incremental_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_positional_servo_incremental_linear_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_positional_servo_incremental_linear_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_positional_servo_incremental_linear_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_incremental_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
     //endregion
 
     //region positional_servo_incremental_fractional
@@ -550,6 +970,66 @@ impl PyIOCache {
 
         let boxed_stage: Box<dyn PipelineStageProperties + Sync + Send> = self.inner.motor_positional_servo_incremental_fractional_try_get_single_stage_properties(group, channel, stage_index).map_err(PyFeagiError::from)?;
         Ok(boxed_stage.into())
+    }
+
+    pub fn motor_positional_servo_incremental_fractional_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_incremental_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_positional_servo_incremental_fractional_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_positional_servo_incremental_fractional_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_positional_servo_incremental_fractional_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_positional_servo_incremental_fractional_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
     }
 
     //endregion
@@ -616,6 +1096,66 @@ impl PyIOCache {
         Ok(boxed_stage.into())
     }
 
+    pub fn motor_gaze_absolute_linear_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_gaze_absolute_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_gaze_absolute_linear_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_gaze_absolute_linear_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_gaze_absolute_linear_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_gaze_absolute_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
     //endregion
 
     //region gaze_incremental_linear
@@ -680,6 +1220,66 @@ impl PyIOCache {
         Ok(boxed_stage.into())
     }
 
+    pub fn motor_gaze_incremental_linear_try_get_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<Vec<PyPipelineStageProperties>>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_gaze_incremental_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
+    pub fn motor_gaze_incremental_linear_try_update_single_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        stage_index: PyObject,
+        updating_property: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+        updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::try_get_from_py_object(py, updating_property).map_err(PyFeagiError::from)?;
+
+         self.inner.motor_gaze_incremental_linear_try_update_single_stage_properties(group, channel, stage_index, updating_property).map_err(PyFeagiError::from)?;
+        Ok(())
+    }
+
+    pub fn motor_gaze_incremental_linear_try_update_all_stage_properties(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+        updated_pipeline_stage_properties: Vec<PyObject>
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+        let updated_pipeline_stage_properties = {
+            
+        }
+
+        let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.motor_gaze_incremental_linear_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
+        let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len());
+        for boxed_stage in boxed_stages {
+            output.push(boxed_stage.into());
+        }
+
+        Ok(output.into())
+    }
+
     //endregion
 
     //region miscellaneous_absolute
@@ -699,8 +1299,36 @@ impl PyIOCache {
         self.inner.motor_miscellaneous_absolute_try_register(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }
-    
-    
+
+    pub fn motor_miscellaneous_absolute_try_read_preprocessed_cached_value(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let unwrapped: MiscData = self.inner.motor_miscellaneous_absolute_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
+        Ok(unwrapped.into())
+    }
+
+    pub fn motor_miscellaneous_absolute_try_read_postprocessed_cached_value(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<PyMiscData>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let unwrapped: MiscData = self.inner.motor_miscellaneous_absolute_try_read_postprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
+        Ok(unwrapped.into())
+    }
+
+
     //endregion
 
     //region miscellaneous_incremental
@@ -720,8 +1348,36 @@ impl PyIOCache {
         self.inner.motor_miscellaneous_incremental_try_register(group, number_of_channels, misc_dimensions).map_err(PyFeagiError::from)?;
         Ok(())
     }
-    
-    
+
+    pub fn motor_miscellaneous_incremental_try_read_preprocessed_cached_value(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<()>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let unwrapped: MiscData = self.inner.motor_miscellaneous_incremental_try_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
+        Ok(unwrapped.into())
+    }
+
+    pub fn motor_miscellaneous_incremental_try_read_postprocessed_cached_value(
+        &mut self,
+        py: Python<'_>,
+        group: PyObject,
+        channel: PyObject,
+    ) -> PyResult<PyMiscData>
+    {
+        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
+
+        let unwrapped: MiscData = self.inner.motor_miscellaneous_incremental_try_read_postprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
+        Ok(unwrapped.into())
+    }
+
+
     //endregion
 
     //BUILDRS_MOTOR_DEVICE_END
