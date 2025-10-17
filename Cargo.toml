@@ -16,16 +16,16 @@ name = "feagi_rust_py_libs"
 crate-type = ["cdylib"]
 
 [dependencies]
-feagi_connector_core = { version = "0.0.50-beta.43"}
-feagi_data_serialization = { version = "0.0.50-beta.43"}
-feagi_data_structures = { version = "0.0.50-beta.43"}
+feagi_connector_core = { version = "0.0.50-beta.44"}
+feagi_data_serialization = { version = "0.0.50-beta.44"}
+feagi_data_structures = { version = "0.0.50-beta.44"}
 numpy = "0.24.0"
 ndarray = "0.16.1"
 paste = "1.0"
 serde_json = "1"
 
 [build-dependencies]
-feagi_data_structures = { version = "0.0.50-beta.43"}
+feagi_data_structures = { version = "0.0.50-beta.44"}
 
 [dependencies.pyo3]
 version = "0.24.2"

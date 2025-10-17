@@ -8,7 +8,8 @@ use crate::feagi_connector_core::data_pipeline::stage_properties::{PyIdentitySta
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
 
 #[pyclass(subclass)]
-pub struct PyPipelineStageProperties {
+pub struct
+PyPipelineStageProperties {
     inner: Box<dyn PipelineStageProperties>,
 }
 
@@ -47,7 +48,7 @@ impl PyPipelineStageProperties {
         if stage_properties.as_any().is::<ImageSegmentorStageProperties>() {
             return Ok(Py::new(py, (PyImageSegmentorStageProperties, PyPipelineStageProperties::new(stage_properties)))?.into())
         }
-        
+
         Err(PyErr::new::<PyValueError, _>("Unsupported stage properties"))?
 
         // WTF
