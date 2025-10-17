@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use feagi_connector_core::data_pipeline::PipelineStageProperties;
 use feagi_connector_core::data_pipeline::stage_properties::{IdentityStageProperties, ImageSegmentorStageProperties};
 use feagi_data_structures::FeagiDataError;
-use crate::feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties;
+use crate::feagi_connector_core::data_pipeline::stage_properties::{PyIdentityStageProperties, PyImageSegmentorStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
 
 #[pyclass(subclass)]
@@ -33,16 +33,21 @@ impl From<PyPipelineStageProperties> for Box<dyn PipelineStageProperties> {
 }
 
 impl PyPipelineStageProperties {
-    
+    // Do not allow instantiation from Python
+    pub(crate) fn new(boxed_properties: Box<dyn PipelineStageProperties>) -> Self {
+        Self { inner: boxed_properties }
+    }
 
     /// Attempts to convert a boxed rust stage into a python stage properties with the correct inheritance
     pub(crate) fn boxed_to_py(py: Python<'_>, stage_properties: Box<dyn PipelineStageProperties>) -> PyResult<PyObject> {
         if stage_properties.as_any().is::<IdentityStageProperties>() {
-            return Ok(Py::new(py, (PyIdentityStageProperties, PyPipelineStageProperties{ inner: stage_properties }))?.into())
+            return Ok(Py::new(py, (PyIdentityStageProperties, PyPipelineStageProperties::new(stage_properties)))?.into())
         }
         if stage_properties.as_any().is::<ImageSegmentorStageProperties>() {
-            return Ok(Py::new(py, (PyIdentityStageProperties, PyImageSegmentorStageProperties{ inner: stage_properties }))?.into())
+            return Ok(Py::new(py, (PyImageSegmentorStageProperties, PyPipelineStageProperties::new(stage_properties)))?.into())
         }
+
+        // WTF
 
     }
 
