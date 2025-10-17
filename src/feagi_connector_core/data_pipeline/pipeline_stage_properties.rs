@@ -9,7 +9,7 @@ use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
 use crate::py_object_cast_generic_no_unwrap;
 
 #[pyclass(subclass)]
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct
 PyPipelineStageProperties {
     inner: Box<dyn PipelineStageProperties + Send + Sync>,
@@ -30,20 +30,28 @@ impl PyPipelineStageProperties {
 
 }
 
-impl From<PyPipelineStageProperties> for Box<dyn PipelineStageProperties> {
+impl From<PyPipelineStageProperties> for Box<dyn PipelineStageProperties + Send + Sync> {
     fn from(inner: PyPipelineStageProperties) -> Self {
         inner.inner
     }
 }
 
+impl Clone for PyPipelineStageProperties {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone_box()
+        }
+    }
+}
+
 impl PyPipelineStageProperties {
     // Do not allow instantiation from Python
-    pub(crate) fn new(boxed_properties: Box<dyn PipelineStageProperties>) -> Self {
+    pub(crate) fn new(boxed_properties: Box<dyn PipelineStageProperties + Send + Sync>) -> Self {
         Self { inner: boxed_properties }
     }
 
     /// Attempts to convert a boxed rust stage into a python stage properties with the correct inheritance
-    pub(crate) fn boxed_to_py(py: Python<'_>, stage_properties: Box<dyn PipelineStageProperties>) -> PyResult<PyObject> {
+    pub(crate) fn boxed_to_py(py: Python<'_>, stage_properties: Box<dyn PipelineStageProperties + Send + Sync>) -> PyResult<PyObject> {
         if stage_properties.as_any().is::<IdentityStageProperties>() {
             return Ok(Py::new(py, (PyIdentityStageProperties, PyPipelineStageProperties::new(stage_properties)))?.into())
         }
