@@ -11449,10 +11449,12 @@ impl PyIOCache {
         Ok(py_output_stages)
     }
 
-    pub fn sensor_segmented_vision_absolute_try_update_single_stage_properties(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, stage_index: PyObject, new_stage: PyPipelineStageProperties) -> PyResult<()> {
+    pub fn sensor_segmented_vision_absolute_try_update_single_stage_properties(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, stage_index: PyObject, new_stage: PyObject) -> PyResult<()> {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
+
+
 
         self.inner.sensor_segmented_vision_absolute_try_update_single_stage_properties(group, channel, stage_index, new_stage.into()).map_err(PyFeagiError::from)?;
 
