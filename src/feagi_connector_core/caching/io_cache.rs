@@ -11,7 +11,7 @@ use feagi_connector_core::wrapped_io_data::WrappedIOData;
 use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data::descriptors::*;
 use crate::feagi_connector_core::data::*;
-use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{extract_pipeline_stage_properties_from_py, PyPipelineStageProperties};
+use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{PyPipelineStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
 use crate::feagi_data_serialization::PyFeagiByteContainer;
 use crate::feagi_data_structures::genomic::descriptors::{PyCorticalChannelCount, PyNeuronDepth, PyCorticalChannelIndex, PyCorticalGroupIndex, PyPipelineStagePropertyIndex};
@@ -11424,14 +11424,14 @@ impl PyIOCache {
 
      */
 
-    pub fn sensor_segmented_vision_absolute_try_get_single_stage_properties(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, stage_index: PyObject) -> PyResult<PyPipelineStageProperties> {
+    pub fn sensor_segmented_vision_absolute_try_get_single_stage_properties(&mut self, py: Python<'_>, group: PyObject, channel: PyObject, stage_index: PyObject) -> PyResult<PyObject> {
         let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
 
         let boxed_stage: Box<dyn PipelineStageProperties + Sync + Send> = self.inner.sensor_segmented_vision_absolute_try_get_single_stage_properties(group, channel, stage_index).map_err(PyFeagiError::from).map_err(PyFeagiError::from)?;
-
-
+        let py_inherited_pipeline_properties = PyPipelineStageProperties::boxed_to_py(py, boxed_stage).map_err(PyFeagiError::from)?;
+        Ok(py_inherited_pipeline_properties)
     }
 
     /*
