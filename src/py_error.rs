@@ -29,8 +29,8 @@ impl From<PyFeagiError> for PyErr {
             FeagiDataError::SerializationError(msg) => PyValueError::new_err(msg),
             FeagiDataError::BadParameters(msg) => PyValueError::new_err(msg),
             FeagiDataError::InternalError(msg) => PyRuntimeError::new_err(msg),
+            FeagiDataError::NeuronError(msg) => PyValueError::new_err(msg),
             FeagiDataError::NotImplemented => PyRuntimeError::new_err("Function not yet implemented! Please reach out on Github!"),
-            FeagiDataError::NeuronError(_) => todo!(), // TODO WTF
         }
     }
 }

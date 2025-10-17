@@ -7,6 +7,7 @@ use crate::feagi_data_structures::genomic::cortical_type::{PyCoreCorticalType, P
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::PyMotorCorticalType;
+use crate::py_error::PyFeagiError;
 
 #[pyclass(eq, str)]
 #[derive(PartialEq, Clone, Hash)]
@@ -20,11 +21,8 @@ impl PyCorticalID {
 
     #[staticmethod]
     pub fn new_custom_cortical_area_id(desired_id_string: String)  -> PyResult<Self> {
-        let result = CorticalID::new_custom_cortical_area_id(desired_id_string);
-        match result {
-            Ok(cortical_id) => Ok(PyCorticalID {inner: cortical_id}),
-            Err(e) => Err(PyValueError::new_err(e.to_string()))
-        }
+        let cortical_id = CorticalID::new_custom_cortical_area_id(desired_id_string).map_err(PyFeagiError::from)?;
+        Ok(cortical_id.into())
     }
 
     #[staticmethod]

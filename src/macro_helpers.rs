@@ -2,8 +2,8 @@
 //region PyClass Helpers
 
 #[macro_export]
-/// Handles From for wrapped python type and back, assuming wrapper inner property is called "inner"
-macro_rules! py_type_casts { // TODO this should be procedural. Too bad!
+/// adds into() 
+macro_rules! py_type_casts {
     (
         $py_type:ty,
         $feagi_type:ty
@@ -14,18 +14,22 @@ macro_rules! py_type_casts { // TODO this should be procedural. Too bad!
                 Self { inner }
             }
         }
-        
-        /*
+
         impl From<&$feagi_type> for $py_type {
             fn from(inner_ref: &$feagi_type) -> Self {
                 Self { inner_ref.clone() }
             }
         }
-        */
-        
+
         impl From<$py_type> for $feagi_type {
             fn from(inner: $py_type) -> Self {
                 inner.inner
+            }
+        }
+
+        impl<'a> From<&'a $py_type> for &'a $feagi_type {
+            fn from(inner: &'a $py_type) -> Self {
+                &inner.inner
             }
         }
         
