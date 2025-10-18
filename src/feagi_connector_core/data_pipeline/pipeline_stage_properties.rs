@@ -1,10 +1,10 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::data_pipeline::PipelineStageProperties;
-use feagi_connector_core::data_pipeline::stage_properties::{IdentityStageProperties, ImageSegmentorStageProperties};
+use feagi_connector_core::data_pipeline::stage_properties::{IdentityStageProperties, ImageQuickDiffStageProperties, ImageSegmentorStageProperties};
 use feagi_data_structures::FeagiDataError;
 use pyo3::exceptions::PyValueError;
-use crate::feagi_connector_core::data_pipeline::stage_properties::{PyIdentityStageProperties, PyImageSegmentorStageProperties};
+use crate::feagi_connector_core::data_pipeline::stage_properties::{PyIdentityStageProperties, PyImageQuickDiffStageProperties, PyImageSegmentorStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
 use crate::py_object_cast_generic_no_unwrap;
 
@@ -57,6 +57,9 @@ impl PyPipelineStageProperties {
         }
         if stage_properties.as_any().is::<ImageSegmentorStageProperties>() {
             return Ok(Py::new(py, (PyImageSegmentorStageProperties, PyPipelineStageProperties::new(stage_properties)))?.into())
+        }
+        if stage_properties.as_any().is::<ImageQuickDiffStageProperties>() {
+            return Ok(Py::new(py, (PyImageQuickDiffStageProperties, PyPipelineStageProperties::new(stage_properties)))?.into())
         }
 
         Err(PyErr::new::<PyValueError, _>("Unsupported stage properties"))?
