@@ -2129,8 +2129,7 @@ impl PyAgentRegistry {
 }
 
 /// Module containing fast neural network operations
-#[pymodule]
-fn feagi_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn init_feagi_python_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Add the complete Rust NPU (NEW!)
     m.add_class::<RustNPU>()?;
     m.add_class::<BurstResult>()?;
@@ -2179,4 +2178,11 @@ fn feagi_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", "0.5.0")?;
 
     Ok(())
+}
+
+/// Create the feagi_python module (called from parent module)
+pub fn create_module(py: Python) -> PyResult<Bound<'_, PyModule>> {
+    let m = PyModule::new_bound(py, "feagi_python")?;
+    init_feagi_python_module(&m)?;
+    Ok(m)
 }

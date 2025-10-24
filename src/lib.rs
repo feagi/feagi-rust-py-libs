@@ -12,6 +12,8 @@ mod py_error;
 mod macro_helpers;
 mod feagi_data_serialization;
 mod feagi_connector_core;
+mod feagi_python;
+mod feagi_agent_sdk_py;
 
 use pyo3::prelude::*;
 
@@ -164,6 +166,20 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
      */
 
+    //endregion
+    
+    //region FEAGI Python Bindings (feagi_python submodule)
+    
+    // Add feagi_python as a submodule
+    m.add_submodule(&feagi_python::create_module(py)?)?;
+    
+    //endregion
+    
+    //region FEAGI Agent SDK Python Bindings (feagi_agent_sdk_py submodule)
+    
+    // Add feagi_agent_sdk_py as a submodule
+    m.add_submodule(&feagi_agent_sdk_py::create_module(py)?)?;
+    
     //endregion
     
     

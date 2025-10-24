@@ -4,6 +4,15 @@ use feagi_data_structures::sensor_definition;
 use feagi_data_structures::motor_definition;
 
 fn main() {
+    // Configure PyO3 for extension module
+    pyo3_build_config::add_extension_module_link_args();
+    
+    // Windows-specific: Link against advapi32 for ZMQ security descriptor functions
+    #[cfg(target_os = "windows")]
+    {
+        println!("cargo:rustc-link-lib=advapi32");
+    }
+    
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
     println!("cargo:rerun-if-changed=src/feagi_connector_core/caching/io_cache.rs");
     

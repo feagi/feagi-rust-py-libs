@@ -301,17 +301,23 @@ impl PyAgentClient {
     }
 }
 
-/// Python module definition
-#[pymodule]
-fn feagi_agent_sdk_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
+/// Initialize the feagi_agent_sdk_py module
+fn init_feagi_agent_sdk_py_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Add classes
     m.add_class::<AgentType>()?;
     m.add_class::<PyAgentConfig>()?;
     m.add_class::<PyAgentClient>()?;
     
     // Add version
-    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
+    m.add("__version__", "0.1.0")?;
     
     Ok(())
+}
+
+/// Create the feagi_agent_sdk_py module (called from parent module)
+pub fn create_module(py: Python) -> PyResult<Bound<'_, PyModule>> {
+    let m = PyModule::new_bound(py, "feagi_agent_sdk_py")?;
+    init_feagi_agent_sdk_py_module(&m)?;
+    Ok(m)
 }
 
