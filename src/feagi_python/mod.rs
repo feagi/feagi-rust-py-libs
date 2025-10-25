@@ -610,6 +610,116 @@ impl RustNPU {
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
     
+    /// Batch add neurons (optimized for neurogenesis)
+    /// 
+    /// Creates multiple neurons in a single operation. This is 50-100x faster
+    /// than calling add_neuron() in a Python loop due to:
+    /// - Single FFI boundary crossing (vs N crossings)
+    /// - Single lock acquisition (vs N locks)
+    /// - Contiguous SoA memory writes
+    /// - Batch propagation engine updates
+    /// 
+    /// Args:
+    ///     thresholds: List of neuron thresholds
+    ///     leak_coefficients: List of leak coefficients
+    ///     resting_potentials: List of resting potentials
+    ///     neuron_types: List of neuron types
+    ///     refractory_periods: List of refractory periods
+    ///     excitabilities: List of excitabilities
+    ///     consecutive_fire_limits: List of consecutive fire limits
+    ///     snooze_periods: List of snooze periods
+    ///     mp_charge_accumulations: List of mp_charge_accumulation flags
+    ///     cortical_areas: List of cortical area IDs
+    ///     x_coords: List of X coordinates
+    ///     y_coords: List of Y coordinates
+    ///     z_coords: List of Z coordinates
+    /// 
+    /// Returns:
+    ///     Tuple of (neuron_ids, failed_indices)
+    ///     - neuron_ids: List of created neuron IDs
+    ///     - failed_indices: List of indices that failed
+    /// 
+    /// Example:
+    ///     >>> neuron_ids, failed = npu.add_neurons_batch(
+    ///     ...     thresholds=[1.0] * 1000,
+    ///     ...     leak_coefficients=[0.1] * 1000,
+    ///     ...     resting_potentials=[0.0] * 1000,
+    ///     ...     neuron_types=[0] * 1000,
+    ///     ...     refractory_periods=[2] * 1000,
+    ///     ...     excitabilities=[1.0] * 1000,
+    ///     ...     consecutive_fire_limits=[0] * 1000,
+    ///     ...     snooze_periods=[0] * 1000,
+    ///     ...     mp_charge_accumulations=[True] * 1000,
+    ///     ...     cortical_areas=[5] * 1000,
+    ///     ...     x_coords=list(range(1000)),
+    ///     ...     y_coords=[0] * 1000,
+    ///     ...     z_coords=[0] * 1000
+    ///     ... )
+    ///     >>> print(f"Created {len(neuron_ids)} neurons, {len(failed)} failed")
+    /// Create neurons for a cortical area (CORRECT ARCHITECTURE)
+    /// 
+    /// Python passes only scalar parameters - Rust generates all coordinates and properties
+    /// This eliminates the 4-second PyO3 conversion bottleneck!
+    /// 
+    /// Args:
+    ///     cortical_idx: Cortical area index
+    ///     width: X dimension
+    ///     height: Y dimension
+    ///     depth: Z dimension
+    ///     neurons_per_voxel: Neurons per spatial position
+    ///     default_threshold: Default firing threshold
+    ///     default_leak_coefficient: Default leak rate
+    ///     default_resting_potential: Default resting potential
+    ///     default_neuron_type: Default neuron type
+    ///     default_refractory_period: Default refractory period
+    ///     default_excitability: Default excitability
+    ///     default_consecutive_fire_limit: Default consecutive fire limit
+    ///     default_snooze_period: Default snooze period
+    ///     default_mp_charge_accumulation: Default MP charge accumulation flag
+    /// 
+    /// Returns:
+    ///     Number of neurons created
+    fn create_cortical_area_neurons(
+        &mut self,
+        py: Python,
+        cortical_idx: u32,
+        width: u32,
+        height: u32,
+        depth: u32,
+        neurons_per_voxel: u32,
+        default_threshold: f32,
+        default_leak_coefficient: f32,
+        default_resting_potential: f32,
+        default_neuron_type: i32,
+        default_refractory_period: u16,
+        default_excitability: f32,
+        default_consecutive_fire_limit: u16,
+        default_snooze_period: u16,
+        default_mp_charge_accumulation: bool,
+    ) -> PyResult<u32> {
+        // ✅ Release GIL during bulk neuron creation
+        py.allow_threads(|| {
+            self.npu.lock().unwrap()
+                .create_cortical_area_neurons(
+                    cortical_idx,
+                    width,
+                    height,
+                    depth,
+                    neurons_per_voxel,
+                    default_threshold,
+                    default_leak_coefficient,
+                    default_resting_potential,
+                    default_neuron_type,
+                    default_refractory_period,
+                    default_excitability,
+                    default_consecutive_fire_limit,
+                    default_snooze_period,
+                    default_mp_charge_accumulation,
+                )
+                .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("{:?}", e)))
+        })
+    }
+    
     /// Add a synapse to the NPU
     /// 
     /// Args:
@@ -662,12 +772,14 @@ impl RustNPU {
     ///     - failed_indices: List of indices that failed
     fn add_synapses_batch(
         &mut self,
+        py: Python,
         sources: Vec<u32>,
         targets: Vec<u32>,
         weights: Vec<u8>,
         conductances: Vec<u8>,
         synapse_types: Vec<u8>,
     ) -> (usize, Vec<usize>) {
+        // Convert to Rust types (cheap, no GIL needed)
         let source_ids: Vec<NeuronId> = sources.into_iter().map(NeuronId).collect();
         let target_ids: Vec<NeuronId> = targets.into_iter().map(NeuronId).collect();
         let weight_vals: Vec<SynapticWeight> = weights.into_iter().map(SynapticWeight).collect();
@@ -680,7 +792,10 @@ impl RustNPU {
             }
         }).collect();
         
-        self.npu.lock().unwrap().add_synapses_batch(source_ids, target_ids, weight_vals, conductance_vals, type_vals)
+        // ✅ Release GIL during bulk synapse creation
+        py.allow_threads(|| {
+            self.npu.lock().unwrap().add_synapses_batch(source_ids, target_ids, weight_vals, conductance_vals, type_vals)
+        })
     }
     
     /// Remove a synapse
@@ -796,6 +911,43 @@ impl RustNPU {
         self.npu.lock().unwrap().get_neuron_count()
     }
     
+    /// Get neuron coordinates (x, y, z) by neuron ID
+    /// 
+    /// Args:
+    ///     neuron_id: ID of the neuron
+    /// 
+    /// Returns:
+    ///     Tuple of (x, y, z) coordinates
+    fn get_neuron_coordinates(&self, neuron_id: u32) -> (u32, u32, u32) {
+        self.npu.lock().unwrap().get_neuron_coordinates(neuron_id)
+    }
+    
+    /// Get cortical area index for a neuron
+    /// 
+    /// Args:
+    ///     neuron_id: ID of the neuron
+    /// 
+    /// Returns:
+    ///     Cortical area index (u32)
+    fn get_neuron_cortical_area(&self, neuron_id: u32) -> u32 {
+        self.npu.lock().unwrap().get_neuron_cortical_area(neuron_id)
+    }
+    
+    /// Get all neuron IDs in a specific cortical area
+    /// 
+    /// Args:
+    ///     cortical_idx: Cortical area index
+    /// 
+    /// Returns:
+    ///     List of neuron IDs in that cortical area
+    fn get_neurons_in_cortical_area(&self, py: Python, cortical_idx: u32) -> Vec<u32> {
+        // ✅ CRITICAL: Release GIL during Rust operation to prevent blocking other threads
+        // Without this, Python threads (sensory staging, heartbeats, etc.) block for 4+ seconds
+        py.allow_threads(|| {
+            self.npu.lock().unwrap().get_neurons_in_cortical_area(cortical_idx)
+        })
+    }
+    
     /// Get synapse count (valid only)
     fn get_synapse_count(&self) -> usize {
         self.npu.lock().unwrap().get_synapse_count()
@@ -803,8 +955,11 @@ impl RustNPU {
     
     /// Get all neuron positions in a cortical area (for fast batch lookups)
     /// Returns list of tuples (neuron_id, x, y, z)
-    fn get_neuron_positions_in_cortical_area(&self, cortical_area: u32) -> Vec<(u32, u32, u32, u32)> {
-        self.npu.lock().unwrap().get_neuron_positions_in_cortical_area(cortical_area)
+    fn get_neuron_positions_in_cortical_area(&self, py: Python, cortical_area: u32) -> Vec<(u32, u32, u32, u32)> {
+        // ✅ Release GIL during area scan
+        py.allow_threads(|| {
+            self.npu.lock().unwrap().get_neuron_positions_in_cortical_area(cortical_area)
+        })
     }
     
     /// Get neuron ID at specific coordinates (spatial hash lookup for sensory injection)
@@ -820,6 +975,7 @@ impl RustNPU {
     /// because it eliminates FFI overhead and enables vectorization.
     fn get_neurons_at_coordinates_batch(
         &self,
+        py: Python,
         cortical_area: u32,
         coords_x: Vec<u32>,
         coords_y: Vec<u32>,
@@ -834,16 +990,17 @@ impl RustNPU {
             )));
         }
         
-        // Batch lookup - single iteration, no Python FFI overhead
-        let neuron_ids: Vec<Option<u32>> = coords_x.iter()
-            .zip(coords_y.iter())
-            .zip(coords_z.iter())
-            .map(|((&x, &y), &z)| {
-                self.npu.lock().unwrap().neuron_array.get_neuron_at_coordinate(cortical_area, x, y, z).map(|id| id.0)
-            })
-            .collect();
-        
-        Ok(neuron_ids)
+        // ✅ Release GIL during batch coordinate lookup
+        Ok(py.allow_threads(|| {
+            // Batch lookup - single iteration, no Python FFI overhead
+            coords_x.iter()
+                .zip(coords_y.iter())
+                .zip(coords_z.iter())
+                .map(|((&x, &y), &z)| {
+                    self.npu.lock().unwrap().neuron_array.get_neuron_at_coordinate(cortical_area, x, y, z).map(|id| id.0)
+                })
+                .collect()
+        }))
     }
     
     // ===== RUST-NATIVE SENSORY INJECTION API =====
@@ -856,9 +1013,12 @@ impl RustNPU {
     /// Args:
     ///     neuron_ids: List of neuron IDs to inject
     ///     potential: Membrane potential to add (default: 1.0)
-    fn inject_sensory_batch(&mut self, neuron_ids: Vec<u32>, potential: f32) {
+    fn inject_sensory_batch(&mut self, py: Python, neuron_ids: Vec<u32>, potential: f32) {
         let ids: Vec<NeuronId> = neuron_ids.into_iter().map(NeuronId).collect();
-        self.npu.lock().unwrap().inject_sensory_batch(&ids, potential);
+        // ✅ Release GIL during sensory injection (prevents blocking neurogenesis/synaptogenesis)
+        py.allow_threads(|| {
+            self.npu.lock().unwrap().inject_sensory_batch(&ids, potential);
+        })
     }
     
     /// Update excitability for a single neuron (live parameter change)
@@ -869,8 +1029,11 @@ impl RustNPU {
     
     /// Update excitability for all neurons in a cortical area (bulk parameter change)
     /// Returns number of neurons updated
-    fn update_cortical_area_excitability(&mut self, cortical_area: u32, excitability: f32) -> usize {
-        self.npu.lock().unwrap().update_cortical_area_excitability(cortical_area, excitability)
+    fn update_cortical_area_excitability(&mut self, py: Python, cortical_area: u32, excitability: f32) -> usize {
+        // ✅ Release GIL during bulk parameter update
+        py.allow_threads(|| {
+            self.npu.lock().unwrap().update_cortical_area_excitability(cortical_area, excitability)
+        })
     }
     
     /// Update refractory period for all neurons in a cortical area
@@ -973,45 +1136,45 @@ impl RustNPU {
     // PROPERTY GETTERS (for batch_get_neuron_properties)
     // ═══════════════════════════════════════════════════════════════════
     
-    /// Get neuron refractory period
+    /// Get neuron refractory period (neuron_id == array index)
     fn get_neuron_refractory_period(&self, neuron_id: u32) -> Option<u16> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.refractory_periods.get(idx).copied()
     }
     
-    /// Get neuron firing threshold
+    /// Get neuron firing threshold (neuron_id == array index)
     fn get_neuron_threshold(&self, neuron_id: u32) -> Option<f32> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.thresholds.get(idx).copied()
     }
     
-    /// Get neuron leak coefficient (decay rate)
+    /// Get neuron leak coefficient (decay rate) (neuron_id == array index)
     fn get_neuron_leak_coefficient(&self, neuron_id: u32) -> Option<f32> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.leak_coefficients.get(idx).copied()
     }
     
-    /// Get neuron membrane potential
+    /// Get neuron membrane potential (neuron_id == array index)
     fn get_neuron_membrane_potential(&self, neuron_id: u32) -> Option<f32> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.membrane_potentials.get(idx).copied()
     }
     
-    /// Get neuron resting potential
+    /// Get neuron resting potential (neuron_id == array index)
     fn get_neuron_resting_potential(&self, neuron_id: u32) -> Option<f32> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.resting_potentials.get(idx).copied()
     }
     
-    /// Get neuron excitability
+    /// Get neuron excitability (neuron_id == array index)
     fn get_neuron_excitability(&self, neuron_id: u32) -> Option<f32> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.excitabilities.get(idx).copied()
     }
     
-    /// Get neuron consecutive fire limit
+    /// Get neuron consecutive fire limit (neuron_id == array index)
     fn get_neuron_consecutive_fire_limit(&self, neuron_id: u32) -> Option<u16> {
-        let idx = *self.npu.lock().unwrap().neuron_array.neuron_id_to_index.get(&neuron_id)?;
+        let idx = neuron_id as usize;
         self.npu.lock().unwrap().neuron_array.consecutive_fire_limits.get(idx).copied()
     }
     
@@ -1090,14 +1253,13 @@ impl RustNPU {
         
         // Get all FCL candidates (from last burst snapshot - before FCL was cleared)
         for (neuron_id, potential) in npu.get_last_fcl_snapshot() {
-            // Get cortical area for this neuron
-            if let Some(&array_idx) = neuron_array.neuron_id_to_index.get(&neuron_id.0) {
-                if array_idx < neuron_array.count && neuron_array.valid_mask[array_idx] {
-                    let cortical_area = neuron_array.cortical_areas[array_idx];
-                    areas.entry(cortical_area)
-                        .or_insert_with(Vec::new)
-                        .push((neuron_id.0, *potential));
-                }
+            // Get cortical area for this neuron (neuron_id == array index)
+            let array_idx = neuron_id.0 as usize;
+            if array_idx < neuron_array.count && neuron_array.valid_mask[array_idx] {
+                let cortical_area = neuron_array.cortical_areas[array_idx];
+                areas.entry(cortical_area)
+                    .or_insert_with(Vec::new)
+                    .push((neuron_id.0, *potential));
             }
         }
         
