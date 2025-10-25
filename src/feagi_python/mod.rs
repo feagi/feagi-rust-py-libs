@@ -39,6 +39,13 @@ use numpy::{PyArray1, ToPyArray};
 use feagi_types::*;
 use feagi_burst_engine::{RustNPU as RustNPUCore, BurstResult as RustBurstResult};
 use feagi_connectome_serialization;
+use feagi_bdu::connectivity::{
+    apply_projector_morphology,
+    apply_expander_morphology,
+    apply_block_connection_morphology,
+    apply_patterns_morphology,
+    apply_vectors_morphology,
+};
 use ahash::AHashMap;
 use std::sync::{Arc, Mutex};
 use feagi_data_structures::neuron_voxels::xyzp::{NeuronVoxelXYZP, NeuronVoxelXYZPArrays, CorticalMappedXYZPNeuronVoxels};
@@ -1522,6 +1529,175 @@ impl RustNPU {
         *self.npu.lock().unwrap() = new_npu;
         
         Ok(true)
+    }
+    
+    /// Apply projector morphology - NPU-native synaptogenesis
+    /// 
+    /// Directly queries neurons from NPU, applies projector morphology, and creates synapses.
+    /// Returns only the synapse count (no Python data transfer).
+    /// 
+    /// Args:
+    ///     src_area_id: Source cortical area ID
+    ///     dst_area_id: Destination cortical area ID
+    ///     transpose: Optional axis transposition tuple
+    ///     project_last_layer_of: Optional axis to project from last layer
+    ///     weight: Synapse weight (0-255)
+    ///     conductance: Synapse conductance (0-255)
+    ///     synapse_attractivity: Probability (0-100) of creating synapse
+    /// 
+    /// Returns:
+    ///     Number of synapses created
+    fn apply_projector_morphology(
+        &mut self,
+        py: Python,
+        src_area_id: u32,
+        dst_area_id: u32,
+        transpose: Option<(usize, usize, usize)>,
+        project_last_layer_of: Option<usize>,
+        weight: u8,
+        conductance: u8,
+        synapse_attractivity: u8,
+    ) -> PyResult<u32> {
+        py.allow_threads(|| {
+            let mut npu = self.npu.lock().unwrap();
+            apply_projector_morphology(
+                &mut *npu,
+                src_area_id,
+                dst_area_id,
+                transpose,
+                project_last_layer_of,
+                weight,
+                conductance,
+                synapse_attractivity,
+            )
+            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Projector morphology failed: {}", e)))
+        })
+    }
+    
+    /// Apply expander morphology - NPU-native synaptogenesis
+    fn apply_expander_morphology(
+        &mut self,
+        py: Python,
+        src_area_id: u32,
+        dst_area_id: u32,
+        weight: u8,
+        conductance: u8,
+        synapse_attractivity: u8,
+    ) -> PyResult<u32> {
+        py.allow_threads(|| {
+            let mut npu = self.npu.lock().unwrap();
+            apply_expander_morphology(
+                &mut *npu,
+                src_area_id,
+                dst_area_id,
+                weight,
+                conductance,
+                synapse_attractivity,
+            )
+            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Expander morphology failed: {}", e)))
+        })
+    }
+    
+    /// Apply block connection morphology - NPU-native synaptogenesis
+    fn apply_block_connection_morphology(
+        &mut self,
+        py: Python,
+        src_area_id: u32,
+        dst_area_id: u32,
+        scaling_factor: u32,
+        weight: u8,
+        conductance: u8,
+        synapse_attractivity: u8,
+    ) -> PyResult<u32> {
+        py.allow_threads(|| {
+            let mut npu = self.npu.lock().unwrap();
+            apply_block_connection_morphology(
+                &mut *npu,
+                src_area_id,
+                dst_area_id,
+                scaling_factor,
+                weight,
+                conductance,
+                synapse_attractivity,
+            )
+            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Block connection morphology failed: {}", e)))
+        })
+    }
+    
+    /// Apply pattern matching morphology - NPU-native synaptogenesis
+    /// 
+    /// Args:
+    ///     patterns: List of (src_pattern, dst_pattern) tuples, where each pattern is a tuple of 3 PatternElements
+    ///               PatternElement encoding: -1=Wildcard, -2=Skip, -3=Exclude, >=0=Exact value
+    fn apply_patterns_morphology(
+        &mut self,
+        py: Python,
+        src_area_id: u32,
+        dst_area_id: u32,
+        patterns: Vec<((i32, i32, i32), (i32, i32, i32))>,
+        weight: u8,
+        conductance: u8,
+        synapse_attractivity: u8,
+    ) -> PyResult<u32> {
+        use feagi_bdu::connectivity::rules::patterns::PatternElement;
+        
+        // Convert Python patterns to Rust Pattern3D
+        let rust_patterns: Vec<_> = patterns.iter().map(|(src, dst)| {
+            let src_pattern = (
+                PatternElement::from_int(src.0),
+                PatternElement::from_int(src.1),
+                PatternElement::from_int(src.2),
+            );
+            let dst_pattern = (
+                PatternElement::from_int(dst.0),
+                PatternElement::from_int(dst.1),
+                PatternElement::from_int(dst.2),
+            );
+            (src_pattern, dst_pattern)
+        }).collect();
+        
+        py.allow_threads(|| {
+            let mut npu = self.npu.lock().unwrap();
+            apply_patterns_morphology(
+                &mut *npu,
+                src_area_id,
+                dst_area_id,
+                rust_patterns,
+                weight,
+                conductance,
+                synapse_attractivity,
+            )
+            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Pattern morphology failed: {}", e)))
+        })
+    }
+    
+    /// Apply vector offset morphology - NPU-native synaptogenesis
+    /// 
+    /// Args:
+    ///     vectors: List of (x, y, z) offset vectors to apply
+    fn apply_vectors_morphology(
+        &mut self,
+        py: Python,
+        src_area_id: u32,
+        dst_area_id: u32,
+        vectors: Vec<(i32, i32, i32)>,
+        weight: u8,
+        conductance: u8,
+        synapse_attractivity: u8,
+    ) -> PyResult<u32> {
+        py.allow_threads(|| {
+            let mut npu = self.npu.lock().unwrap();
+            apply_vectors_morphology(
+                &mut *npu,
+                src_area_id,
+                dst_area_id,
+                vectors,
+                weight,
+                conductance,
+                synapse_attractivity,
+            )
+            .map_err(|e| PyErr::new::<PyValueError, _>(format!("Vector morphology failed: {}", e)))
+        })
     }
 }
 
