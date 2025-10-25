@@ -495,6 +495,7 @@ dependencies = [
  "feagi-burst-engine",
  "feagi_data_serialization",
  "feagi_data_structures",
+ "lz4",
  "parking_lot",
  "serde",
  "serde_json",
