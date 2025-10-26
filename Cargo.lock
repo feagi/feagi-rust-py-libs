@@ -565,6 +565,7 @@ dependencies = [
  "feagi_data_serialization",
  "feagi_data_structures",
  "log",
+ "lz4",
  "ndarray",
  "numpy",
  "parking_lot",

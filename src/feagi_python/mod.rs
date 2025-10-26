@@ -282,6 +282,7 @@ impl From<RustBurstResult> for BurstResult {
 struct RustNPU {
     npu: Arc<Mutex<RustNPUCore>>,  // Always use Arc<Mutex> for thread-safety
     burst_runner: Option<Arc<Mutex<feagi_burst_engine::BurstLoopRunner>>>,
+    pns: Option<Arc<Mutex<feagi_pns::PNS>>>,  // Direct Rust-to-Rust connection (NO PYTHON IN HOT PATH!)
 }
 
 #[pymethods]
@@ -297,6 +298,7 @@ impl RustNPU {
         Self {
             npu: Arc::new(Mutex::new(RustNPUCore::new(neuron_capacity, synapse_capacity, fire_ledger_window))),
             burst_runner: None,
+            pns: None,  // Set via set_pns() before starting burst loop
         }
     }
     
@@ -319,6 +321,17 @@ impl RustNPU {
     
     // 🔋 Power neurons auto-discovered from neuron array - no separate list!
     
+    /// Set PNS reference for direct Rust-to-Rust visualization publishing (NO PYTHON IN HOT PATH!)
+    /// 
+    /// Args:
+    ///     pns: PyPNS instance from process manager
+    /// 
+    /// Must be called BEFORE start_burst_loop() to enable ZMQ visualization output.
+    fn set_pns(&mut self, pns: &PyPNS) {
+        self.pns = Some(pns.pns.clone());
+        println!("[RUST-NPU] ✅ PNS reference stored for direct Rust→Rust visualization");
+    }
+    
     /// Start the burst loop runner (runs in background Rust thread)
     /// 
     /// Args:
@@ -333,10 +346,17 @@ impl RustNPU {
             ));
         }
         
-        let mut runner = feagi_burst_engine::BurstLoopRunner::new(self.npu.clone(), frequency_hz);
+        // Pass PNS directly to burst engine for 100% Rust-to-Rust visualization (NO PYTHON IN HOT PATH!)
+        // The new signature uses trait abstraction to avoid circular dependencies
+        let mut runner = feagi_burst_engine::BurstLoopRunner::new(
+            self.npu.clone(),
+            self.pns.clone(),  // Direct Rust→Rust connection via trait!
+            frequency_hz
+        );
         
         // 🦀 Power neurons are already in RustNPU - runner reads them directly!
-        // NO Python involvement in power injection hot path!
+        // 🦀 PNS visualization publisher wired directly - NO Python callbacks!
+        // 🦀 100% Rust hot path from FCL → sampler → Type 11 encode → LZ4 compress → ZMQ publish!
         
         runner.start().map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Failed to start burst loop: {}", e))
@@ -375,25 +395,9 @@ impl RustNPU {
         }
     }
     
-    /// Attach PNS visualization ZMQ publisher to burst loop
-    /// After this, visualization data will be published to ZMQ in addition to SHM
-    fn attach_viz_zmq_publisher(&mut self, pns: &PyPNS) -> PyResult<()> {
-        if let Some(runner) = &mut self.burst_runner {
-            let pns_clone = pns.pns.clone();
-            runner.lock().unwrap().set_viz_zmq_publisher(move |data: &[u8]| {
-                // Publish to ZMQ via PNS
-                if let Err(e) = pns_clone.lock().unwrap().publish_visualization(data) {
-                    eprintln!("[BURST-LOOP] ❌ Failed to publish to ZMQ: {}", e);
-                }
-            });
-            println!("[RUST-NPU] ✅ PNS ZMQ publisher attached to burst loop");
-            Ok(())
-        } else {
-            Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
-                "Burst loop not running - call start_burst_loop() first"
-            ))
-        }
-    }
+    // REMOVED: attach_viz_zmq_publisher - VIOLATED HOT PATH ARCHITECTURE
+    // This method created a Python callback that crossed FFI boundary on every burst!
+    // PNS is now passed directly to burst engine constructor (100% Rust-to-Rust)
     
     /// Write binary neuron data to visualization SHM (Python encodes, Rust writes)
     /// 

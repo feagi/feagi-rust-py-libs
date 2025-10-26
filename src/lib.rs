@@ -185,11 +185,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     //region Compression utilities for PASSTHROUGH architecture
     
-    // LZ4 compression/decompression for clients receiving compressed data from FEAGI
-    add_python_function!(py, m, "compression", compression::decompress_lz4);
-    add_python_function!(py, m, "compression", compression::compress_lz4);
-    add_python_function!(py, m, "compression", compression::is_lz4_compressed);
-    add_python_function!(py, m, "compression", compression::decompress_if_needed);
+    // REMOVED: Compression functions (not related to core architectural fix)
+    // Clients should handle decompression directly using their own LZ4 libraries
     
     //endregion
     
