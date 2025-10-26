@@ -1817,3 +1817,77 @@ class neuron_data:
             def __str__(self) -> str:
                 """String representation of the neuron."""
                 ...
+# Compression module for PASSTHROUGH architecture
+class compression:
+    """LZ4 compression/decompression utilities for FEAGI data.
+    
+    ARCHITECTURE: Bridge operates in PASSTHROUGH mode - clients handle decompression
+    
+    This module provides LZ4 compression and decompression for Python clients
+    receiving compressed data from FEAGI via the bridge's passthrough mode.
+    """
+    
+    @staticmethod
+    def decompress_lz4(compressed_data: bytes) -> bytes:
+        """Decompress LZ4-compressed data from FEAGI.
+        
+        ARCHITECTURE: FEAGI PNS → LZ4 compress → ZMQ → Bridge PASSTHROUGH → Client DECOMPRESS
+        
+        Args:
+            compressed_data: LZ4-compressed bytes from FEAGI (via bridge passthrough)
+            
+        Returns:
+            Decompressed bytes
+            
+        Raises:
+            ValueError: If decompression fails or input is empty
+        """
+        ...
+    
+    @staticmethod
+    def compress_lz4(data: bytes) -> bytes:
+        """Compress data using LZ4.
+        
+        This is primarily for testing - most clients only need decompression.
+        
+        Args:
+            data: Raw bytes to compress
+            
+        Returns:
+            LZ4-compressed bytes
+            
+        Raises:
+            ValueError: If compression fails or input is empty
+        """
+        ...
+    
+    @staticmethod
+    def is_lz4_compressed(data: bytes) -> bool:
+        """Check if data is LZ4 compressed by examining magic header.
+        
+        LZ4 compressed data starts with magic number 0x04.
+        
+        Args:
+            data: Bytes to check
+            
+        Returns:
+            True if data appears to be LZ4 compressed
+        """
+        ...
+    
+    @staticmethod
+    def decompress_if_needed(data: bytes) -> bytes:
+        """Decompress data if it's LZ4 compressed, otherwise return as-is.
+        
+        Convenience function that checks for LZ4 magic header and decompresses if needed.
+        
+        Args:
+            data: Bytes that may or may not be compressed
+            
+        Returns:
+            Decompressed bytes (or original if not compressed)
+            
+        Raises:
+            ValueError: If decompression fails
+        """
+        ...

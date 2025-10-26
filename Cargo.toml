@@ -40,6 +40,7 @@ thiserror = "2.0"
 ahash = "0.8"
 parking_lot = "0.12"
 log = "0.4"
+lz4 = "1.28"
 
 [build-dependencies]
 feagi_data_structures = { version = "0.0.50-beta.43"}

@@ -14,6 +14,7 @@ mod feagi_data_serialization;
 mod feagi_connector_core;
 mod feagi_python;
 mod feagi_agent_sdk_py;
+mod compression;
 
 use pyo3::prelude::*;
 
@@ -179,6 +180,16 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // Add feagi_agent_sdk_py as a submodule
     m.add_submodule(&feagi_agent_sdk_py::create_module(py)?)?;
+    
+    //endregion
+    
+    //region Compression utilities for PASSTHROUGH architecture
+    
+    // LZ4 compression/decompression for clients receiving compressed data from FEAGI
+    add_python_function!(py, m, "compression", compression::decompress_lz4);
+    add_python_function!(py, m, "compression", compression::compress_lz4);
+    add_python_function!(py, m, "compression", compression::is_lz4_compressed);
+    add_python_function!(py, m, "compression", compression::decompress_if_needed);
     
     //endregion
     
