@@ -399,30 +399,11 @@ impl RustNPU {
     // This method created a Python callback that crossed FFI boundary on every burst!
     // PNS is now passed directly to burst engine constructor (100% Rust-to-Rust)
     
-    /// Write binary neuron data to visualization SHM (Python encodes, Rust writes)
-    /// 
-    /// Args:
-    ///     binary_data: Pre-encoded binary data (Type 11 format from feagi_rust_py_libs)
-    /// 
-    /// This is the HOT PATH for visualization - called after every FQ sample
-    fn write_viz_shm(&self, binary_data: &[u8]) -> PyResult<()> {
-        if let Some(runner) = &self.burst_runner {
-            let runner_lock = runner.lock().unwrap();
-            let mut viz_writer = runner_lock.viz_shm_writer.lock().unwrap();
-            if let Some(writer) = viz_writer.as_mut() {
-                writer.write_payload(binary_data)
-                    .map_err(|e| PyErr::new::<pyo3::exceptions::PyIOError, _>(
-                        format!("Failed to write viz SHM: {}", e)
-                    ))?;
-                Ok(())
-            } else {
-                // No writer attached - silently skip (Python fallback can handle it)
-                Ok(())
-            }
-        } else {
-            Ok(()) // No burst loop - skip
-        }
-    }
+    // ❌ REMOVED: write_viz_shm() - DANGEROUS BRIDGE TO HOT PATH!
+    // Comment said "This is the HOT PATH for visualization" - ABSOLUTELY FORBIDDEN!
+    // Visualization data is written by Rust burst loop internally (NO PYTHON!)
+    // Burst Engine → FQ Sample → Type 11 Encode → SHM Write (100% Rust)
+    // Exposing this would allow Python to inject into hot path - BRIDGE BURNED!
     
     /// Attach motor SHM writer for zero-copy motor output
     /// 
@@ -443,30 +424,10 @@ impl RustNPU {
         }
     }
     
-    /// Write binary motor data to motor SHM (Python encodes, Rust writes)
-    /// 
-    /// Args:
-    ///     binary_data: Pre-encoded binary motor data
-    /// 
-    /// This is the HOT PATH for motor output - called after every burst
-    fn write_motor_shm(&self, binary_data: &[u8]) -> PyResult<()> {
-        if let Some(runner) = &self.burst_runner {
-            let runner_lock = runner.lock().unwrap();
-            let mut motor_writer = runner_lock.motor_shm_writer.lock().unwrap();
-            if let Some(writer) = motor_writer.as_mut() {
-                writer.write_payload(binary_data)
-                    .map_err(|e| PyErr::new::<pyo3::exceptions::PyIOError, _>(
-                        format!("Failed to write motor SHM: {}", e)
-                    ))?;
-                Ok(())
-            } else {
-                // No writer attached - silently skip (Python fallback can handle it)
-                Ok(())
-            }
-        } else {
-            Ok(()) // No burst loop - skip
-        }
-    }
+    // ❌ REMOVED: write_motor_shm() - DANGEROUS BRIDGE TO HOT PATH!
+    // Comment said "This is the HOT PATH for motor output" - ABSOLUTELY FORBIDDEN!
+    // Motor data is handled by Rust burst loop internally (NO PYTHON!)
+    // Exposing this would allow Python to inject into hot path - BRIDGE BURNED!
     
     /// Check if burst loop is running
     fn is_burst_loop_running(&self) -> bool {
@@ -2222,15 +2183,10 @@ impl PyPNS {
             .map_err(|e| PyValueError::new_err(format!("Deregistration failed: {}", e)))
     }
 
-    /// Publish visualization data to all ZMQ subscribers
-    /// Called by burst engine after writing FQ data to SHM
-    fn publish_visualization(&self, data: &[u8]) -> PyResult<()> {
-        self.pns
-            .lock()
-            .unwrap()
-            .publish_visualization(data)
-            .map_err(|e| PyValueError::new_err(format!("Failed to publish visualization: {}", e)))
-    }
+    // ❌ REMOVED: publish_visualization() - DANGEROUS BRIDGE TO HOT PATH!
+    // This was a legacy method that allowed Python to publish visualization data.
+    // Visualization is now 100% Rust: Burst Engine → PNS (NO PYTHON!)
+    // Exposing this method could tempt developers to route data through Python - FORBIDDEN!
     
     /// Get the shared agent registry for Python RegistrationManager
     /// This allows the RegistrationManager to use the same registry as PNS
