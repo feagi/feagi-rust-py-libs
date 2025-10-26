@@ -327,9 +327,13 @@ impl RustNPU {
     ///     pns: PyPNS instance from process manager
     /// 
     /// Must be called BEFORE start_burst_loop() to enable ZMQ visualization output.
-    fn set_pns(&mut self, pns: &PyPNS) {
-        self.pns = Some(pns.pns.clone());
-        println!("[RUST-NPU] ✅ PNS reference stored for direct Rust→Rust visualization");
+    fn set_pns(&mut self, pns: Py<PyPNS>) -> PyResult<()> {
+        Python::with_gil(|py| {
+            let pns_ref = pns.borrow(py);
+            self.pns = Some(pns_ref.pns.clone());
+            println!("[RUST-NPU] ✅ PNS reference stored for direct Rust→Rust visualization");
+            Ok(())
+        })
     }
     
     /// Start the burst loop runner (runs in background Rust thread)
