@@ -2054,6 +2054,25 @@ impl CorticalMappedXYZPNeuronDataDecoder {
     }
 }
 
+/// Python enum for transport mode selection
+#[pyclass]
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum PyTransportMode {
+    /// ZMQ over TCP (reliable, ordered)
+    Zmq,
+    /// UDP (best-effort, low latency)
+    Udp,
+}
+
+impl From<PyTransportMode> for feagi_pns::TransportMode {
+    fn from(mode: PyTransportMode) -> Self {
+        match mode {
+            PyTransportMode::Zmq => feagi_pns::TransportMode::Zmq,
+            PyTransportMode::Udp => feagi_pns::TransportMode::Udp,
+        }
+    }
+}
+
 /// Python wrapper for Rust PNS (Peripheral Nervous System)
 #[pyclass]
 struct PyPNS {
@@ -2067,6 +2086,81 @@ impl PyPNS {
         let pns = feagi_pns::PNS::new()
             .map_err(|e| PyValueError::new_err(format!("Failed to create PNS: {}", e)))?;
         
+        Ok(Self {
+            pns: Arc::new(Mutex::new(pns)),
+        })
+    }
+
+    /// Create PNS with custom transport configuration
+    /// 
+    /// Args:
+    ///     visualization_transport: Transport mode for visualization stream (Zmq or Udp)
+    ///     sensory_transport: Transport mode for sensory stream (Zmq or Udp)
+    ///     udp_viz_address: UDP bind address for visualization (e.g., "0.0.0.0:5562")
+    ///     udp_sensory_address: UDP bind address for sensory (e.g., "0.0.0.0:5560")
+    /// 
+    /// Example:
+    ///     ```python
+    ///     from feagi_rust import PyPNS, PyTransportMode
+    ///     
+    ///     # Use UDP for visualization, ZMQ for sensory
+    ///     pns = PyPNS.new_with_config(
+    ///         visualization_transport=PyTransportMode.Udp,
+    ///         sensory_transport=PyTransportMode.Zmq,
+    ///         udp_viz_address="0.0.0.0:5562"
+    ///     )
+    ///     ```
+    #[classmethod]
+    #[pyo3(signature = (visualization_transport=None, sensory_transport=None, udp_viz_address=None, udp_sensory_address=None))]
+    fn new_with_config(
+        _cls: &Bound<'_, pyo3::types::PyType>,
+        visualization_transport: Option<PyTransportMode>,
+        sensory_transport: Option<PyTransportMode>,
+        udp_viz_address: Option<String>,
+        udp_sensory_address: Option<String>,
+    ) -> PyResult<Self> {
+        use feagi_pns::PNSConfig;
+        
+        #[cfg(feature = "udp-transport")]
+        use feagi_pns::UdpConfig;
+
+        let mut config = PNSConfig::default();
+
+        // Set visualization transport
+        if let Some(mode) = visualization_transport {
+            config.visualization_transport = mode.into();
+        }
+
+        // Set sensory transport
+        if let Some(mode) = sensory_transport {
+            config.sensory_transport = mode.into();
+        }
+
+        // Configure UDP visualization if address provided
+        #[cfg(feature = "udp-transport")]
+        if let Some(addr) = udp_viz_address {
+            config.udp_viz_config = UdpConfig {
+                bind_address: addr.clone(),
+                peer_address: addr, // For publish, peer is set by client
+                compress: true,
+                max_message_size: 10_000_000, // 10MB
+            };
+        }
+
+        // Configure UDP sensory if address provided
+        #[cfg(feature = "udp-transport")]
+        if let Some(addr) = udp_sensory_address {
+            config.udp_sensory_config = UdpConfig {
+                bind_address: addr.clone(),
+                peer_address: addr,
+                compress: true,
+                max_message_size: 10_000_000,
+            };
+        }
+
+        let pns = feagi_pns::PNS::with_config(config)
+            .map_err(|e| PyValueError::new_err(format!("Failed to create PNS: {}", e)))?;
+
         Ok(Self {
             pns: Arc::new(Mutex::new(pns)),
         })
@@ -2447,6 +2541,7 @@ fn init_feagi_python_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<CorticalMappedXYZPNeuronDataDecoder>()?;
     
     // Add PNS (NEW! - Peripheral Nervous System for agent I/O)
+    m.add_class::<PyTransportMode>()?;
     m.add_class::<PyPNS>()?;
     
     // Add test function first

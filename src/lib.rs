@@ -172,7 +172,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region FEAGI Python Bindings (feagi_python submodule)
     
     // Add feagi_python as a submodule
-//     m.add_submodule(&feagi_python::create_module(py)?)?;
+    m.add_submodule(&feagi_python::create_module(py)?)?;
     
     //endregion
     
