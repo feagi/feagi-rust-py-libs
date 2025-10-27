@@ -26,7 +26,7 @@ feagi-types = { path = "../feagi-core/crates/feagi-types" }
 feagi-burst-engine = { path = "../feagi-core/crates/feagi-burst-engine" }
 feagi-bdu = { path = "../feagi-core/crates/feagi-bdu" }
 feagi-plasticity = { path = "../feagi-core/crates/feagi-plasticity" }
-feagi-pns = { path = "../feagi-core/crates/feagi-pns" }
+feagi-pns = { path = "../feagi-core/crates/feagi-pns", features = ["zmq-transport", "udp-transport"] }
 feagi-connectome-serialization = { path = "../feagi-core/crates/feagi-connectome-serialization", features = ["compression"] }
 feagi-agent-sdk = { path = "../feagi-core/crates/feagi-agent-sdk" }
 

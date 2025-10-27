@@ -2123,7 +2123,7 @@ impl PyPNS {
         let caps_json: serde_json::Value = serde_json::from_str(&capabilities)
             .map_err(|e| PyValueError::new_err(format!("Invalid capabilities JSON: {}", e)))?;
 
-        let _request = feagi_pns::registration::RegistrationRequest {
+        let _request = feagi_pns::RegistrationRequest {
             agent_id,
             agent_type,
             capabilities: caps_json,
@@ -2249,7 +2249,7 @@ fn load_connectome_from_file(py: Python, npu: Py<RustNPU>, file_path: String) ->
 /// Python wrapper for AgentRegistry
 #[pyclass]
 struct PyAgentRegistry {
-    registry: std::sync::Arc<parking_lot::RwLock<feagi_pns::agent_registry::AgentRegistry>>,
+    registry: std::sync::Arc<parking_lot::RwLock<feagi_pns::AgentRegistry>>,
 }
 
 #[pymethods]
@@ -2258,7 +2258,7 @@ impl PyAgentRegistry {
     fn new(max_agents: usize, timeout_ms: u64) -> Self {
         Self {
             registry: std::sync::Arc::new(parking_lot::RwLock::new(
-                feagi_pns::agent_registry::AgentRegistry::new(max_agents, timeout_ms)
+                feagi_pns::AgentRegistry::new(max_agents, timeout_ms)
             )),
         }
     }
@@ -2314,7 +2314,7 @@ impl PyAgentRegistry {
         capabilities_json: String,
         metadata_json: Option<String>,
     ) -> PyResult<String> {
-        use feagi_pns::agent_registry::{AgentType, AgentCapabilities, AgentInfo, AgentTransport};
+        use feagi_pns::{AgentType, AgentCapabilities, AgentInfo, AgentTransport};
         
         // Parse agent type
         let rust_agent_type = match agent_type.to_lowercase().as_str() {
