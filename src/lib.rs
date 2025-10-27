@@ -179,7 +179,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region FEAGI Agent SDK Python Bindings (feagi_agent_sdk_py submodule)
     
     // Add feagi_agent_sdk_py as a submodule
-//     m.add_submodule(&feagi_agent_sdk_py::create_module(py)?)?;
+    m.add_submodule(&feagi_agent_sdk_py::create_module(py)?)?;
     
     //endregion
     

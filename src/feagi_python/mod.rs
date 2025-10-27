@@ -1102,6 +1102,18 @@ impl RustNPU {
         self.npu.lock().unwrap().batch_update_neuron_type(&neuron_ids, &values)
     }
     
+    /// Batch update MP charge accumulation for multiple neurons
+    /// Returns number of neurons updated
+    fn batch_update_mp_charge_accumulation(&mut self, neuron_ids: Vec<u32>, values: Vec<bool>) -> usize {
+        self.npu.lock().unwrap().batch_update_mp_charge_accumulation(&neuron_ids, &values)
+    }
+    
+    /// Update MP charge accumulation for all neurons in a cortical area
+    /// Returns number of neurons updated
+    fn update_cortical_area_mp_charge_accumulation(&mut self, cortical_area: u32, mp_charge_accumulation: bool) -> usize {
+        self.npu.lock().unwrap().update_cortical_area_mp_charge_accumulation(cortical_area, mp_charge_accumulation)
+    }
+    
     /// Delete a neuron (mark as invalid)
     /// Returns true if successful, false if neuron out of bounds
     fn delete_neuron(&mut self, neuron_id: u32) -> bool {
