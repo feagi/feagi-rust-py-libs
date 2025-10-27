@@ -328,6 +328,12 @@ impl RustNPU {
     /// 
     /// Must be called BEFORE start_burst_loop() to enable ZMQ visualization output.
     fn set_pns(&mut self, pns: Py<PyPNS>) -> PyResult<()> {
+        // Guard: skip if PNS is already set (prevents "Already borrowed" error on repeated calls)
+        if self.pns.is_some() {
+            println!("[RUST-NPU] ⚠️  PNS already set - skipping duplicate set_pns() call");
+            return Ok(());
+        }
+        
         Python::with_gil(|py| {
             let pns_ref = pns.borrow(py);
             self.pns = Some(pns_ref.pns.clone());
