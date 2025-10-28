@@ -41,6 +41,7 @@ thiserror = "2.0"
 ahash = "0.8"
 parking_lot = "0.12"
 log = "0.4"
+zmq = "0.10"  # For ZMQ API client (eliminates pyzmq dependency)
 lz4 = "1.28"
 
 [build-dependencies]

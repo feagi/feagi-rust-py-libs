@@ -616,6 +616,7 @@ dependencies = [
  "pyo3-build-config 0.22.6",
  "serde_json",
  "thiserror 2.0.17",
+ "zmq",
 ]
 
 [[package]]

@@ -15,6 +15,7 @@ mod feagi_connector_core;
 mod feagi_python;
 mod feagi_agent_sdk_py;
 mod compression;
+mod zmq_api_client;
 
 use pyo3::prelude::*;
 

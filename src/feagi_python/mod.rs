@@ -2568,6 +2568,17 @@ impl PyPNS {
         Ok(())
     }
 
+    /// Connect the Rust NPU to the PNS API control stream for direct queries (zero GIL contention)
+    /// This enables the FastAPI process to query the NPU via ZMQ without Python GIL involvement
+    fn connect_npu_to_api_control_stream(&self, rust_npu: &RustNPU) -> PyResult<()> {
+        let npu_arc = Arc::clone(&rust_npu.npu);
+        self.pns
+            .lock()
+            .unwrap()
+            .connect_npu_to_api_control_stream(npu_arc);
+        Ok(())
+    }
+
     /// Register an agent (called via ZMQ REST stream)
     /// This is handled internally by the PNS's REST stream
     /// Use this only for direct registration from Python
@@ -3106,6 +3117,9 @@ fn init_feagi_python_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Add PNS (NEW! - Peripheral Nervous System for agent I/O)
     m.add_class::<PyTransportMode>()?;
     m.add_class::<PyPNS>()?;
+
+    // Add ZMQ API Client (NEW! - Eliminates pyzmq dependency for API process)
+    m.add_class::<crate::zmq_api_client::ZmqApiClient>()?;
 
     // Add test function first
     match wrap_pyfunction!(test_simple_function, m) {
