@@ -1015,9 +1015,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .get_neuron_at_coordinate(cortical_area, x, y, z)
-            .map(|id| id.0)
+            .get_neuron_id_at_coordinate(cortical_area, x, y, z)
     }
 
     /// BATCH: Get neuron IDs for multiple coordinates (high-performance sensory injection)
@@ -1055,9 +1053,7 @@ impl RustNPU {
                     self.npu
                         .lock()
                         .unwrap()
-                        .neuron_array
-                        .get_neuron_at_coordinate(cortical_area, x, y, z)
-                        .map(|id| id.0)
+                        .get_neuron_id_at_coordinate(cortical_area, x, y, z)
                 })
                 .collect()
         }))
@@ -1303,10 +1299,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .refractory_periods
-            .get(idx)
-            .copied()
+            .get_neuron_property_u16_by_index(idx, "refractory_period")
     }
 
     /// Get neuron firing threshold (neuron_id == array index)
@@ -1315,10 +1308,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .thresholds
-            .get(idx)
-            .copied()
+            .get_neuron_property_by_index(idx, "threshold")
     }
 
     /// Get neuron leak coefficient (decay rate) (neuron_id == array index)
@@ -1327,10 +1317,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .leak_coefficients
-            .get(idx)
-            .copied()
+            .get_neuron_property_by_index(idx, "leak_coefficient")
     }
 
     /// Get neuron membrane potential (neuron_id == array index)
@@ -1339,10 +1326,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .membrane_potentials
-            .get(idx)
-            .copied()
+            .get_neuron_property_by_index(idx, "membrane_potential")
     }
 
     /// Get neuron resting potential (neuron_id == array index)
@@ -1351,10 +1335,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .resting_potentials
-            .get(idx)
-            .copied()
+            .get_neuron_property_by_index(idx, "resting_potential")
     }
 
     /// Get neuron excitability (neuron_id == array index)
@@ -1363,10 +1344,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .excitabilities
-            .get(idx)
-            .copied()
+            .get_neuron_property_by_index(idx, "excitability")
     }
 
     /// Get neuron consecutive fire limit (neuron_id == array index)
@@ -1375,10 +1353,7 @@ impl RustNPU {
         self.npu
             .lock()
             .unwrap()
-            .neuron_array
-            .consecutive_fire_limits
-            .get(idx)
-            .copied()
+            .get_neuron_property_u16_by_index(idx, "consecutive_fire_limit")
     }
 
     /// Get outgoing synapses for a neuron
@@ -1462,7 +1437,7 @@ impl RustNPU {
     /// Returns neurons with accumulated potential organized by cortical area
     fn get_current_fcl(&self, py: Python) -> PyResult<PyObject> {
         let npu = self.npu.lock().unwrap();
-        let neuron_array = &npu.neuron_array;
+        let (count, cortical_areas, valid_mask) = npu.get_neuron_array_snapshot();
 
         // Organize FCL by cortical area
         let mut areas: AHashMap<u32, Vec<(u32, f32)>> = AHashMap::new();
@@ -1471,12 +1446,12 @@ impl RustNPU {
         for (neuron_id, potential) in npu.get_last_fcl_snapshot() {
             // Get cortical area for this neuron (neuron_id == array index)
             let array_idx = neuron_id.0 as usize;
-            if array_idx < neuron_array.count && neuron_array.valid_mask[array_idx] {
-                let cortical_area = neuron_array.cortical_areas[array_idx];
+            if array_idx < count && valid_mask[array_idx] {
+                let cortical_area = cortical_areas[array_idx];
                 areas
                     .entry(cortical_area)
                     .or_insert_with(Vec::new)
-                    .push((neuron_id.0, *potential));
+                    .push((neuron_id.0, potential));
             }
         }
 
