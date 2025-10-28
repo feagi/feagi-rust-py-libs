@@ -44,6 +44,7 @@ use feagi_data_structures::neuron_voxels::xyzp::{
     CorticalMappedXYZPNeuronVoxels, NeuronVoxelXYZP, NeuronVoxelXYZPArrays,
 };
 use feagi_types::*;
+use feagi_state_manager::{StateManager, AgentInfo, AgentType, BurstEngineState, GenomeState, ConnectomeState};
 use numpy::{PyArray1, ToPyArray};
 use pyo3::exceptions::{PyIOError, PyValueError};
 use pyo3::prelude::*;
@@ -2416,7 +2417,7 @@ impl PyPNS {
     ///     )
     ///     ```
     #[classmethod]
-    #[pyo3(signature = (visualization_transport=None, sensory_transport=None, udp_viz_address=None, udp_sensory_address=None, zmq_sensory_recv_hwm=None, zmq_sensory_linger_ms=None, zmq_sensory_immediate=None, zmq_sensory_poll_timeout_ms=None))]
+    #[pyo3(signature = (visualization_transport=None, sensory_transport=None, udp_viz_address=None, udp_sensory_address=None, zmq_sensory_recv_hwm=None, zmq_sensory_linger_ms=None, zmq_sensory_immediate=None, zmq_sensory_poll_timeout_ms=None, zmq_sensory_startup_drain_ms=None))]
     fn new_with_config(
         _cls: &Bound<'_, pyo3::types::PyType>,
         visualization_transport: Option<PyTransportMode>,
@@ -2427,6 +2428,7 @@ impl PyPNS {
         zmq_sensory_linger_ms: Option<i32>,
         zmq_sensory_immediate: Option<bool>,
         zmq_sensory_poll_timeout_ms: Option<i64>,
+        zmq_sensory_startup_drain_ms: Option<u64>,
     ) -> PyResult<Self> {
         use feagi_pns::PNSConfig;
 
@@ -2459,6 +2461,9 @@ impl PyPNS {
             }
             if let Some(poll_timeout) = zmq_sensory_poll_timeout_ms {
                 config.sensory_stream.poll_timeout_ms = poll_timeout;
+            }
+            if let Some(drain_timeout) = zmq_sensory_startup_drain_ms {
+                config.sensory_stream.startup_drain_timeout_ms = drain_timeout;
             }
             config.sensory_stream.validate().map_err(|e| {
                 PyValueError::new_err(format!("Invalid sensory stream config: {}", e))
@@ -2495,7 +2500,49 @@ impl PyPNS {
         })
     }
 
-    /// Start all PNS streams (ZMQ + SHM)
+    /// Start only control streams (REST/registration) - safe before burst engine
+    /// 
+    /// This starts the REST API for agent registration and heartbeats but does NOT
+    /// start sensory/motor/viz streams. Use this during FEAGI startup before the
+    /// burst engine is ready.
+    /// 
+    /// Example:
+    ///     ```python
+    ///     pns = PyPNS()
+    ///     pns.start_control_streams()  # Start REST API only
+    ///     # ... later, after burst engine is ready ...
+    ///     pns.start_data_streams()     # Now start sensory/motor/viz
+    ///     ```
+    fn start_control_streams(&self) -> PyResult<()> {
+        self.pns
+            .lock()
+            .unwrap()
+            .start_control_streams()
+            .map_err(|e| PyValueError::new_err(format!("Failed to start control streams: {}", e)))
+    }
+
+    /// Start data streams (sensory/motor/viz) - requires burst engine running
+    /// 
+    /// This starts the data processing streams that require an active burst engine.
+    /// Call this AFTER the burst engine has been started and is ready to process data.
+    /// 
+    /// Example:
+    ///     ```python
+    ///     # After burst engine is running:
+    ///     pns.start_data_streams()
+    ///     ```
+    fn start_data_streams(&self) -> PyResult<()> {
+        self.pns
+            .lock()
+            .unwrap()
+            .start_data_streams()
+            .map_err(|e| PyValueError::new_err(format!("Failed to start data streams: {}", e)))
+    }
+
+    /// Start all PNS streams (ZMQ + SHM) - legacy method
+    /// 
+    /// Equivalent to calling start_control_streams() followed by start_data_streams().
+    /// Prefer using the split methods during FEAGI startup for proper sequencing.
     fn start(&self) -> PyResult<()> {
         self.pns
             .lock()
@@ -2887,11 +2934,189 @@ impl PyAgentRegistry {
     }
 }
 
+/// Python wrapper for Rust StateManager
+#[pyclass(name = "StateManager")]
+struct PyStateManager {
+    state: Arc<Mutex<StateManager>>,
+}
+
+#[pymethods]
+impl PyStateManager {
+    #[new]
+    fn new() -> PyResult<Self> {
+        let state = StateManager::new()
+            .map_err(|e| PyValueError::new_err(format!("Failed to create StateManager: {}", e)))?;
+        Ok(Self {
+            state: Arc::new(Mutex::new(state)),
+        })
+    }
+    
+    // ===== Core State Operations =====
+    
+    /// Get burst engine state (0=Unavailable, 1=Initializing, 2=Ready, 3=Running, 4=Paused, 5=Error)
+    fn get_burst_engine_state(&self) -> PyResult<u8> {
+        let state = self.state.lock().unwrap();
+        Ok(state.get_burst_engine_state() as u8)
+    }
+    
+    /// Set burst engine state
+    fn set_burst_engine_state(&self, state_value: u8) -> PyResult<()> {
+        let state = self.state.lock().unwrap();
+        let burst_state = match state_value {
+            0 => BurstEngineState::Unavailable,
+            1 => BurstEngineState::Initializing,
+            2 => BurstEngineState::Ready,
+            3 => BurstEngineState::Running,
+            4 => BurstEngineState::Paused,
+            5 => BurstEngineState::Error,
+            _ => return Err(PyValueError::new_err("Invalid burst engine state")),
+        };
+        state.set_burst_engine_state(burst_state);
+        Ok(())
+    }
+    
+    /// Get genome state (0=Missing, 1=Loading, 2=Loaded, 3=Saving, 4=Error)
+    fn get_genome_state(&self) -> PyResult<u8> {
+        let state = self.state.lock().unwrap();
+        Ok(state.get_genome_state() as u8)
+    }
+    
+    /// Set genome state
+    fn set_genome_state(&self, state_value: u8) -> PyResult<()> {
+        let state = self.state.lock().unwrap();
+        let genome_state = match state_value {
+            0 => GenomeState::Missing,
+            1 => GenomeState::Loading,
+            2 => GenomeState::Loaded,
+            3 => GenomeState::Saving,
+            4 => GenomeState::Error,
+            _ => return Err(PyValueError::new_err("Invalid genome state")),
+        };
+        state.set_genome_state(genome_state);
+        Ok(())
+    }
+    
+    /// Check if brain is ready
+    fn is_brain_ready(&self) -> PyResult<bool> {
+        let state = self.state.lock().unwrap();
+        Ok(state.is_brain_ready())
+    }
+    
+    /// Set brain readiness
+    fn set_brain_ready(&self, ready: bool) -> PyResult<()> {
+        let state = self.state.lock().unwrap();
+        state.set_brain_ready(ready);
+        Ok(())
+    }
+    
+    // ===== Agent Management =====
+    
+    /// Register an agent (returns JSON string with result)
+    fn register_agent(&self, agent_id: String, agent_type: String) -> PyResult<String> {
+        let state = self.state.lock().unwrap();
+        let agent_type_enum = AgentType::from_str(&agent_type);
+        let agent_info = AgentInfo::new(agent_id.clone(), agent_type_enum);
+        
+        match state.register_agent(agent_info) {
+            Ok(_) => Ok(serde_json::json!({
+                "success": true,
+                "agent_id": agent_id,
+            }).to_string()),
+            Err(e) => Ok(serde_json::json!({
+                "success": false,
+                "error": format!("{}", e),
+            }).to_string()),
+        }
+    }
+    
+    /// Deregister an agent
+    fn deregister_agent(&self, agent_id: String) -> PyResult<String> {
+        let state = self.state.lock().unwrap();
+        
+        match state.deregister_agent(&agent_id) {
+            Ok(_) => Ok(serde_json::json!({
+                "success": true,
+                "agent_id": agent_id,
+            }).to_string()),
+            Err(e) => Ok(serde_json::json!({
+                "success": false,
+                "error": format!("{}", e),
+            }).to_string()),
+        }
+    }
+    
+    /// Get agent count
+    fn get_agent_count(&self) -> PyResult<usize> {
+        let state = self.state.lock().unwrap();
+        Ok(state.get_agent_count())
+    }
+    
+    /// Get all agents (returns JSON string)
+    fn get_all_agents(&self) -> PyResult<String> {
+        let state = self.state.lock().unwrap();
+        let agents = state.get_all_agents();
+        
+        let agent_list: Vec<serde_json::Value> = agents.iter().map(|a| {
+            serde_json::json!({
+                "agent_id": a.agent_id,
+                "agent_type": a.agent_type.as_str(),
+                "registered_at": a.registered_at,
+                "last_seen": a.last_seen,
+            })
+        }).collect();
+        
+        Ok(serde_json::to_string(&agent_list).unwrap())
+    }
+    
+    // ===== Cortical Locking =====
+    
+    /// Try to lock a cortical area
+    fn try_lock_cortical_area(&self, cortical_area: u32) -> PyResult<bool> {
+        let state = self.state.lock().unwrap();
+        Ok(state.try_lock_cortical_area(cortical_area))
+    }
+    
+    /// Unlock a cortical area
+    fn unlock_cortical_area(&self, cortical_area: u32) -> PyResult<()> {
+        let state = self.state.lock().unwrap();
+        state.unlock_cortical_area(cortical_area);
+        Ok(())
+    }
+    
+    // ===== FCL Cache =====
+    
+    /// Get FCL window size for cortical area
+    fn get_fcl_window(&self, cortical_area: u32) -> PyResult<usize> {
+        let state = self.state.lock().unwrap();
+        Ok(state.get_fcl_window(cortical_area))
+    }
+    
+    /// Set FCL window size for cortical area
+    fn set_fcl_window(&self, cortical_area: u32, window_size: usize) -> PyResult<()> {
+        let state = self.state.lock().unwrap();
+        state.set_fcl_window(cortical_area, window_size);
+        Ok(())
+    }
+    
+    // ===== Persistence =====
+    
+    /// Save state to file
+    fn save_to_file(&self, path: String) -> PyResult<()> {
+        let state = self.state.lock().unwrap();
+        let path_obj = std::path::Path::new(&path);
+        state.save_to_file(path_obj)
+            .map_err(|e| PyIOError::new_err(format!("Failed to save state: {}", e)))
+    }
+}
+
 /// Module containing fast neural network operations
 fn init_feagi_python_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Add the complete Rust NPU (NEW!)
     m.add_class::<RustNPU>()?;
     m.add_class::<BurstResult>()?;
+
+    // Add State Manager (NEW! - Performance-critical state management)
+    m.add_class::<PyStateManager>()?;
 
     // Add Agent Registry (NEW! - transport-agnostic agent management)
     m.add_class::<PyAgentRegistry>()?;

@@ -81,6 +81,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic-polyfill"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8cf2bce30dfe09ef0bfaef228b9d414faaf7e563035494d7fe092dba54b300f4"
+dependencies = [
+ "critical-section",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -259,6 +268,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "critical-section"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
+
+[[package]]
 name = "crossbeam"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -429,7 +444,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-agent-sdk"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "feagi-pns",
  "feagi_data_serialization",
@@ -443,7 +458,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-bdu"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "ahash",
  "feagi-burst-engine",
@@ -460,7 +475,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-burst-engine"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "ahash",
  "chrono",
@@ -476,7 +491,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-connectome-serialization"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "ahash",
  "bincode",
@@ -488,7 +503,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-plasticity"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "ahash",
  "feagi-types",
@@ -499,7 +514,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-pns"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -518,8 +533,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "feagi-state-manager"
+version = "2.0.0"
+dependencies = [
+ "ahash",
+ "atomic-polyfill",
+ "bincode",
+ "crossbeam",
+ "memmap2",
+ "parking_lot",
+ "serde",
+]
+
+[[package]]
 name = "feagi-types"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "ahash",
  "thiserror 1.0.69",
@@ -573,6 +601,7 @@ dependencies = [
  "feagi-connectome-serialization",
  "feagi-plasticity",
  "feagi-pns",
+ "feagi-state-manager",
  "feagi-types",
  "feagi_connector_core",
  "feagi_data_serialization",

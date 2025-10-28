@@ -3,9 +3,9 @@
 //! This crate provides Python bindings for the Rust-based FEAGI Agent SDK.
 //! It wraps the core Rust functionality and exposes it as a Python module.
 
-use pyo3::prelude::*;
-use pyo3::exceptions::{PyException, PyValueError, PyRuntimeError};
 use feagi_agent_sdk::{AgentClient, AgentConfig, AgentType as RustAgentType};
+use pyo3::exceptions::{PyException, PyRuntimeError, PyValueError};
+use pyo3::prelude::*;
 use std::sync::{Arc, Mutex};
 
 /// Python wrapper for AgentType
@@ -59,7 +59,7 @@ impl PyAgentConfig {
             config: AgentConfig::new(agent_id, agent_type.into()),
         }
     }
-    
+
     /// Set FEAGI host (derives all endpoints from host)
     ///
     /// # Example
@@ -71,43 +71,52 @@ impl PyAgentConfig {
         let new_config = self.config.clone().with_feagi_host(host);
         self.config = new_config;
     }
-    
+
     /// Set registration endpoint
     fn with_registration_endpoint(&mut self, endpoint: String) {
         let new_config = self.config.clone().with_registration_endpoint(endpoint);
         self.config = new_config;
     }
-    
+
     /// Set sensory input endpoint
     fn with_sensory_endpoint(&mut self, endpoint: String) {
         let new_config = self.config.clone().with_sensory_endpoint(endpoint);
         self.config = new_config;
     }
-    
+
     /// Set motor output endpoint
     fn with_motor_endpoint(&mut self, endpoint: String) {
         let new_config = self.config.clone().with_motor_endpoint(endpoint);
         self.config = new_config;
     }
-    
+
     /// Set heartbeat interval in seconds (0 to disable)
     fn with_heartbeat_interval(&mut self, interval: f64) {
         let new_config = self.config.clone().with_heartbeat_interval(interval);
         self.config = new_config;
     }
-    
+
     /// Set connection timeout in milliseconds
     fn with_connection_timeout_ms(&mut self, timeout_ms: u64) {
         let new_config = self.config.clone().with_connection_timeout_ms(timeout_ms);
         self.config = new_config;
     }
-    
+
+    /// Configure sensory socket behaviour (ZMQ PUSH)
+    fn with_sensory_socket_config(&mut self, send_hwm: i32, linger_ms: i32, immediate: bool) {
+        let new_config = self
+            .config
+            .clone()
+            .with_sensory_socket_config(send_hwm, linger_ms, immediate);
+        self.config = new_config;
+    }
+
     /// Set registration retry attempts
     fn with_registration_retries(&mut self, retries: u32) {
         let new_config = self.config.clone().with_registration_retries(retries);
         self.config = new_config;
     }
-    
+
     /// Add vision capability
     ///
     /// # Arguments
@@ -132,7 +141,7 @@ impl PyAgentConfig {
         );
         self.config = new_config;
     }
-    
+
     /// Add motor capability
     ///
     /// # Arguments
@@ -152,7 +161,7 @@ impl PyAgentConfig {
         );
         self.config = new_config;
     }
-    
+
     /// Add custom capability
     ///
     /// # Arguments
@@ -165,10 +174,11 @@ impl PyAgentConfig {
         self.config = new_config;
         Ok(())
     }
-    
+
     /// Validate configuration
     fn validate(&self) -> PyResult<()> {
-        self.config.validate()
+        self.config
+            .validate()
             .map_err(|e| PyValueError::new_err(format!("Configuration validation failed: {}", e)))
     }
 }
@@ -210,12 +220,12 @@ impl PyAgentClient {
     fn new(config: PyAgentConfig) -> PyResult<Self> {
         let client = AgentClient::new(config.config)
             .map_err(|e| PyException::new_err(format!("Failed to create agent client: {}", e)))?;
-        
+
         Ok(Self {
             client: Arc::new(Mutex::new(client)),
         })
     }
-    
+
     /// Connect to FEAGI and register the agent
     ///
     /// This will:
@@ -223,13 +233,16 @@ impl PyAgentClient {
     /// 2. Register with FEAGI
     /// 3. Start heartbeat service
     fn connect(&self) -> PyResult<()> {
-        let mut client = self.client.lock()
+        let mut client = self
+            .client
+            .lock()
             .map_err(|e| PyRuntimeError::new_err(format!("Lock error: {}", e)))?;
-        
-        client.connect()
+
+        client
+            .connect()
             .map_err(|e| PyException::new_err(format!("Connection failed: {}", e)))
     }
-    
+
     /// Send sensory data to FEAGI
     ///
     /// # Arguments
@@ -244,13 +257,16 @@ impl PyAgentClient {
     /// ])
     /// ```
     fn send_sensory_data(&self, neuron_pairs: Vec<(i32, f64)>) -> PyResult<()> {
-        let client = self.client.lock()
+        let client = self
+            .client
+            .lock()
             .map_err(|e| PyRuntimeError::new_err(format!("Lock error: {}", e)))?;
-        
-        client.send_sensory_data(neuron_pairs)
+
+        client
+            .send_sensory_data(neuron_pairs)
             .map_err(|e| PyException::new_err(format!("Failed to send sensory data: {}", e)))
     }
-    
+
     /// Receive motor data from FEAGI (non-blocking)
     ///
     /// Returns None if no data is available.
@@ -264,38 +280,50 @@ impl PyAgentClient {
     ///     print(f"Received {len(motor_data_bytes)} bytes of motor data")
     /// ```
     fn receive_motor_data(&self) -> PyResult<Option<Vec<u8>>> {
-        let client = self.client.lock()
+        let client = self
+            .client
+            .lock()
             .map_err(|e| PyRuntimeError::new_err(format!("Lock error: {}", e)))?;
-        
+
         match client.receive_motor_data() {
             Ok(Some(cortical_mapped)) => {
                 // ARCHITECTURE COMPLIANCE: Return binary XYZP data, NOT JSON
                 // Serialize CorticalMappedXYZPNeuronVoxels to binary using FeagiSerializable trait
                 use feagi_data_serialization::FeagiSerializable;
-                
+
                 let bytes_needed = cortical_mapped.get_number_of_bytes_needed();
                 let mut buffer = vec![0u8; bytes_needed];
-                
-                cortical_mapped.try_serialize_struct_to_byte_slice(&mut buffer)
-                    .map_err(|e| PyException::new_err(format!("Failed to serialize motor data: {:?}", e)))?;
-                
+
+                cortical_mapped
+                    .try_serialize_struct_to_byte_slice(&mut buffer)
+                    .map_err(|e| {
+                        PyException::new_err(format!("Failed to serialize motor data: {:?}", e))
+                    })?;
+
                 Ok(Some(buffer))
             }
             Ok(None) => Ok(None),
-            Err(e) => Err(PyException::new_err(format!("Failed to receive motor data: {}", e))),
+            Err(e) => Err(PyException::new_err(format!(
+                "Failed to receive motor data: {}",
+                e
+            ))),
         }
     }
-    
+
     /// Check if agent is registered
     fn is_registered(&self) -> PyResult<bool> {
-        let client = self.client.lock()
+        let client = self
+            .client
+            .lock()
             .map_err(|e| PyRuntimeError::new_err(format!("Lock error: {}", e)))?;
         Ok(client.is_registered())
     }
-    
+
     /// Get agent ID
     fn agent_id(&self) -> PyResult<String> {
-        let client = self.client.lock()
+        let client = self
+            .client
+            .lock()
             .map_err(|e| PyRuntimeError::new_err(format!("Lock error: {}", e)))?;
         Ok(client.agent_id().to_string())
     }
@@ -307,10 +335,10 @@ fn init_feagi_agent_sdk_py_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<AgentType>()?;
     m.add_class::<PyAgentConfig>()?;
     m.add_class::<PyAgentClient>()?;
-    
+
     // Add version
     m.add("__version__", "0.1.0")?;
-    
+
     Ok(())
 }
 
@@ -320,4 +348,3 @@ pub fn create_module(py: Python) -> PyResult<Bound<'_, PyModule>> {
     init_feagi_agent_sdk_py_module(&m)?;
     Ok(m)
 }
-

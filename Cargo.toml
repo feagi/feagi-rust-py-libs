@@ -29,6 +29,7 @@ feagi-plasticity = { path = "../feagi-core/crates/feagi-plasticity" }
 feagi-pns = { path = "../feagi-core/crates/feagi-pns", features = ["zmq-transport", "udp-transport"] }
 feagi-connectome-serialization = { path = "../feagi-core/crates/feagi-connectome-serialization", features = ["compression"] }
 feagi-agent-sdk = { path = "../feagi-core/crates/feagi-agent-sdk" }
+feagi-state-manager = { path = "../feagi-core/crates/feagi-state-manager" }
 
 # Common dependencies
 numpy = "0.24.0"
