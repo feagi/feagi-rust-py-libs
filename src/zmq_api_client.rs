@@ -48,7 +48,21 @@ impl ZmqApiClient {
         let socket = self.context.socket(zmq::DEALER)
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to create socket: {}", e)))?;
         
-        socket.set_identity(b"api-process")
+        // Use unique identity for each client (avoids ZMQ ROUTER conflicts)
+        // Each instance gets a random ID to prevent identity collisions
+        use std::sync::atomic::{AtomicU64, Ordering};
+        static INSTANCE_COUNTER: AtomicU64 = AtomicU64::new(0);
+        let instance_id = INSTANCE_COUNTER.fetch_add(1, Ordering::SeqCst);
+        let identity = format!("api-process-{}-{}", std::process::id(), instance_id);
+        
+        // Log identity for debugging
+        use std::io::Write;
+        if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open("/Users/nadji/code/FEAGI-2.0/feagi-py/tmp/zmq_api_client.log") {
+            let _ = writeln!(f, "🦀 [ZMQ-API-CLIENT] Connecting with identity: {}", identity);
+            let _ = f.flush();
+        }
+        
+        socket.set_identity(identity.as_bytes())
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to set identity: {}", e)))?;
         
         socket.set_linger(1000)
@@ -62,6 +76,10 @@ impl ZmqApiClient {
         
         socket.connect(&self.address)
             .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to connect: {}", e)))?;
+        
+        // CRITICAL: ZMQ connect() is async - give it time to establish before use
+        // Without this, first messages can be silently dropped!
+        std::thread::sleep(std::time::Duration::from_millis(100));
         
         *self.socket.lock().unwrap() = Some(socket);
         Ok(())
@@ -102,11 +120,43 @@ impl ZmqApiClient {
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Failed to serialize request: {}", e)))?;
         
         // Send request (DEALER: empty frame + data)
+        // File-based logging for debugging
+        use std::io::Write;
+        let mut log_file = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("/Users/nadji/code/FEAGI-2.0/feagi-py/tmp/zmq_api_client.log")
+            .ok();
+        
+        if let Some(ref mut f) = log_file {
+            let _ = writeln!(f, "🦀 [ZMQ-API-CLIENT] Sending request: {} {} ({} bytes)", method, path, request_json.len());
+            let _ = f.flush();
+        }
+        
+        println!("🦀 [ZMQ-API-CLIENT] Sending request: {} {} ({} bytes)", method, path, request_json.len());
+        
         socket.send("", zmq::SNDMORE)
-            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to send delimiter: {}", e)))?;
+            .map_err(|e| {
+                if let Some(ref mut f) = log_file {
+                    let _ = writeln!(f, "🦀 [ZMQ-API-CLIENT] ❌ Failed to send delimiter: {}", e);
+                }
+                pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to send delimiter: {}", e))
+            })?;
         
         socket.send(request_json.as_bytes(), 0)
-            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to send request: {}", e)))?;
+            .map_err(|e| {
+                if let Some(ref mut f) = log_file {
+                    let _ = writeln!(f, "🦀 [ZMQ-API-CLIENT] ❌ Failed to send request: {}", e);
+                }
+                pyo3::exceptions::PyRuntimeError::new_err(format!("Failed to send request: {}", e))
+            })?;
+        
+        if let Some(ref mut f) = log_file {
+            let _ = writeln!(f, "🦀 [ZMQ-API-CLIENT] ✅ Request sent, waiting for response...");
+            let _ = f.flush();
+        }
+        
+        println!("🦀 [ZMQ-API-CLIENT] Request sent, waiting for response...");
         
         // Receive response
         let mut msg_parts = Vec::new();
