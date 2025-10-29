@@ -70,21 +70,31 @@ impl ZmqApiClient {
     /// Send request and receive response
     /// 
     /// Args:
-    ///     method: HTTP method (e.g., "GET")
+    ///     method: HTTP method (e.g., "GET", "POST")
     ///     path: API path (e.g., "/v1/health")
+    ///     body: Optional JSON string body for POST/PUT requests
     /// 
     /// Returns:
     ///     Dictionary with 'status' (int) and 'body' (dict)
-    fn request(&self, py: Python<'_>, method: String, path: String) -> PyResult<Py<PyDict>> {
+    #[pyo3(signature = (method, path, body=None))]
+    fn request(&self, py: Python<'_>, method: String, path: String, body: Option<String>) -> PyResult<Py<PyDict>> {
         let socket_guard = self.socket.lock().unwrap();
         let socket = socket_guard.as_ref()
             .ok_or_else(|| pyo3::exceptions::PyRuntimeError::new_err("Not connected - call connect() first"))?;
+        
+        // Parse body if provided
+        let body_value = if let Some(body_str) = body {
+            serde_json::from_str::<Value>(&body_str)
+                .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Invalid JSON body: {}", e)))?
+        } else {
+            Value::Null
+        };
         
         // Build request
         let request = serde_json::json!({
             "method": method,
             "path": path,
-            "body": Value::Null,
+            "body": body_value,
             "query_params": Value::Null,
         });
         

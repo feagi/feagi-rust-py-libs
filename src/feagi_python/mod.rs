@@ -2658,6 +2658,41 @@ impl PyPNS {
         Ok(())
     }
 
+    /// Set RPC callback for CoreAPIService method calls from API subprocess
+    /// Python callback signature: def rpc_handler(method: str, payload_json: str) -> str
+    /// Returns: JSON string result on success
+    fn set_api_rpc_callback(&self, callback: PyObject) -> PyResult<()> {
+        let callback = Arc::new(callback);
+
+        self.pns
+            .lock()
+            .unwrap()
+            .set_api_rpc_callback(move |method, payload| {
+                // Invoke Python callback with GIL
+                Python::with_gil(|py| {
+                    // Convert payload to JSON string for Python
+                    let payload_json = serde_json::to_string(&payload)
+                        .map_err(|e| format!("Failed to serialize payload: {}", e))?;
+
+                    // Call Python handler (method: str, payload: str) -> str
+                    let result = callback.call1(py, (method, payload_json))
+                        .map_err(|e| format!("Python RPC callback failed: {}", e))?;
+
+                    // Extract result as string
+                    let result_json: String = result.extract(py)
+                        .map_err(|e| format!("Failed to extract result as string: {}", e))?;
+
+                    // Parse back to serde_json::Value
+                    let json_result: serde_json::Value = serde_json::from_str(&result_json)
+                        .map_err(|e| format!("Failed to parse result JSON: {}", e))?;
+
+                    Ok(json_result)
+                })
+            });
+
+        Ok(())
+    }
+
     /// Manually deregister an agent (for testing/cleanup)
     fn deregister_agent(&self, agent_id: String) -> PyResult<String> {
         self.pns
