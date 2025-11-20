@@ -12,6 +12,8 @@ mod py_error;
 mod macro_helpers;
 mod feagi_data_serialization;
 mod feagi_connector_core;
+mod feagi_agent_sdk;
+mod feagi_evo;
 
 use pyo3::prelude::*;
 
@@ -165,6 +167,20 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
      */
 
+    //endregion
+    
+    //region FEAGI Agent SDK
+    
+    // Register the agent SDK module
+    feagi_agent_sdk::register_module(py, m)?;
+    
+    //endregion
+    
+    //region FEAGI Evo (Genome Validation)
+    
+    // Register the genome validation module
+    feagi_evo::validator::register_module(py, m)?;
+    
     //endregion
     
     

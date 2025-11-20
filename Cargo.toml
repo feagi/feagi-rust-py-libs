@@ -19,10 +19,14 @@ crate-type = ["cdylib"]
 feagi_connector_core = { version = "0.0.50-beta.47"}
 feagi_data_serialization = { version = "0.0.50-beta.47"}
 feagi_data_structures = { version = "0.0.50-beta.47"}
+feagi-agent-sdk = { path = "../feagi-core/crates/feagi-agent-sdk" }
+feagi-pns = { path = "../feagi-core/crates/feagi-pns" }
+feagi-evo = { path = "../feagi-core/crates/feagi-evo" }
 numpy = "0.24.0"
 ndarray = "0.16.1"
 paste = "1.0"
 serde_json = "1"
+zmq = "0.10"
 
 [build-dependencies]
 feagi_data_structures = { version = "0.0.50-beta.47"}
