@@ -1,9 +1,10 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::{motor_definition, sensor_definition};
-use feagi_data_structures::genomic::{CorticalType, CoreCorticalType, SensorCorticalType, CorticalID, MotorCorticalType};
-use feagi_data_structures::genomic::descriptors::{CorticalGroupIndex, CorticalChannelIndex};
+use feagi_data_structures::{motor_cortical_units, sensor_cortical_units};
+use feagi_data_structures::genomic::{SensoryCorticalUnit, MotorCorticalUnit};
+use feagi_data_structures::genomic::cortical_area::{CorticalID, CorticalAreaType, CoreCorticalType};
+use feagi_data_structures::genomic::cortical_area::descriptors::{CorticalGroupIndex, CorticalChannelIndex};
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::PyCorticalID;
 use crate::py_type_casts;
@@ -16,12 +17,19 @@ macro_rules! define_input_cortical_types_py {
                 $(#[doc = $doc:expr])?
                 $cortical_type_key_name:ident => {
                     friendly_name: $display_name:expr,
-                    snake_case_identifier: $snake_case_identifier:expr,
-                    base_ascii: $base_ascii:expr,
-                    channel_dimension_range: $channel_dimension_range:expr,
-                    default_coder_type: $default_coder_type:ident,
-                    wrapped_data_type: $wrapped_data_type:expr,
-                    data_type: $data_type:ident,
+                    snake_case_name: $snake_case_name:expr,
+                    accepted_wrapped_io_data_type: $data_type:ident,
+                    cortical_id_unit_reference: $base_ascii:expr,
+                    number_cortical_areas: $number_cortical_areas:expr,
+                    cortical_type_parameters: {
+                        $($param_name:ident: $param_type:ty),* $(,)?
+                    },
+                    cortical_area_types: {
+                        $(($cortical_area_type_expr:expr, $area_index:expr)),* $(,)?
+                    },
+                    unit_default_topology: {
+                        $($topology_index:expr => { relative_position: $rel_pos:expr, dimensions: $dims:expr }),* $(,)?
+                    }
                 }
             ),* $(,)?
         }
@@ -36,27 +44,27 @@ macro_rules! define_input_cortical_types_py {
             ),*
         }
 
-        impl From<SensorCorticalType> for PySensorCorticalType {
-            fn from(inner: SensorCorticalType) -> Self {
+        impl From<SensoryCorticalUnit> for PySensorCorticalType {
+            fn from(inner: SensoryCorticalUnit) -> Self {
                 match inner {
                 $(
-                     SensorCorticalType::$cortical_type_key_name => Self::$cortical_type_key_name
+                     SensoryCorticalUnit::$cortical_type_key_name => Self::$cortical_type_key_name
                 ),*
                 }
             }
         }
 
-        impl From<PySensorCorticalType> for SensorCorticalType {
+        impl From<PySensorCorticalType> for SensoryCorticalUnit {
             fn from(inner: PySensorCorticalType) -> Self {
                 match inner {
                 $(
-                     PySensorCorticalType::$cortical_type_key_name => SensorCorticalType::$cortical_type_key_name
+                     PySensorCorticalType::$cortical_type_key_name => SensoryCorticalUnit::$cortical_type_key_name
                 ),*
                 }
             }
         }
 
-        // TODO expose to_cortical_id, get_type_from_bytes, get_channel_dimension_range
+        // TODO: Add as_cortical_id method once we determine how to handle different parameters for different sensor types
     }
 }
 
@@ -67,12 +75,19 @@ macro_rules! define_output_cortical_types_py {
                 $(#[doc = $doc:expr])?
                 $cortical_type_key_name:ident => {
                     friendly_name: $display_name:expr,
-                    snake_case_identifier: $snake_case_identifier:expr,
-                    base_ascii: $base_ascii:expr,
-                    channel_dimension_range: $channel_dimension_range:expr,
-                    default_coder_type: $default_coder_type:ident,
-                    wrapped_data_type: $wrapped_data_type:expr,
-                    data_type: $data_type:ident,
+                    snake_case_name: $snake_case_name:expr,
+                    accepted_wrapped_io_data_type: $data_type:ident,
+                    cortical_id_unit_reference: $base_ascii:expr,
+                    number_cortical_areas: $number_cortical_areas:expr,
+                    cortical_type_parameters: {
+                        $($param_name:ident: $param_type:ty),* $(,)?
+                    },
+                    cortical_area_types: {
+                        $(($cortical_area_type_expr:expr, $area_index:expr)),* $(,)?
+                    },
+                    unit_default_topology: {
+                        $($topology_index:expr => { relative_position: $rel_pos:expr, dimensions: $dims:expr }),* $(,)?
+                    }
                 }
             ),* $(,)?
         }
@@ -87,32 +102,34 @@ macro_rules! define_output_cortical_types_py {
             ),*
         }
 
-        impl From<MotorCorticalType> for PyMotorCorticalType {
-            fn from(inner: MotorCorticalType) -> Self {
+        impl From<MotorCorticalUnit> for PyMotorCorticalType {
+            fn from(inner: MotorCorticalUnit) -> Self {
                 match inner {
                 $(
-                     MotorCorticalType::$cortical_type_key_name => Self::$cortical_type_key_name
+                     MotorCorticalUnit::$cortical_type_key_name => Self::$cortical_type_key_name
                 ),*
                 }
             }
         }
 
-        impl From<PyMotorCorticalType> for MotorCorticalType {
+        impl From<PyMotorCorticalType> for MotorCorticalUnit {
             fn from(inner: PyMotorCorticalType) -> Self {
                 match inner {
                 $(
-                     PyMotorCorticalType::$cortical_type_key_name => MotorCorticalType::$cortical_type_key_name
+                     PyMotorCorticalType::$cortical_type_key_name => MotorCorticalUnit::$cortical_type_key_name
                 ),*
                 }
             }
         }
 
-        // TODO expose to_cortical_id, get_type_from_bytes, get_channel_dimension_range
+        // TODO: Add as_cortical_id method once we determine how to handle different parameters for different motor types
     }
 }
 
 
 
+/*
+// PyCorticalType temporarily disabled pending CorticalType enum implementation in beta.56
 #[pyclass]
 #[derive(PartialEq, Clone)]
 #[pyo3(name = "CorticalType")]
@@ -202,6 +219,7 @@ impl PyCorticalType {
 
 
 py_type_casts!(PyCorticalType, CorticalType);
+*/
 
 //region Core
 #[pyclass(eq, eq_int)]
@@ -221,6 +239,7 @@ impl From<PyCoreCorticalType> for CoreCorticalType {
     }
 }
 
+/* Temporarily disabled pending CorticalType enum implementation
 impl From<PyCoreCorticalType> for CorticalType {
     fn from(type_: PyCoreCorticalType) -> Self {
         CorticalType::Core(type_.into())
@@ -238,14 +257,15 @@ impl From <CoreCorticalType> for PyCoreCorticalType {
         PyCoreCorticalType::from(type_).into()
     }
 }
+*/
 
 
 //endregion
 
 //region Sensor Cortical Area Types
 
-sensor_definition!(define_input_cortical_types_py);
+sensor_cortical_units!(define_input_cortical_types_py);
 
 //endregion
 
-motor_definition!(define_output_cortical_types_py);
+motor_cortical_units!(define_output_cortical_types_py);

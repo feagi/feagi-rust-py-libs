@@ -31,7 +31,15 @@ impl From<PyFeagiError> for PyErr {
             FeagiDataError::InternalError(msg) => PyRuntimeError::new_err(msg),
             FeagiDataError::NeuronError(msg) => PyValueError::new_err(msg),
             FeagiDataError::NotImplemented => PyRuntimeError::new_err("Function not yet implemented! Please reach out on Github!"),
+            FeagiDataError::ConstError(msg) => PyRuntimeError::new_err(msg),
         }
+    }
+}
+
+impl PyFeagiError {
+    /// Create a PyFeagiError from a string message
+    pub fn from_string(msg: &str) -> Self {
+        PyFeagiError(FeagiDataError::BadParameters(msg.to_string()))
     }
 }
 

@@ -1,7 +1,7 @@
 mod rust_build_scripts;
 use std::fs;
-use feagi_data_structures::sensor_definition;
-use feagi_data_structures::motor_definition;
+// use feagi_data_structures::sensor_definition; // Removed in latest feagi_data_structures
+// use feagi_data_structures::motor_definition; // Removed in latest feagi_data_structures
 
 fn main() {
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
@@ -15,7 +15,8 @@ fn main() {
 
 
     // Update IOCache stuff
-    rust_build_scripts::io_cache_template_writer::update_io_cache_source_file(io_cache_path);
+    // Commented out until updated for new feagi_data_structures API
+    // rust_build_scripts::io_cache_template_writer::update_io_cache_source_file(io_cache_path);
 }
 
 
@@ -167,9 +168,10 @@ struct SensorVariant {
     rust_data_type: String,
 }
 
-fn get_sensor_variants() -> Vec<SensorVariant> {
-    sensor_definition!(collect_sensor_variants)
-}
-fn get_motor_variants() -> Vec<MotorVariant> {motor_definition!(collect_motor_variants)}
+// Commented out until updated for new feagi_data_structures API
+// fn get_sensor_variants() -> Vec<SensorVariant> {
+//     sensor_definition!(collect_sensor_variants)
+// }
+// fn get_motor_variants() -> Vec<MotorVariant> {motor_definition!(collect_motor_variants)}
 
 //endregion

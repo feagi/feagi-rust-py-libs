@@ -63,7 +63,7 @@ impl PyAgentClient {
     }
     
     /// Receive motor data (non-blocking, returns None if no data)
-    /// Returns motor data as JSON string
+    /// Returns motor data as JSON string in format: {"motor": {"0": value, "1": value, ...}}
     fn receive_motor_data(&self, py: Python) -> PyResult<Option<String>> {
         let client = self.inner.lock()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
@@ -73,9 +73,28 @@ impl PyAgentClient {
         // Receive data (ZMQ sockets are not Sync, so we can't release GIL)
         match client.receive_motor_data() {
             Ok(Some(data)) => {
-                // Convert to a simple format for Python (for now, just return debug format)
-                // TODO: Implement proper serialization for CorticalMappedXYZPNeuronVoxels
-                Ok(Some(format!("{:?}", data)))
+                // Return standard XYZP SoA format: {cortical_id: {x: [...], y: [...], z: [...], p: [...]}}
+                use serde_json::json;
+                
+                let mut result = serde_json::Map::new();
+                
+                for (cortical_id, neuron_voxels) in data.mappings.iter() {
+                    let (x_vec, y_vec, z_vec, p_vec) = neuron_voxels.borrow_xyzp_vectors();
+                    
+                    let mut area_data = serde_json::Map::new();
+                    area_data.insert("x".to_string(), json!(x_vec));
+                    area_data.insert("y".to_string(), json!(y_vec));
+                    area_data.insert("z".to_string(), json!(z_vec));
+                    area_data.insert("p".to_string(), json!(p_vec));
+                    
+                    // Use cortical ID as key (e.g., "omot\x04\x00\x00\x00")
+                    let cortical_id_str = String::from_utf8_lossy(cortical_id.as_bytes()).to_string();
+                    result.insert(cortical_id_str, serde_json::Value::Object(area_data));
+                }
+                
+                // Return standard XYZP SoA JSON
+                let response = serde_json::Value::Object(result);
+                Ok(Some(response.to_string()))
             },
             Ok(None) => Ok(None),
             Err(e) => Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string())),

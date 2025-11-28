@@ -1,4 +1,6 @@
-pub mod data_pipeline;
+// Temporarily disabled pending beta.56 migration
+// pub mod data_pipeline;
 pub mod caching;
 pub mod data;
-pub mod wrapped_io_data;
+// Temporarily disabled pending beta.56 migration
+// pub mod wrapped_io_data;
