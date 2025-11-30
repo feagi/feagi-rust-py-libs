@@ -20,10 +20,11 @@ crate-type = ["cdylib"]
 feagi_connector_core = "0.0.50-beta.56"
 feagi_data_serialization = "0.0.50-beta.56"
 feagi_data_structures = "0.0.50-beta.56"
-# feagi-core crates from crates.io
-feagi-agent-sdk = "2.0"
-feagi-pns = "2.0"
-feagi-evo = "2.0"
+# feagi-core crates - not yet published, using git dependencies
+# Note: CI must checkout full monorepo or these need to be published to crates.io
+feagi-agent-sdk = { git = "https://github.com/feagi/FEAGI-2.0", branch = "main", package = "feagi-agent-sdk" }
+feagi-pns = { git = "https://github.com/feagi/FEAGI-2.0", branch = "main", package = "feagi-pns" }
+feagi-evo = { git = "https://github.com/feagi/FEAGI-2.0", branch = "main", package = "feagi-evo" }
 numpy = "0.24.0"
 ndarray = "0.16.1"
 paste = "1.0"
