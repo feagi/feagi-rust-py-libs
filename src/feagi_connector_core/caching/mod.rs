@@ -1,4 +1,4 @@
-// mod io_cache;  // Old IOCache disabled pending full migration
+// mod io_cache;  // Old IOCache disabled - migrated to MotorDeviceCache/SensorDeviceCache
 mod motor_device_cache;
 
 // pub use io_cache::PyIOCache;

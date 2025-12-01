@@ -118,7 +118,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     //region Feagi Connector Core Crate
     
-    // Cache - New clean API
+    // Cache - MotorDeviceCache (new clean API)
     add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyMotorDeviceCache);
 
     // Temporarily disabled pending beta.56 migration - only essentials for motor cache

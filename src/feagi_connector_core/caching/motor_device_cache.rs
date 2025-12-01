@@ -262,9 +262,10 @@ impl PyMotorDeviceCache {
     /// cache.process_neurons(neuron_bytes)
     /// ```
     pub fn process_neurons(&mut self, neuron_data: Vec<u8>) -> PyResult<()> {
-        // TODO: Implement neuron decoding
-        // For now, this is a placeholder - the actual decoding logic needs to be
-        // exposed from MotorDeviceCache in feagi-connector-core
+        // Lock the inner cache and process the burst data
+        let mut cache = self.inner.lock().unwrap();
+        cache.process_burst_data(&neuron_data)
+            .map_err(PyFeagiError::from)?;
         Ok(())
     }
 
