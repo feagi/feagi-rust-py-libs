@@ -3,7 +3,8 @@ use pyo3::types::PyInt;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::genomic::descriptors::{AgentDeviceIndex, CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex, NeuronDepth};
+use feagi_data_structures::genomic::descriptors::AgentDeviceIndex;
+use feagi_data_structures::genomic::cortical_area::descriptors::{CorticalChannelCount, CorticalChannelIndex, CorticalGroupIndex, NeuronDepth};
 use crate::{project_display, py_object_cast_int, py_type_casts, py_object_try_cast_int};
 use crate::py_error::PyFeagiError;
 

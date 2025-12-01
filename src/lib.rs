@@ -10,8 +10,12 @@
 mod feagi_data_structures;
 mod py_error;
 mod macro_helpers;
-mod feagi_data_serialization;
+// Temporarily disabled pending beta.56 migration
+// mod feagi_data_serialization;
 mod feagi_connector_core;
+mod feagi_agent_sdk;
+// Temporarily disabled pending beta.56 migration
+// mod feagi_evo;
 
 use pyo3::prelude::*;
 
@@ -84,7 +88,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // Genomic
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalID);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
+    // PyCorticalType temporarily disabled pending CorticalType enum implementation
+    // add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalType);
@@ -94,63 +99,63 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyAgentDeviceIndex);
     add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyPipelineStagePropertyIndex);
 
-    // Neurons
-    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels);
-    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
-    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
+    // Neurons - Temporarily disabled pending beta.56 migration
+    // add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels);
+    // add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
+    // add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
 
 
     //endregion
 
-    //region Feagi Data Serialization Crate
+    //region Feagi Data Serialization Crate - Temporarily disabled pending beta.56 migration
     
     // Byte Structure API (for FEAGI Core)
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
+    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
+    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
+    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
     
     //endregion
     
     //region Feagi Connector Core Crate
     
-    // Cache
-    add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyIOCache);
+    // Cache - MotorDeviceCache (new clean API)
+    add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyMotorDeviceCache);
 
-    // Data
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyImageFrame);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySegmentedImageFrame);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyMiscData);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage2D);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage2D);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage3D);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage3D);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage4D);
-    add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage4D);
+    // Temporarily disabled pending beta.56 migration - only essentials for motor cache
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyImageFrame);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySegmentedImageFrame);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyMiscData);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage2D);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage2D);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage3D);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage3D);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage4D);
+    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage4D);
     
-    // Data Descriptors
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYPoint);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYResolution);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYZDimensions);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedXYImageResolutions);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorSpace);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorChannelLayout);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageFrameProperties);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedImageFrameProperties);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyCornerPoints);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyGazeProperties);
-    add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMiscDataDimensions);
+    // Data Descriptors - Temporarily disabled
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYPoint);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYResolution);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYZDimensions);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedXYImageResolutions);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorSpace);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorChannelLayout);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMemoryOrderLayout);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageFrameProperties);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedImageFrameProperties);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyCornerPoints);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyGazeProperties);
+    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMiscDataDimensions);
     
-    // Wrapped IO Data
-    add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
+    // Wrapped IO Data - Temporarily disabled
+    // add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 
-    // Data Pipeline Stage Properties
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
+    // Data Pipeline Stage Properties - Temporarily disabled
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
 
 
     // Data Pipeline Stages
@@ -165,6 +170,20 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
      */
 
+    //endregion
+    
+    //region FEAGI Agent SDK
+    
+    // Register the agent SDK module
+    feagi_agent_sdk::register_module(py, m)?;
+    
+    //endregion
+    
+    //region FEAGI Evo (Genome Validation) - Temporarily disabled pending beta.56 migration
+    
+    // Register the genome validation module
+    // feagi_evo::validator::register_module(py, m)?;
+    
     //endregion
     
     

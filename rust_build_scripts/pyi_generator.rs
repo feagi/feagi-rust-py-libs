@@ -1,6 +1,6 @@
 use std::fs;
-use feagi_data_structures::{sensor_definition};
-use crate::{get_sensor_variants, SensorVariant};
+// use feagi_data_structures::{sensor_definition}; // Removed in latest feagi_data_structures
+// use crate::{get_sensor_variants, SensorVariant}; // Unused
 
 // TODO this file is unfinished PYI generation. Work on it later
 
@@ -67,27 +67,28 @@ fn insert_sensor_cortical_type(template: String, sensor_class_def: String) -> St
 }
 
 
-fn generate_sensor_cortical_type_class() -> String {
-    let variants = get_sensor_variants();
-    let mut class_def = String::new();
-
-    class_def.push_str("    class SensorCorticalType:\n");
-    class_def.push_str("        \"\"\"Enum representing different types of sensor cortical areas.\n");
-    class_def.push_str("        \n");
-    class_def.push_str("        This enum defines all the available sensor types that can be used\n");
-    class_def.push_str("        in FEAGI for processing input data from various sensors and devices.\n");
-    class_def.push_str("        Each sensor type has specific characteristics and use cases.\n");
-    class_def.push_str("        \"\"\"\n");
-    class_def.push_str("        \n");
-
-    // Add each variant as a class attribute with docstrings
-    for variant in &variants {
-        class_def.push_str(&format!("        {}: 'SensorCorticalType'\n", variant.name));
-        if let Some(doc) = &variant.doc {
-            class_def.push_str(&format!("        \"\"\"{}.\"\"\"\n", doc));
-        }
-        class_def.push_str("        \n");
-    }
-
-    class_def
-}
+// Commented out until updated for new feagi_data_structures API
+// fn generate_sensor_cortical_type_class() -> String {
+//     let variants = get_sensor_variants();
+//     let mut class_def = String::new();
+//
+//     class_def.push_str("    class SensorCorticalType:\n");
+//     class_def.push_str("        \"\"\"Enum representing different types of sensor cortical areas.\n");
+//     class_def.push_str("        \n");
+//     class_def.push_str("        This enum defines all the available sensor types that can be used\n");
+//     class_def.push_str("        in FEAGI for processing input data from various sensors and devices.\n");
+//     class_def.push_str("        Each sensor type has specific characteristics and use cases.\n");
+//     class_def.push_str("        \"\"\"\n");
+//     class_def.push_str("        \n");
+//
+//     // Add each variant as a class attribute with docstrings
+//     for variant in &variants {
+//         class_def.push_str(&format!("        {}: 'SensorCorticalType'\n", variant.name));
+//         if let Some(doc) = &variant.doc {
+//             class_def.push_str(&format!("        \"\"\"{}.\"\"\"\n", doc));
+//         }
+//         class_def.push_str("        \n");
+//     }
+//
+//     class_def
+// }

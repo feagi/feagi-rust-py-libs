@@ -1,7 +1,10 @@
-use crate::{check_for_segment, get_motor_variants, get_sensor_variants, read_source_file, replace_code_segment, save_source_file};
+use crate::{check_for_segment, /*get_motor_variants, get_sensor_variants,*/ read_source_file, replace_code_segment, save_source_file};
 
-pub fn update_io_cache_source_file(file_path: &str) {
-
+pub fn update_io_cache_source_file(_file_path: &str) {
+    // Temporarily disabled until updated for new feagi_data_structures API
+    // See: https://github.com/Neuraville/FEAGI-2.0/issues/TODO
+    
+    /*
     let checking_flag: &str = "//BUILDRS_ON";
     let motor_start_comment: &str = "//BUILDRS_MOTOR_DEVICE_START";
     let motor_end_comment: &str = "//BUILDRS_MOTOR_DEVICE_END";
@@ -18,9 +21,12 @@ pub fn update_io_cache_source_file(file_path: &str) {
     let source_file_string = replace_code_segment(source_file_string, sensor_start_comment, sensor_end_comment, sensor_registration_functions);
 
     save_source_file(source_file_string, file_path);
+    */
 }
 
 
+// Temporarily disabled until updated for new feagi_data_structures API
+/*
 fn generate_motor_registration_functions() -> String {
     let variants = get_motor_variants();
     let mut functions = String::new();
@@ -58,6 +64,7 @@ fn generate_sensor_registration_functions() -> String {
 
     functions
 }
+*/
 
 fn generate_motor_functions_for_coder_type(snake_case_identifier: &str, coder_type: &str, rust_data_type: &str) -> String {
     // This function generates registration functions based on the coder type.

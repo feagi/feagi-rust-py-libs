@@ -2,8 +2,9 @@ use pyo3::{pyclass, pymethods, PyObject, PyResult, Python};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_structures::genomic::{CoreCorticalType, CorticalID, MotorCorticalType, SensorCorticalType};
-use crate::feagi_data_structures::genomic::cortical_type::{PyCoreCorticalType, PyCorticalType, PySensorCorticalType};
+use feagi_data_structures::genomic::{SensoryCorticalUnit, MotorCorticalUnit};
+use feagi_data_structures::genomic::cortical_area::{CorticalID, CoreCorticalType};
+use crate::feagi_data_structures::genomic::cortical_type::{PyCoreCorticalType, /* PyCorticalType, */ PySensorCorticalType};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
 use crate::feagi_data_structures::genomic::PyMotorCorticalType;
@@ -19,6 +20,7 @@ pub struct PyCorticalID {
 #[pymethods]
 impl PyCorticalID {
 
+    /* Temporarily disabled pending beta.56 API migration
     #[staticmethod]
     pub fn new_custom_cortical_area_id(desired_id_string: String)  -> PyResult<Self> {
         let cortical_id = CorticalID::new_custom_cortical_area_id(desired_id_string).map_err(PyFeagiError::from)?;
@@ -111,11 +113,13 @@ impl PyCorticalID {
             Err(err) => Err(PyValueError::new_err(err.to_string()))
         }
     }
+    */
 
     pub fn as_bytes(&self) -> [u8; CorticalID::CORTICAL_ID_LENGTH] {
         self.inner.as_bytes().clone()
     }
 
+    /* Temporarily disabled pending beta.56 API migration
     pub fn as_ascii_string(&self) -> String {
         self.inner.as_ascii_string()
     }
@@ -123,6 +127,7 @@ impl PyCorticalID {
     pub fn get_cortical_type(&self) -> PyCorticalType {
         self.inner.get_cortical_type().into()
     }
+    */
 
     #[getter]
     pub fn CORTICAL_ID_LENGTH(&self) -> PyResult<usize> {
