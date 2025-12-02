@@ -1,4 +1,72 @@
 
+//region Indexing
+
+#[macro_export]
+macro_rules! typed_number {
+    ($py_struct:ident, $feagi_struct:ident, $number_type:ty, $class_name:expr, $error_msg:expr) => {
+
+
+        #[pyclass(str)]
+        #[pyo3(name = $class_name)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        pub struct $py_struct {
+            inner: $feagi_struct
+        }
+
+        #[pymethods]
+        impl $py_struct{
+            #[new]
+            pub fn new(index: $number_type) -> PyResult<Self> {
+                Ok(
+                    $py_struct {
+                        inner: $feagi_struct::from(index)
+                    }
+                )
+            }
+        }
+
+        py_type_casts!($py_struct, $feagi_struct);
+        py_object_cast_int!($py_struct, $feagi_struct, $number_type, $error_msg);
+        project_display!($py_struct);
+
+    };
+}
+
+#[macro_export]
+macro_rules! typed_non_zero_number {
+    ($py_struct:ident, $feagi_struct:ident, $number_type:ty, $class_name:expr, $error_msg:expr) => {
+
+
+        #[pyclass(str)]
+        #[pyo3(name = $class_name)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        pub struct $py_struct {
+            inner: $feagi_struct
+        }
+
+        #[pymethods]
+        impl $py_struct{
+            #[new]
+            pub fn new(index: $number_type) -> PyResult<Self> {
+                Ok(
+                    $py_struct {
+                        inner: $feagi_struct::new(index).map_err(PyFeagiError::from)?
+                    }
+                )
+            }
+        }
+
+        py_type_casts!($py_struct, $feagi_struct);
+        //py_object_cast_int!($py_struct, $feagi_struct, $number_type, $error_msg);
+        py_object_try_cast_int!($py_struct, $feagi_struct, $number_type, $error_msg);
+        project_display!($py_struct);
+
+    };
+}
+
+//endregion
+
+
 //region PyClass Helpers
 
 #[macro_export]
