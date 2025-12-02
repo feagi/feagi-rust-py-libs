@@ -162,7 +162,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region FEAGI Agent SDK
     
     // Register the agent SDK module
-    feagi_agent_sdk::register_module(py, m)?;
+    //feagi_agent_sdk::register_module(py, m)?;
     
     //endregion
     

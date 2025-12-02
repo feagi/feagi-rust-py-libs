@@ -1,10 +1,10 @@
-use feagi_data_serialization::FeagiByteStructureType;
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
+use feagi_data_serialization::FeagiByteStructureType;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 
-#[pyclass(str)]
+#[pyclass(str, eq)]
 #[pyo3(name = "FeagiByteStructureType")]
 #[derive(Clone)]
 pub struct PyFeagiByteStructureType {
