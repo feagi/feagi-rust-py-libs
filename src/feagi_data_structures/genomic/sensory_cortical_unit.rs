@@ -33,14 +33,14 @@ macro_rules! define_sensor_cortical_units_enum {
             $(
                 $(#[doc = $doc])?
                 $variant_name,
-            ),*
+            )*
         }
 
         impl From<PySensoryCorticalUnit> for SensoryCorticalUnit {
             fn from(inner: PySensoryCorticalUnit) -> Self {
                 $(
                     PySensoryCorticalUnit::$variant_name => SensoryCorticalUnit::$variant_name,
-                ),*
+                )*
             }
         }
 
@@ -48,7 +48,7 @@ macro_rules! define_sensor_cortical_units_enum {
             fn from(inner: SensoryCorticalUnit) -> Self {
                 $(
                     SensoryCorticalUnit::$variant_name => PySensoryCorticalUnit::$variant_name,
-                ),*
+                )*
             }
         }
 

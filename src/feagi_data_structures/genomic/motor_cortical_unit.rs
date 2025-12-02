@@ -33,14 +33,14 @@ macro_rules! define_motor_cortical_units_enum {
             $(
                 $(#[doc = $doc])?
                 $variant_name,
-            ),*
+            )*
         }
 
         impl From<PyMotorCorticalUnit> for MotorCorticalUnit {
             fn from(inner: PyMotorCorticalUnit) -> Self {
                 $(
                     PyMotorCorticalUnit::$variant_name => MotorCorticalUnit::$variant_name,
-                ),*
+                )*
             }
         }
 
@@ -48,7 +48,7 @@ macro_rules! define_motor_cortical_units_enum {
             fn from(inner: MotorCorticalUnit) -> Self {
                 $(
                     MotorCorticalUnit::$variant_name => PyMotorCorticalUnit::$variant_name,
-                ),*
+                )*
             }
         }
 

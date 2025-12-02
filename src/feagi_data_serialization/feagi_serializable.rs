@@ -1,4 +1,4 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
 
 #[pyclass(subclass)]
