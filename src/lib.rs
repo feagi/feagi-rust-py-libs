@@ -2,29 +2,16 @@
 //! All docs pertaining to python exposed modules must 
 //! be reflected to the 'feagi_data_processing.pyi.template' file!
 
-//mod miscellaneous_types;
-//mod neuron_data;
-//mod io_processing;
-//mod genomic_structures;
-//mod io_data;
+
 mod feagi_data_structures;
 mod py_error;
 mod macro_helpers;
-// Temporarily disabled pending beta.56 migration
-// mod feagi_data_serialization;
+mod feagi_data_serialization;
 mod feagi_connector_core;
-mod feagi_agent_sdk;
-// Temporarily disabled pending beta.56 migration
-// mod feagi_evo;
+//mod feagi_agent_sdk;
+//mod feagi_evo;
 
 use pyo3::prelude::*;
-
-fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
-    match parent.getattr(submodule_name) {
-        Ok(attr) => attr.is_instance_of::<PyModule>(),
-        Err(_) => false,
-    }
-}
 
 macro_rules! add_python_class {
     ($python:expr, $root_python_module:expr, $class_path:expr, $class:ty) => {
