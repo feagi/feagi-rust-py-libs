@@ -2,35 +2,92 @@ use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
 
 
-//region Simple PyStruct Classes (No Inheritance)
+//region Base Classes (No Inheritance)
+
+
 /// Takes the Pyclass internal name, and the rust type, to crate a basic
 /// wrapper of the rust struct as inner
-macro_rules! create_base_pyclass {
+#[macro_export]
+macro_rules! create_pyclass {
     ($py_wrapped_name:ident, $rust:ty, $py_name:expr, $params:ident) => {
 
-        __create_base_class_shared!($py_wrapped_name, $rust, $py_name, $params);
-
-        // NOTE: Requires Clone on the base struct
-        // Python -> Rust Clone
-        impl<'py> pyo3::FromPyObject<'py> for $py_wrapped_name {
-            fn extract(obj: &'py pyo3::PyAny) -> pyo3::PyResult<Self> {
-                let py_ref: pyo3::PyRef<$py_wrapped_name> = obj.extract()?;
-                Ok(Self {
-                    inner: py_ref.inner.clone(),
-                })
-            }
+        #[pyclass(str)]
+        #[pyo3(name = $py_name)]
+        pub struct $py_wrapped_name {
+            pub inner: $rust,
         }
-
     };
 }
 
+/// Takes the Pyclass internal name, and the rust type, to crate a basic
+/// wrapper of the rust struct as inner. Includes try_into from PyAny if the source has Clone
+#[macro_export]
+macro_rules! create_pyclass_with_clone {
+    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+
+        #[pyclass(str)]
+        #[pyo3(name = $py_name)]
+        #[derive(Clone)]
+        pub struct $py_wrapped_name {
+            pub inner: $rust,
+        }
+
+        __pyclass_from_py_object!($py_wrapped_name);
+    };
+}
 
 /// Takes the Pyclass internal name, and the rust type, to crate a basic
-/// wrapper of the rust struct as inner
-macro_rules! __create_base_class_shared {
-    ($py_wrapped_name:ident, $rust:ty, $py_name:expr, $params:ident) => {
+/// wrapper of the rust struct as inner. allows comparison if equal
+#[macro_export]
+macro_rules! create_pyclass_with_equal {
+    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+        #[pyclass(str, eq)]
+        #[pyo3(name = $py_name)]
+        #[derive(PartialEq)]
+        pub struct $py_wrapped_name {
+            pub inner: $rust,
+        }
+    };
+}
 
-        __define_base_pyclass_header!($py_name, $params)
+/// Takes the Pyclass internal name, and the rust type, to crate a basic
+/// wrapper of the rust struct as inner. Allows Hashing
+#[macro_export]
+macro_rules! create_pyclass_with_hash {
+    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+        #[pyclass(str, hash)]
+        #[pyo3(name = $py_name)]
+        pub struct $py_wrapped_name {
+            pub inner: $rust,
+        }
+    };
+}
+
+/// Takes the Pyclass internal name, and the rust type, to crate a basic
+/// wrapper of the rust struct as inner. Includes try_into from PyAny if the source has Clone.
+/// Allows comparison if equal
+#[macro_export]
+macro_rules! create_pyclass_with_clone_equal {
+    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+
+        #[pyclass(str, eq)]
+        #[pyo3(name = $py_name)]
+        #[derive(Clone, PartialEq)]
+        pub struct $py_wrapped_name {
+            pub inner: $rust,
+        }
+
+        __pyclass_from_py_object!($py_wrapped_name);
+    };
+}
+
+//endregion
+
+//region Internal
+/// Shared implementation of base py classes
+macro_rules! __base_py_class_shared {
+    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
@@ -57,53 +114,18 @@ macro_rules! __create_base_class_shared {
     };
 }
 
-macro_rules! __define_base_pyclass_header {
-    ($py_name:expr, ()) => {
-        #[pyclass(str)]
-        #[pyo3(name = $py_name)]
-    };
-
-
-    ($py_name:expr, (equal)) => {
-        #[pyclass(str, eq)]
-        #[pyo3(name = $py_name)]
-        #[derive(PartialEq)]
-    };
-    ($py_name:expr, (hash)) => {
-        #[pyclass(str, hash)]
-        #[pyo3(name = $py_name)]
-    };
-    ($py_name:expr, (clone)) => {
-        #[pyclass(str, hash)]
-        #[pyo3(name = $py_name)]
-        #[derive(Clone)]
-    };
-
-
-    ($py_name:expr, (equal, hash)) => {
-        #[pyclass(str, eq, hash)]
-        #[pyo3(name = $py_name)]
-        #[derive(PartialEq)]
-    };
-    ($py_name:expr, (equal, clone)) => {
-        #[pyclass(str, eq)]
-        #[pyo3(name = $py_name)]
-        #[derive(PartialEq, Clone)]
-    };
-    ($py_name:expr, (hash, clone)) => {
-        #[pyclass(str, hash)]
-        #[pyo3(name = $py_name)]
-        #[derive(Clone)]
-    };
-
-
-    ($py_name:expr, (equal, hash, clone)) => {
-        #[pyclass(str, eq, hash)]
-        #[pyo3(name = $py_name)]
-        #[derive(PartialEq, Clone)]
+/// Requires Clone, allows try_into from a PyAny
+macro_rules! __pyclass_from_py_object {
+    ($py_wrapped_name:ident) => {
+        impl<'py> pyo3::FromPyObject<'py> for $py_wrapped_name {
+            fn extract(obj: &'py pyo3::PyAny) -> pyo3::PyResult<Self> {
+                let py_ref: pyo3::PyRef<$py_wrapped_name> = obj.extract()?;
+                Ok(Self {
+                    inner: py_ref.inner.clone(),
+                })
+            }
+        }
     };
 
 }
-
 //endregion
-
