@@ -9,13 +9,15 @@ use pyo3::prelude::*;
 /// wrapper of the rust struct as inner
 #[macro_export]
 macro_rules! create_pyclass {
-    ($py_wrapped_name:ident, $rust:ty, $py_name:expr, $params:ident) => {
+    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
 
         #[pyclass(str)]
         #[pyo3(name = $py_name)]
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
+
+        __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
     };
 }
 
@@ -32,6 +34,7 @@ macro_rules! create_pyclass_with_clone {
             pub inner: $rust,
         }
 
+        __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
         __pyclass_from_py_object!($py_wrapped_name);
     };
 }
@@ -47,6 +50,8 @@ macro_rules! create_pyclass_with_equal {
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
+
+         __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
     };
 }
 
@@ -60,6 +65,8 @@ macro_rules! create_pyclass_with_hash {
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
+
+         __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
     };
 }
 
@@ -77,6 +84,7 @@ macro_rules! create_pyclass_with_clone_equal {
             pub inner: $rust,
         }
 
+        __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
         __pyclass_from_py_object!($py_wrapped_name);
     };
 }
@@ -84,13 +92,12 @@ macro_rules! create_pyclass_with_clone_equal {
 //endregion
 
 //region Internal
+
+// NOTE: technically #[macro_export] is required for visibility
 /// Shared implementation of base py classes
+#[macro_export]
 macro_rules! __base_py_class_shared {
     ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
-
-        pub struct $py_wrapped_name {
-            pub inner: $rust,
-        }
 
         // Rust -> Python Clone
         impl IntoPy<pyo3::PyObject> for $py_wrapped_name {
@@ -99,8 +106,13 @@ macro_rules! __base_py_class_shared {
             }
         }
 
-        impl $py_wrapped_name {
+        impl std::fmt::Display for $py_wrapped_name {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{}", self.inner.to_string())
+            }
+        }
 
+        impl $py_wrapped_name {
             /// Create Python wrapped instance of the given Rust structure
             pub(crate) fn from_rust(rust_struct: $rust:ty) -> Self {
                 $py_wrapped_name {inner: rust_struct}
@@ -115,6 +127,7 @@ macro_rules! __base_py_class_shared {
 }
 
 /// Requires Clone, allows try_into from a PyAny
+#[macro_export]
 macro_rules! __pyclass_from_py_object {
     ($py_wrapped_name:ident) => {
         impl<'py> pyo3::FromPyObject<'py> for $py_wrapped_name {
