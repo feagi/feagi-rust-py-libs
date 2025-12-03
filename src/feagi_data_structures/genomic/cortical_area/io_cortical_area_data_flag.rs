@@ -1,5 +1,6 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
+use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::cortical_area::{IOCorticalAreaDataFlag};
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::{FrameChangeHandling, PercentageNeuronPositioning};
 use crate::{project_display, py_object_cast_generic, py_type_casts};

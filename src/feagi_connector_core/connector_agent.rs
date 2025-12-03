@@ -18,7 +18,7 @@ use crate::feagi_data_serialization::PyFeagiByteContainer;
 // FURTHER NOTE: WHEN OFF, SOME ERROR CHECKING OF THE IDE MAY BE NON=FUNCTIONAL!
 //BUILDRS_ON
 
-
+ 
 #[pyclass]
 #[pyo3(name = "ConnectorAgent")]
 #[derive()]

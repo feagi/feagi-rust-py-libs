@@ -6,7 +6,7 @@ use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass(str, eq)]
 #[pyo3(name = "FeagiByteStructureType")]
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct PyFeagiByteStructureType {
     pub inner: FeagiByteStructureType,
 }

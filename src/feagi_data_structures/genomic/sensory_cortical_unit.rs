@@ -2,6 +2,7 @@ use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::sensor_cortical_units;
+use feagi_data_structures::genomic::SensoryCorticalUnit;
 
 
 macro_rules! define_sensor_cortical_units_enum {

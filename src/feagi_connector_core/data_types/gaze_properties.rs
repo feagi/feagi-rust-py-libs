@@ -1,7 +1,9 @@
-use feagi_connector_core::data_types::GazeProperties;
+use pyo3::prelude::*;
 use pyo3::{pyclass, pymethods, PyResult};
-use crate::feagi_connector_core::data_types::{PyPercentage, PyPercentage2D};
+use feagi_data_structures::FeagiDataError;
+use feagi_connector_core::data_types::GazeProperties;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::feagi_connector_core::data_types::{PyPercentage, PyPercentage2D};
 
 #[pyclass(str)]
 #[derive(Clone)]

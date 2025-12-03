@@ -5,8 +5,8 @@ use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPip
 use feagi_connector_core::data_pipeline::stage_properties::ImageQuickDiffStageProperties;
 use feagi_connector_core::data_types::descriptors::ImageFrameProperties;
 use feagi_connector_core::data_types::Percentage;
-use crate::feagi_connector_core::data::descriptors::PyImageFrameProperties;
-use crate::feagi_connector_core::data::PyPercentage;
+use crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties;
+use crate::feagi_connector_core::data_types::PyPercentage;
 
 #[pyclass(extends=PyPipelineStageProperties)]
 #[pyo3(name = "ImageQuickDiffStageProperties")]

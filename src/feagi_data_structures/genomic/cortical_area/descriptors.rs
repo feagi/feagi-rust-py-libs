@@ -5,7 +5,7 @@ use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::cortical_area::descriptors::{CorticalChannelCount, CorticalChannelDimensions, CorticalChannelIndex, CorticalGroupIndex, CorticalUnitIndex, NeuronDepth};
 use feagi_data_structures::genomic::descriptors::AgentDeviceIndex;
 use crate::py_error::PyFeagiError;
-use crate::{typed_non_zero_number, typed_number};
+use crate::{typed_non_zero_number, typed_number, project_display, py_object_cast_int, py_type_casts, py_object_try_cast_int};
 //region Cortical Indexing
 
 typed_number!(PyCorticalChannelIndex, CorticalChannelIndex, u32, "CorticalChannelIndex", "Unable to retrieve CorticalChannelIndex data from given!");

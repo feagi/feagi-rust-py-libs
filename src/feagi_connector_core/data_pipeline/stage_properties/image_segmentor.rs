@@ -1,9 +1,11 @@
-use feagi_connector_core::data_pipeline::stage_properties::ImageSegmentorStageProperties;
-use feagi_connector_core::data_types::descriptors::{GazeProperties, ImageFrameProperties, SegmentedImageFrameProperties};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
+use feagi_connector_core::data_pipeline::stage_properties::ImageSegmentorStageProperties;
+use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
+use feagi_connector_core::data_types::GazeProperties;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
-use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
+use crate::feagi_connector_core::data_types::PyGazeProperties;
 use crate::py_error::PyFeagiError;
 
 #[pyclass(extends=PyPipelineStageProperties)]

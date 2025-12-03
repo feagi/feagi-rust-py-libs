@@ -2,7 +2,7 @@ use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::motor_cortical_units;
-
+use feagi_data_structures::genomic::MotorCorticalUnit;
 
 macro_rules! define_motor_cortical_units_enum {
     (

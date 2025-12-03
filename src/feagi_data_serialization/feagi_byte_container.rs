@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::exceptions::PyValueError;
 use crate::py_error::PyFeagiError;
-use crate::py_type_casts;
+use crate::{py_object_cast_generic, py_type_casts};
 
 #[pyclass]
 #[derive(Clone)]
@@ -83,7 +83,8 @@ impl PyFeagiByteContainer {
         let result = self.inner.try_create_new_struct_from_index(index).map_err(PyFeagiError::from)?;  // TODO this is slow, find a better way to unwrap this
         let voxel: Result<CorticalMappedXYZPNeuronVoxels, FeagiDataError> = result.try_into();
         if voxel.is_ok() {
-            return voxel.unwrap().into()
+            let voxel = voxel.unwrap();
+            return Ok(voxel.into())
         }
         // TODO we have no case for this now!
         Err(FeagiDataError::NotImplemented.into())
@@ -94,3 +95,4 @@ impl PyFeagiByteContainer {
 }
 
 py_type_casts!(PyFeagiByteContainer, FeagiByteContainer);
+py_object_cast_generic!(PyFeagiByteContainer, FeagiByteContainer, "Unable to create feagi_byte_container");
