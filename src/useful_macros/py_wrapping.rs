@@ -99,16 +99,17 @@ macro_rules! create_pyclass_with_clone_equal {
 macro_rules! __base_py_class_shared {
     ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
 
+        // Require print support
+        impl std::fmt::Display for $py_wrapped_name {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{}", self.inner.to_string())
+            }
+        }
+
         // Rust -> Python Clone
         impl IntoPy<pyo3::PyObject> for $py_wrapped_name {
             fn into_py(self, py: pyo3::Python<'_>) -> pyo3::PyObject {
                 pyo3::Py::new(py, self).unwrap().into_py(py)
-            }
-        }
-
-        impl std::fmt::Display for $py_wrapped_name {
-            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                write!(f, "{}", self.inner.to_string())
             }
         }
 
