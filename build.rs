@@ -87,7 +87,7 @@ macro_rules! collect_motor_variants {
     (
         MotorCorticalUnit {
             $(
-                $(#[doc = $doc:expr])?
+                #[doc = $doc:expr]
                 $cortical_type_key_name:ident => {
                     friendly_name: $friendly_name:expr,
                     snake_case_name: $snake_case_name:expr,
@@ -108,7 +108,7 @@ macro_rules! collect_motor_variants {
             $(
                 MotorVariant {
                     name: stringify!($variant).to_string(),
-                    doc: Some($doc.to_string()),
+                    doc: Some(($doc).to_string()),
                     friendly_name: $friendly_name.to_string(),
                     snake_case_name: $snake_case_name.to_string(),
                     accepted_wrapped_io_data_type: stringify!($accepted_wrapped_io_data_type).to_string()

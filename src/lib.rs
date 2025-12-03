@@ -13,6 +13,13 @@ mod feagi_connector_core;
 
 use pyo3::prelude::*;
 
+fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
+    match parent.getattr(submodule_name) {
+        Ok(attr) => attr.is_instance_of::<PyModule>(),
+        Err(_) => false,
+    }
+}
+
 macro_rules! add_python_class {
     ($python:expr, $root_python_module:expr, $class_path:expr, $class:ty) => {
         {
@@ -153,7 +160,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
-    
+
     //endregion
     
     //region FEAGI Agent SDK
