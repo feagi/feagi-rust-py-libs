@@ -1,3 +1,4 @@
+use feagi_connector_core::ConnectorAgent;
 use crate::feagi_connector_core::data_types::descriptors::PyMiscDataDimensions;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
@@ -16,6 +17,14 @@ use crate::feagi_data_serialization::PyFeagiByteContainer;
 // TO TURN ON, THE BELOW COMMENT LINE MUST READ *EXACTLY* "BUILDRS_ON" (NO SPACES), CHANGE TO ANY OTHER VALUE TO DISABLE.
 // FURTHER NOTE: WHEN OFF, SOME ERROR CHECKING OF THE IDE MAY BE NON=FUNCTIONAL!
 //BUILDRS_OFF
+
+
+#[pyclass]
+#[pyo3(name = "ConnectorAgent")]
+#[derive()]
+pub struct PyConnectorAgent {
+    inner: ConnectorAgent,
+}
 
 
 //region Motor Functions

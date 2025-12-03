@@ -1,7 +1,7 @@
 mod rust_build_scripts;
 use std::fs;
-// use feagi_data_structures::sensor_definition; // Removed in latest feagi_data_structures
-// use feagi_data_structures::motor_definition; // Removed in latest feagi_data_structures
+
+use feagi_data_structures::motor_cortical_units;
 
 fn main() {
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
@@ -15,8 +15,7 @@ fn main() {
 
 
     // Update IOCache stuff
-    // Commented out until updated for new feagi_data_structures API
-    // rust_build_scripts::io_cache_template_writer::update_io_cache_source_file(io_cache_path);
+    rust_build_scripts::io_cache_template_writer::update_connector_agent_source_file(io_cache_path);
 }
 
 
@@ -86,19 +85,23 @@ fn replace_code_segment(source_string: String, start_marker: &str, end_marker: &
 // Macro to collect motor variant information
 macro_rules! collect_motor_variants {
     (
-        MotorCorticalType {
+        MotorCorticalUnit {
             $(
-                #[doc = $doc:expr]
-                $variant:ident => {
+                $(#[doc = $doc:expr])?
+                $cortical_type_key_name:ident => {
                     friendly_name: $friendly_name:expr,
-                    snake_case_identifier: $snake_case_identifier:expr,
-                    base_ascii: $base_ascii:expr,
-                    channel_dimension_range: $channel_dimension_range:expr,
-                    default_coder_type: $default_coder_type:ident,
-                    wrapped_data_type: $wrapped_data_type:expr,
-                    data_type: $data_type:ident,
-                }$(,)?
-            )*
+                    snake_case_name: $snake_case_name:expr,
+                    accepted_wrapped_io_data_type: $accepted_wrapped_io_data_type:ident,
+                    cortical_id_unit_reference: $cortical_id_unit_reference:expr,
+                    number_cortical_areas: $number_cortical_areas:expr,
+                    cortical_type_parameters: {
+                        $($param_name:ident: $param_type:ty),* $(,)?
+                    },
+                    cortical_area_properties: {
+                        $($area_index:tt => ($cortical_area_type_expr:expr, relative_position: [$rel_x:expr, $rel_y:expr, $rel_z:expr], channel_dimensions_default: [$dim_default_x:expr, $dim_default_y:expr, $dim_default_z:expr], channel_dimensions_min: [$dim_min_x:expr, $dim_min_y:expr, $dim_min_z:expr], channel_dimensions_max: [$dim_max_x:expr, $dim_max_y:expr, $dim_max_z:expr])),* $(,)?
+                    }
+                }
+            ),* $(,)?
         }
     ) => {
         vec![
@@ -107,9 +110,8 @@ macro_rules! collect_motor_variants {
                     name: stringify!($variant).to_string(),
                     doc: Some($doc.to_string()),
                     friendly_name: $friendly_name.to_string(),
-                    snake_case_identifier: $snake_case_identifier.to_string(),
-                    default_coder_type: stringify!($default_coder_type).to_string(),
-                    rust_data_type: stringify!($data_type).to_string()
+                    snake_case_name: $snake_case_name.to_string(),
+                    accepted_wrapped_io_data_type: stringify!($accepted_wrapped_io_data_type).to_string()
                 }
             ),*
         ]
@@ -139,9 +141,8 @@ macro_rules! collect_sensor_variants {
                     name: stringify!($variant).to_string(),
                     doc: Some($doc.to_string()),
                     friendly_name: $friendly_name.to_string(),
-                    snake_case_identifier: $snake_case_identifier.to_string(),
-                    default_coder_type: stringify!($default_coder_type).to_string(),
-                    rust_data_type: stringify!($data_type).to_string()
+                    snake_case_name: $snake_case_identifier.to_string(),
+                    accepted_wrapped_io_data_type: stringify!($data_type).to_string()
                 }
             ),*
         ]
@@ -153,9 +154,8 @@ struct MotorVariant {
     name: String,
     doc: Option<String>,
     friendly_name: String,
-    snake_case_identifier: String,
-    default_coder_type: String,
-    rust_data_type: String,
+    snake_case_name: String,
+    accepted_wrapped_io_data_type: String,
 }
 
 #[derive(Debug)]
@@ -167,11 +167,15 @@ struct SensorVariant {
     default_coder_type: String,
     rust_data_type: String,
 }
+/*
+fn get_sensor_variants() -> Vec<SensorVariant> {
+     sensor_definition!(collect_sensor_variants)
+ }
 
-// Commented out until updated for new feagi_data_structures API
-// fn get_sensor_variants() -> Vec<SensorVariant> {
-//     sensor_definition!(collect_sensor_variants)
-// }
-// fn get_motor_variants() -> Vec<MotorVariant> {motor_definition!(collect_motor_variants)}
+ */
+ fn get_motor_variants() -> Vec<MotorVariant> {
+     motor_cortical_units!(collect_motor_variants)
+ }
+
 
 //endregion
