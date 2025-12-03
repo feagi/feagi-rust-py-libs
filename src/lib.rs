@@ -8,6 +8,7 @@ mod py_error;
 mod macro_helpers;
 mod feagi_data_serialization;
 mod feagi_connector_core;
+mod useful_macros;
 //mod feagi_agent_sdk;
 //mod feagi_evo;
 
