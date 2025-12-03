@@ -22,12 +22,10 @@ typed_non_zero_number!(PyCorticalChannelCount, CorticalChannelCount, u32, "Corti
 
 typed_non_zero_number!(PyNeuronDepth, NeuronDepth, u32, "NeuronDepth", "Unable to retrieve NeuronDepth data from given!");
 
-typed_non_zero_number!(PyCorticalChannelDimensions, CorticalChannelDimensions, u32, "CorticalChannelDimensions", "Unable to retrieve CorticalChannelDimensions data from given!");
-
 //endregion
 
 //region Spatial
 
-// TODO NeuronVoxelCoordinate CorticalAreaDimensions
+// TODO NeuronVoxelCoordinate CorticalAreaDimensions CorticalChannelDimensions
 
 //endregion

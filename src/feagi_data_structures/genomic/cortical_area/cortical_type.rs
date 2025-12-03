@@ -7,7 +7,7 @@ use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
 
 #[pyclass(str, eq)]
 #[pyo3(name = "CorticalAreaType")]
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct PyCorticalAreaType {
     pub inner: CorticalAreaType,
 }
@@ -39,7 +39,7 @@ py_object_cast_generic!(PyCorticalAreaType, CorticalAreaType, "Unable to retriev
 //region Core
 #[pyclass(str, eq)]
 #[pyo3(name = "CoreCorticalType")]
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct PyCoreCorticalType {
     pub inner: CoreCorticalType,
 }
@@ -71,7 +71,7 @@ py_object_cast_generic!(PyCoreCorticalType, CoreCorticalType, "Unable to retriev
 //region Custom
 #[pyclass(str, eq)]
 #[pyo3(name = "CustomCorticalType")]
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct PyCustomCorticalType {
     pub inner: CustomCorticalType,
 }
@@ -94,7 +94,7 @@ py_object_cast_generic!(PyCustomCorticalType, CustomCorticalType, "Unable to ret
 //region Memory
 #[pyclass(str, eq)]
 #[pyo3(name = "MemoryCorticalType")]
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct PyMemoryCorticalType {
     pub inner: MemoryCorticalType,
 }

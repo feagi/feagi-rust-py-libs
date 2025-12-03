@@ -1,11 +1,10 @@
 use pyo3::{pyclass, pymethods, PyResult, Py};
 use pyo3::prelude::*;
-use pyo3::exceptions::PyValueError;
 use numpy::PyArray1;
 use feagi_data_structures::neuron_voxels::xyzp::{CorticalMappedXYZPNeuronVoxels};
 use feagi_data_serialization::FeagiSerializable;
-use crate::feagi_data_structures::genomic::{PyCorticalID};
 use crate::feagi_data_serialization::{PyFeagiSerializable, PyFeagiByteStructureType};
+use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
 use super::neuron_voxel_xyzp_arrays::{PyNeuronVoxelXYZPArrays, tuple_nd_array_to_tuple_np_array};
 
 #[pyclass(str, extends=PyFeagiSerializable)]

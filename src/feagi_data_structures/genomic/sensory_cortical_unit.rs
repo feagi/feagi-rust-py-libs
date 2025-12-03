@@ -38,18 +38,22 @@ macro_rules! define_sensor_cortical_units_enum {
         }
 
         impl From<PySensoryCorticalUnit> for SensoryCorticalUnit {
-            fn from(inner: PySensoryCorticalUnit) -> Self {
-                $(
-                    PySensoryCorticalUnit::$variant_name => SensoryCorticalUnit::$variant_name,
-                )*
+            fn from(py_unit: PySensoryCorticalUnit) -> Self {
+                match py_unit {
+                    $(
+                        PySensoryCorticalUnit::$variant_name => SensoryCorticalUnit::$variant_name,
+                    )*
+                }
             }
         }
 
         impl From<SensoryCorticalUnit> for PySensoryCorticalUnit {
-            fn from(inner: SensoryCorticalUnit) -> Self {
-                $(
-                    SensoryCorticalUnit::$variant_name => PySensoryCorticalUnit::$variant_name,
-                )*
+            fn from(rust_unit: SensoryCorticalUnit) -> Self {
+                match rust_unit {
+                    $(
+                        SensoryCorticalUnit::$variant_name => PySensoryCorticalUnit::$variant_name,
+                    )*
+                }
             }
         }
 

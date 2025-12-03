@@ -37,18 +37,22 @@ macro_rules! define_motor_cortical_units_enum {
         }
 
         impl From<PyMotorCorticalUnit> for MotorCorticalUnit {
-            fn from(inner: PyMotorCorticalUnit) -> Self {
-                $(
-                    PyMotorCorticalUnit::$variant_name => MotorCorticalUnit::$variant_name,
-                )*
+            fn from(py_unit: PyMotorCorticalUnit) -> Self {
+                match py_unit {
+                    $(
+                        PyMotorCorticalUnit::$variant_name => MotorCorticalUnit::$variant_name,
+                    )*
+                }
             }
         }
 
         impl From<MotorCorticalUnit> for PyMotorCorticalUnit {
-            fn from(inner: MotorCorticalUnit) -> Self {
-                $(
-                    MotorCorticalUnit::$variant_name => PyMotorCorticalUnit::$variant_name,
-                )*
+            fn from(rust_unit: MotorCorticalUnit) -> Self {
+                match rust_unit {
+                    $(
+                        MotorCorticalUnit::$variant_name => PyMotorCorticalUnit::$variant_name,
+                    )*
+                }
             }
         }
 

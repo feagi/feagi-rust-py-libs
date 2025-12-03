@@ -388,23 +388,23 @@ dependencies = [
 
 [[package]]
 name = "feagi_connector_core"
-version = "0.0.50-beta.59"
+version = "0.0.50-beta.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b381a4795fa6cbd6779e164266866f3a36f23422f53fed0ebccf78275547daf"
+checksum = "2adcaa31739eb5638031cf352ffe369eedd1849a27eb654fdf81d5c136a30bb2"
 dependencies = [
  "feagi_data_serialization",
  "feagi_data_structures",
  "image",
- "ndarray 0.16.1",
+ "ndarray",
  "paste",
  "rayon",
 ]
 
 [[package]]
 name = "feagi_data_serialization"
-version = "0.0.50-beta.59"
+version = "0.0.50-beta.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f597bf21f6f5ed390a91d795352b20c0b396f2e4f3b4a8482c7f4b89dcad8ea5"
+checksum = "9f82e052e1e4a86da47d8d5549dd16d8dc44c9cdfa92c3fb1bceccc9e3cfa316"
 dependencies = [
  "byteorder",
  "feagi_data_structures",
@@ -413,12 +413,12 @@ dependencies = [
 
 [[package]]
 name = "feagi_data_structures"
-version = "0.0.50-beta.59"
+version = "0.0.50-beta.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d011242f97d78751b0dc6fbd041ed8da503921b56798c3ce9c141823e18d6cd"
+checksum = "7a99af73dd373c56289fc3a4bb31eec2c553a85fa8dd5498881e14efa16af227"
 dependencies = [
  "base64",
- "ndarray 0.16.1",
+ "ndarray",
  "paste",
  "rayon",
  "serde",
@@ -432,7 +432,7 @@ dependencies = [
  "feagi_connector_core",
  "feagi_data_serialization",
  "feagi_data_structures",
- "ndarray 0.16.1",
+ "ndarray",
  "numpy",
  "paste",
  "pyo3",
@@ -726,22 +726,6 @@ dependencies = [
 
 [[package]]
 name = "ndarray"
-version = "0.16.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "882ed72dce9365842bf196bdeedf5055305f11fc8c03dee7bb0194a6cad34841"
-dependencies = [
- "matrixmultiply",
- "num-complex",
- "num-integer",
- "num-traits",
- "portable-atomic",
- "portable-atomic-util",
- "rawpointer",
- "rayon",
-]
-
-[[package]]
-name = "ndarray"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c7c9125e8f6f10c9da3aad044cc918cf8784fa34de857b1aa68038eb05a50a9"
@@ -753,6 +737,7 @@ dependencies = [
  "portable-atomic",
  "portable-atomic-util",
  "rawpointer",
+ "rayon",
 ]
 
 [[package]]
@@ -851,7 +836,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7aac2e6a6e4468ffa092ad43c39b81c79196c2bb773b8db4085f695efe3bba17"
 dependencies = [
  "libc",
- "ndarray 0.17.1",
+ "ndarray",
  "num-complex",
  "num-integer",
  "num-traits",
