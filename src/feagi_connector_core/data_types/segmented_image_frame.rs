@@ -1,12 +1,11 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::genomic::descriptors::CorticalGroupIndex;
 use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::{SegmentedImageFrame};
-use crate::feagi_connector_core::data::descriptors::*;
-use crate::feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex;
-use crate::feagi_data_structures::genomic::{PyCorticalID, PyCorticalType};
+use feagi_data_structures::genomic::cortical_area::descriptors::CorticalGroupIndex;
+use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
 
 #[pyclass]
 #[pyo3(name = "SegmentedImageFrame", str)]
@@ -45,43 +44,6 @@ impl PySegmentedImageFrame {
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
     }
-    //endregion
-
-    //region Static Methods
-
-    #[staticmethod]
-    pub fn create_ordered_cortical_ids_for_segmented_vision(camera_index: PyCorticalGroupIndex, is_incremental: bool) -> PyResult<[PyCorticalID; 9]> {
-        let camera_index: CorticalGroupIndex = camera_index.into();
-        let ids = SegmentedImageFrame::create_ordered_cortical_ids_for_segmented_vision(camera_index, is_incremental);
-        Ok([
-            ids[0].into(),
-            ids[1].into(),
-            ids[2].into(),
-            ids[3].into(),
-            ids[4].into(),
-            ids[5].into(),
-            ids[6].into(),
-            ids[7].into(),
-            ids[8].into(),
-        ])
-    }
-
-    #[staticmethod]
-    pub fn create_ordered_cortical_types_for_segmented_vision(is_incremental: bool) -> PyResult<[PyCorticalType; 9]> {
-        let cortical_types = SegmentedImageFrame::create_ordered_cortical_types_for_segmented_vision(is_incremental);
-        Ok([
-            cortical_types[0].into(),
-            cortical_types[1].into(),
-            cortical_types[2].into(),
-            cortical_types[3].into(),
-            cortical_types[4].into(),
-            cortical_types[5].into(),
-            cortical_types[6].into(),
-            cortical_types[7].into(),
-            cortical_types[8].into(),
-        ])
-    }
-
     //endregion
 
     //region Get Properties

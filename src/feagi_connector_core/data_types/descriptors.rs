@@ -5,7 +5,7 @@ use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::descriptors::*;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::feagi_connector_core::data::{PyImageFrame, PyPercentage2D, PySegmentedImageFrame};
+use crate::feagi_connector_core::data_types::{PyImageFrame, PyPercentage2D, PySegmentedImageFrame};
 use crate::py_error::PyFeagiError;
 
 //region Images
@@ -542,44 +542,6 @@ impl PyCornerPoints {
 py_type_casts!(PyCornerPoints, CornerPoints);
 py_object_cast_generic!(PyCornerPoints, CornerPoints, "Unable to retrieve CornerPoints data from given!");
 project_display!(PyCornerPoints);
-
-//endregion
-
-//region Gaze Properties
-
-#[pyclass(str)]
-#[derive(Clone)]
-#[pyo3(name = "GazeProperties")]
-pub struct PyGazeProperties{
-    pub inner: GazeProperties,
-}
-
-#[pymethods]
-impl PyGazeProperties {
-
-    #[new]
-    fn new(eccentricity_center_xy: PyPercentage2D, modularity_size_xy: PyPercentage2D) -> PyResult<Self> {
-        let inner = GazeProperties::new(eccentricity_center_xy.into(), modularity_size_xy.into());
-        Ok(PyGazeProperties { inner })
-    }
-
-    #[staticmethod]
-    fn create_default_centered() -> Self {
-        PyGazeProperties {
-            inner: GazeProperties::create_default_centered(),
-        }
-    }
-
-    pub fn calculate_source_corner_points_for_segmented_video_frame(&self, source_frame_resolution: PyImageXYResolution) -> PyResult<Vec<PyCornerPoints>> {
-        let corner_points = self.inner.calculate_source_corner_points_for_segmented_video_frame(source_frame_resolution.into())
-            .map_err(PyFeagiError::from)?;
-        Ok(corner_points.iter().map(|&cp| cp.into()).collect())
-    }
-}
-
-py_type_casts!(PyGazeProperties, GazeProperties);
-py_object_cast_generic!(PyGazeProperties, GazeProperties, "Unable to retrieve GazeProperties data from given!");
-project_display!(PyGazeProperties);
 
 //endregion
 

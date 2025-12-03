@@ -12,7 +12,7 @@ typed_number!(PyCorticalChannelIndex, CorticalChannelIndex, u32, "CorticalChanne
 
 typed_number!(PyCorticalGroupIndex, CorticalGroupIndex, u8, "CorticalGroupIndex", "Unable to retrieve CorticalGroupIndex data from given!");
 
-typed_number!(PyCorticalUnityIndex, CorticalUnitIndex, u8, "CorticalUnitIndex", "Unable to retrieve CorticalUnitIndex data from given!");
+typed_number!(PyCorticalUnitIndex, CorticalUnitIndex, u8, "CorticalUnitIndex", "Unable to retrieve CorticalUnitIndex data from given!");
 
 //endregion
 

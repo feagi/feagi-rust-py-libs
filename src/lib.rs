@@ -71,92 +71,89 @@ macro_rules! add_python_function {
 #[pymodule]
 fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
-    //region Feagi Data Structures Crate
-    
+    //region Feagi Data Structures
+
     // Genomic
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalID);
-    // PyCorticalType temporarily disabled pending CorticalType enum implementation
-    // add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCorticalType);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyCoreCorticalType);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensorCorticalType);
-    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalType);
-    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyCorticalChannelCount);
-    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyCorticalChannelIndex);
-    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyCorticalGroupIndex);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalID);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCustomCorticalType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyMemoryCorticalType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalAreaType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCoreCorticalType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalChannelCount);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalGroupIndex);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalChannelIndex);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalChannelDimensions);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalUnitIndex);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyNeuronDepth);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyFrameChangeHandling);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaDataFlag);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyPercentageNeuronPositioning);
     add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyAgentDeviceIndex);
-    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyPipelineStagePropertyIndex);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalUnit);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensoryCorticalUnit);
 
-    // Neurons - Temporarily disabled pending beta.56 migration
-    // add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels);
-    // add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
-    // add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
+    // Neurons Voxels
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
 
+    // Processing
+    // TODO should even have this module?
 
     //endregion
 
-    //region Feagi Data Serialization Crate - Temporarily disabled pending beta.56 migration
     
-    // Byte Structure API (for FEAGI Core)
-    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
-    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
-    // add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
+    
+    //region Feagi Data Serialization
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
+    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
     
     //endregion
     
-    //region Feagi Connector Core Crate
+    
+    
+    //region Feagi Connector Core
     
     // Cache - MotorDeviceCache (new clean API)
     add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyMotorDeviceCache);
-
-    // Temporarily disabled pending beta.56 migration - only essentials for motor cache
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyImageFrame);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySegmentedImageFrame);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyMiscData);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage2D);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage2D);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage3D);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage3D);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PyPercentage4D);
-    // add_python_class!(py, m, "connector_core.data", feagi_connector_core::data::PySignedPercentage4D);
     
-    // Data Descriptors - Temporarily disabled
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYPoint);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYResolution);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageXYZDimensions);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedXYImageResolutions);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorSpace);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyColorChannelLayout);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMemoryOrderLayout);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyImageFrameProperties);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PySegmentedImageFrameProperties);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyCornerPoints);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyGazeProperties);
-    // add_python_class!(py, m, "connector_core.data.descriptors", feagi_connector_core::data::descriptors::PyMiscDataDimensions);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyImageFrame);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySegmentedImageFrame);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyMiscData);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGazeProperties);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage2D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage2D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage3D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage3D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage4D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage4D);
     
-    // Wrapped IO Data - Temporarily disabled
-    // add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
+    
+    // Data Descriptors
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYPoint);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYResolution);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYZDimensions);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PySegmentedXYImageResolutions);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyColorSpace);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyColorChannelLayout);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMemoryOrderLayout);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageFrameProperties);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PySegmentedImageFrameProperties);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyCornerPoints);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMiscDataDimensions);
+    
+    //Wrapped IO Data
+    add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 
-    // Data Pipeline Stage Properties - Temporarily disabled
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
-
-
-    // Data Pipeline Stages
-    /*
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameQuickDiffStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentityFloatStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentityImageFrameStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyIdentitySegmentedImageFrameStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameProcessorStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImageFrameSegmentatorStage);
-    add_python_class!(py, m, "connector_core.data_pipeline.stages", feagi_connector_core::data_pipeline::stages::PyImagePixelValueCountThresholdStage);
-
-     */
-
+   // Data Pipeline Stage Properties
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
+    
     //endregion
     
     //region FEAGI Agent SDK
@@ -173,50 +170,5 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     //endregion
     
-    
-    /*
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalID);
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalType);
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalTypeVariant);
-    add_python_class!(py, m, "genome", genomic_structures::PySensorCorticalType);
-    add_python_class!(py, m, "genome", genomic_structures::PyCoreCorticalType);
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalGroupingIndex);
-    add_python_class!(py, m, "genome", genomic_structures::PyCorticalIOChannelIndex);
-    add_python_class!(py, m, "genome", genomic_structures::PySingleChannelDimensions);
-
-    add_python_class!(py, m, "io_data", io_data::PyIOTypeVariant);
-    add_python_class!(py, m, "io_data", io_data::PyImageFrame);
-    add_python_class!(py, m, "io_data", io_data::PySegmentedImageFrame);
-    add_python_class!(py, m, "io_data", io_data::PyImageFrameTransformer);
-    add_python_class!(py, m, "io_data", io_data::PyImageFrameSegmentator);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyImageFrameProperties);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedImageFrameProperties);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyCornerPoints);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyColorSpace);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyColorChannelLayout);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PyGazeProperties);
-    add_python_class!(py, m, "io_data.image_descriptors", io_data::image_descriptors::PySegmentedFrameTargetResolutions);
-    
-    add_python_class!(py, m, "io_processing.bytes", io_processing::byte_structures::PyFeagiByteStructure);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearAverageRollingWindowProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityFloatProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyIdentityImageFrameProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleTo0And1Processor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyLinearScaleToM1And1);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyImageFrameTransformerProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyImageFrameSegmentatorProcessor);
-    add_python_class!(py, m, "io_processing.processors", io_processing::processors::PyImageFrameQuickDiffProcessor);
-    add_python_class!(py, m, "io_processing.cache", io_processing::PySensorCache);
-
-    add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyCorticalMappedXYZPNeuronData);
-    add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZPArrays);
-    add_python_class!(py, m, "neuron_data.xyzp", neuron_data::xyzp::PyNeuronXYZP);
-    
-    // add_python_class!(py, m, "brain_input.vision", brain_input::vision::quick_image_diff::PyQuickImageDiff);
-
-
-     */
-
     Ok(())
 }

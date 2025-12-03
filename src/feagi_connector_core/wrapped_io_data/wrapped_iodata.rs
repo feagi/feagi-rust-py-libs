@@ -3,20 +3,13 @@ use feagi_connector_core::wrapped_io_data::WrappedIOData;
 use pyo3::{PyResult };
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
-use pyo3::types::PyFloat;
-use crate::feagi_connector_core::data::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D};
-use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::py_error::PyFeagiError;
+use crate::feagi_connector_core::data_types::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D};
 
 
 // Conversion functions for backward compatibility
 pub fn wrapped_io_data_to_py_object(wrapped_iodata: WrappedIOData) -> PyResult<PyObject> {
     Python::with_gil(|py| {
         Ok(match wrapped_iodata {
-            WrappedIOData::F32(number) => PyFloat::new(py, number as f64).into(),
-            WrappedIOData::F32_2D(tuple) => tuple.into_py(py),
-            WrappedIOData::F32_3D(tuple) => tuple.into_py(py),
-            WrappedIOData::F32_4D(tuple) => tuple.into_py(py),
             WrappedIOData::Percentage(percentage) => {
                 let py_percentage = PyPercentage::from(percentage);
                 py_percentage.into_py(py)
@@ -124,22 +117,8 @@ pub fn py_object_to_wrapped_io_data<'py>(py: Python<'_>, py_wrapped: PyObject) -
             let signed_percentage_4d: SignedPercentage4D = py_obj.into();
             Ok(signed_percentage_4d.into())
         }
-        _ if bound.is_instance_of::<PyFloat>() => {
-            let py_f32 = py_wrapped.extract::<f32>(py).unwrap();
-            Ok(WrappedIOData::F32(py_f32))
-        }
-        // Handle tuples for multi-dimensional f32 types
         _ => {
-            // Try to extract as various tuple types
-            if let Ok(tuple_2d) = py_wrapped.extract::<(f32, f32)>(py) {
-                Ok(WrappedIOData::F32_2D(tuple_2d))
-            } else if let Ok(tuple_3d) = py_wrapped.extract::<(f32, f32, f32)>(py) {
-                Ok(WrappedIOData::F32_3D(tuple_3d))
-            } else if let Ok(tuple_4d) = py_wrapped.extract::<(f32, f32, f32, f32)>(py) {
-                Ok(WrappedIOData::F32_4D(tuple_4d))
-            } else {
-                Err(FeagiDataError::BadParameters("Unable to convert given data into Wrapped IO Data!".into()))
-            }
+            Err(FeagiDataError::BadParameters("Unable to parse object as any supported wrapped io data!".into()))
         }
     }
 }

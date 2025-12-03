@@ -3,7 +3,7 @@ use feagi_connector_core::wrapped_io_data::WrappedIOType;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
-use crate::feagi_connector_core::data::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties, PyMiscDataDimensions};
+use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties, PyMiscDataDimensions};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::py_error::PyFeagiError;
 
@@ -17,26 +17,6 @@ pub struct PyWrappedIOType {
 #[pymethods]
 #[allow(non_snake_case)]
 impl PyWrappedIOType {
-
-    #[staticmethod]
-    pub fn F32() -> Self {
-        PyWrappedIOType { inner: WrappedIOType::F32 }
-    }
-
-    #[staticmethod]
-    pub fn F32_2D() -> Self {
-        PyWrappedIOType { inner: WrappedIOType::F32_2D }
-    }
-
-    #[staticmethod]
-    pub fn F32_3D() -> Self {
-        PyWrappedIOType { inner: WrappedIOType::F32_3D }
-    }
-
-    #[staticmethod]
-    pub fn F32_4D() -> Self {
-        PyWrappedIOType { inner: WrappedIOType::F32_4D }
-    }
 
     #[staticmethod]
     pub fn Percentage() -> Self {

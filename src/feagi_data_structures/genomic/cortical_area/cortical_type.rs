@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::cortical_area::{CorticalAreaType, CoreCorticalType, CustomCorticalType, MemoryCorticalType};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::feagi_data_structures::genomic::cortical_areas::PyCorticalID;
+use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
 
 #[pyclass(str, eq)]
 #[pyo3(name = "CorticalAreaType")]

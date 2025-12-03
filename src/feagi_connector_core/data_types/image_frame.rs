@@ -4,7 +4,7 @@ use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::ImageFrame;
 use pyo3::types::PyBytes;
-use crate::feagi_connector_core::data::descriptors::*;
+use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 
 #[pyclass(str)]
