@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::cortical_area::{IOCorticalAreaDataFlag};
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::{FrameChangeHandling, PercentageNeuronPositioning};
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::{project_display, py_object_cast_generic, py_type_casts, wrap_flat_enum, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 
 
@@ -151,6 +151,8 @@ py_object_cast_generic!(PyIOCorticalAreaDataFlag, IOCorticalAreaDataFlag, "Unabl
 
 //region PercentageNeuronPositioning
 
+//wrap_flat_enum!(PyPercentageNeuronPositioning, PercentageNeuronPositioning, "PercentageNeuronPositioning");
+
 /// Enum representing how percentage values are mapped to neuron positions.
 ///
 /// Variants:
@@ -186,6 +188,8 @@ py_object_cast_generic!(PyPercentageNeuronPositioning, PercentageNeuronPositioni
 //endregion
 
 //region FrameChangeHandling
+
+//wrap_flat_enum!(PyFrameChangeHandling, FrameChangeHandling, "FrameChangeHandling");
 
 /// Enum representing how frame changes are handled.
 ///

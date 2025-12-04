@@ -3,28 +3,12 @@ use pyo3::prelude::*;
 use numpy::PyArray1;
 use feagi_data_structures::neuron_voxels::xyzp::{CorticalMappedXYZPNeuronVoxels};
 use feagi_data_serialization::FeagiSerializable;
+use crate::create_trait_child_pyclass;
 use crate::feagi_data_serialization::{PyFeagiSerializable, PyFeagiByteStructureType};
 use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
 use super::neuron_voxel_xyzp_arrays::{PyNeuronVoxelXYZPArrays, tuple_nd_array_to_tuple_np_array};
 
-#[pyclass(str, extends=PyFeagiSerializable)]
-#[derive(Clone)]
-#[pyo3(name = "CorticalMappedXYZPNeuronVoxels")]
-pub struct PyCorticalMappedXYZPNeuronVoxels { // HashMap<CorticalID, NeuronYXCPArrays>
-    pub inner: CorticalMappedXYZPNeuronVoxels
-}
-
-impl PyCorticalMappedXYZPNeuronVoxels {
-    /// Create the object with proper inheritance in python
-    pub(crate) fn instantiate_inherited_cortical_data(py: Python, cortical_mapped_data: CorticalMappedXYZPNeuronVoxels) -> PyResult<PyObject> where Self: Sized {
-        let child = PyCorticalMappedXYZPNeuronVoxels { inner: cortical_mapped_data };
-        let parent = PyFeagiSerializable::new();
-        let py_obj = Py::new(py, (child, parent))?;
-        Ok(py_obj.into())
-    }
-}
-
-// TODO split this up as per implementation
+create_trait_child_pyclass!(PyFeagiSerializable, PyCorticalMappedXYZPNeuronVoxels, "CorticalMappedXYZPNeuronVoxels", CorticalMappedXYZPNeuronVoxels);
 
 #[pymethods]
 impl PyCorticalMappedXYZPNeuronVoxels {
@@ -48,25 +32,17 @@ impl PyCorticalMappedXYZPNeuronVoxels {
 
     //endregion
 
-
     #[new]
     pub fn new() -> (PyCorticalMappedXYZPNeuronVoxels, PyFeagiSerializable) {
-        (
-            PyCorticalMappedXYZPNeuronVoxels {
-                inner: CorticalMappedXYZPNeuronVoxels::new()
-            },
-            PyFeagiSerializable::new()
-        )
+        PyCorticalMappedXYZPNeuronVoxels::python_new_child_constructor(CorticalMappedXYZPNeuronVoxels::new())
     }
 
     //region HashMap like implementation
 
     #[staticmethod]
-    pub fn new_with_capacity(py: Python, capacity: usize) -> PyResult<PyObject> {
-        Self::instantiate_inherited_cortical_data(py, CorticalMappedXYZPNeuronVoxels::new_with_capacity(capacity))
+    pub fn new_with_capacity(py: Python<'_>, capacity: usize) -> PyResult<Py<Self>> {
+        PyCorticalMappedXYZPNeuronVoxels::python_etc_child_constructor(py, CorticalMappedXYZPNeuronVoxels::new_with_capacity(capacity))
     }
-
-
 
     pub fn len(&self) -> PyResult<usize> {
         Ok(self.inner.len())
@@ -88,7 +64,7 @@ impl PyCorticalMappedXYZPNeuronVoxels {
         self.inner.shrink_to_fit();
     }
 
-    pub fn get_neurons_of(&self, cortical_id: PyCorticalID) -> PyResult<Option<PyNeuronVoxelXYZPArrays>> {
+    pub fn copy_neurons_of(&self, cortical_id: PyCorticalID) -> PyResult<Option<PyNeuronVoxelXYZPArrays>> {
         let result = self.inner.get_neurons_of(&cortical_id.inner);
         Ok(result.map(|arrays| PyNeuronVoxelXYZPArrays { inner: arrays.clone() }))
     }
@@ -183,30 +159,6 @@ impl PyCorticalMappedXYZPNeuronVoxels {
     }
 }
 
-impl PyCorticalMappedXYZPNeuronVoxels {
-    pub(crate) fn get_mut(&mut self) -> &mut CorticalMappedXYZPNeuronVoxels {
-        &mut self.inner
-    }
-}
-
-impl From<CorticalMappedXYZPNeuronVoxels> for PyCorticalMappedXYZPNeuronVoxels {
-    fn from(inner: CorticalMappedXYZPNeuronVoxels) -> Self {
-        PyCorticalMappedXYZPNeuronVoxels { inner }
-    }
-}
-
-impl From<PyCorticalMappedXYZPNeuronVoxels> for CorticalMappedXYZPNeuronVoxels {
-    fn from(inner: PyCorticalMappedXYZPNeuronVoxels) -> Self {
-        inner.inner
-    }
-}
-
-impl std::fmt::Display for PyCorticalMappedXYZPNeuronVoxels {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.inner.to_string())
-    }
-}
-
 
 //region Iterators
 #[pyclass]
@@ -225,9 +177,9 @@ impl PyCorticalMappedXYZPNeuronDataFullIter {
         if self.index >= self.items.len() {
             None
         } else {
-            let pair = &self.items[self.index];
+            let pair = self.items[self.index].clone();
             self.index += 1;
-            Some(*pair)
+            Some(pair)
         }
     }
 }

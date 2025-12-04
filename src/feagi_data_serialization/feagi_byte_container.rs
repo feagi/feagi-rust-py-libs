@@ -7,6 +7,10 @@ use pyo3::types::PyBytes;
 use pyo3::exceptions::PyValueError;
 use crate::py_error::PyFeagiError;
 use crate::{py_object_cast_generic, py_type_casts};
+use crate::{create_pyclass, __base_py_class_shared};
+use crate::feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels;
+//create_pyclass!(PyFeagiByteContainer, FeagiByteContainer, "FeagiByteContainer");
+
 
 #[pyclass]
 #[derive(Clone)]
@@ -16,6 +20,13 @@ pub struct PyFeagiByteContainer {
 }
 
 
+
+#[pymethods]
+impl PyFeagiByteContainer {
+    fn as_any<'py>(slf: Bound<'py, Self>) -> Py<PyAny> {
+        slf.unbind().into_any()
+    }
+}
 
 #[pymethods]
 impl PyFeagiByteContainer {
@@ -78,21 +89,13 @@ impl PyFeagiByteContainer {
 
     //region Extracting Struct Data
 
-
-    pub fn try_create_new_struct_from_index(&self, py: Python, index: u8) -> PyResult<PyObject> {
-        let result = self.inner.try_create_new_struct_from_index(index).map_err(PyFeagiError::from)?;  // TODO this is slow, find a better way to unwrap this
-        let voxel: Result<CorticalMappedXYZPNeuronVoxels, FeagiDataError> = result.try_into();
-        if voxel.is_ok() {
-            let voxel = voxel.unwrap();
-            return Ok(voxel.into())
-        }
-        // TODO we have no case for this now!
-        Err(FeagiDataError::NotImplemented.into())
+    pub fn try_create_new_struct_from_index(&self, py: Python, index: u8) -> PyResult<Py<PyAny>> {
+        let feagi_serializable = self.inner.try_create_new_struct_from_index(index).map_err(PyFeagiError::from)?;
+        let voxels: CorticalMappedXYZPNeuronVoxels = feagi_serializable.try_into().map_err(PyFeagiError::from)?; // TODO support other types too!
+        let py_voxels = PyCorticalMappedXYZPNeuronVoxels::python_etc_child_constructor(py, voxels)?;
+        Ok(py_voxels.into_any())
     }
-
-    // TODO other funcs
+    
     //endregion
 }
 
-py_type_casts!(PyFeagiByteContainer, FeagiByteContainer);
-py_object_cast_generic!(PyFeagiByteContainer, FeagiByteContainer, "Unable to create feagi_byte_container");

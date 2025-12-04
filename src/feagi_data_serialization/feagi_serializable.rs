@@ -1,18 +1,2 @@
-use pyo3::{pyclass, pymethods};
-use pyo3::prelude::*;
-
-#[pyclass(subclass)]
-#[pyo3(name = "FeagiSerializable")]
-pub struct PyFeagiSerializable {}
-
-#[pymethods]
-impl PyFeagiSerializable {
-    
-}
-
-impl PyFeagiSerializable {
-    pub(crate) fn new() -> Self {
-        PyFeagiSerializable {}
-    }
-}
-
+use crate::create_trait_parent_pyclass;
+create_trait_parent_pyclass!("FeagiSerializable", PyFeagiSerializable);

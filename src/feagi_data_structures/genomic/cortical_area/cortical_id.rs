@@ -1,17 +1,11 @@
-use pyo3::{pyclass, pymethods, PyObject, PyResult, Python};
+use pyo3::{pyclass, pymethods, PyResult, Python};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::cortical_area::CorticalID;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
 use crate::py_error::PyFeagiError;
+use crate::{create_pyclass, __base_py_class_shared};
 
-#[pyclass(eq, str)]
-#[derive(PartialEq, Clone, Hash)]
-#[pyo3(name = "CorticalID")]
-pub struct PyCorticalID {
-    pub(crate) inner: CorticalID,
-}
+create_pyclass!(PyCorticalID, CorticalID, "CorticalID");
 
 #[pymethods]
 impl PyCorticalID {
@@ -31,7 +25,7 @@ impl PyCorticalID {
     #[staticmethod]
     pub fn try_from_bytes(bytes: [u8; CorticalID::CORTICAL_ID_LENGTH]) -> PyResult<Self> {
         let cortical_id = CorticalID::try_from_bytes(&bytes).map_err(PyFeagiError::from)?;
-        Ok(cortical_id.into())
+        Ok(PyCorticalID::new_from_rust(cortical_id))
     }
 
     /// Create a CorticalID from a 64-bit unsigned integer.
@@ -47,7 +41,7 @@ impl PyCorticalID {
     #[staticmethod]
     pub fn try_from_u64(value: u64) -> PyResult<Self> {
         let cortical_id = CorticalID::try_from_u64(value).map_err(PyFeagiError::from)?;
-        Ok(cortical_id.into())
+        Ok(PyCorticalID::new_from_rust(cortical_id))
     }
 
     /// Create a CorticalID from a base64-encoded string.
@@ -63,7 +57,7 @@ impl PyCorticalID {
     #[staticmethod]
     pub fn try_from_base_64(base64_str: &str) -> PyResult<Self> {
         let cortical_id = CorticalID::try_from_base_64(base64_str).map_err(PyFeagiError::from)?;
-        Ok(cortical_id.into())
+        Ok(PyCorticalID::new_from_rust(cortical_id))
     }
 
     //endregion
@@ -108,7 +102,3 @@ impl PyCorticalID {
 
     //endregion
 }
-
-project_display!(PyCorticalID);
-py_type_casts!(PyCorticalID, CorticalID);
-py_object_cast_generic!(PyCorticalID, CorticalID, "Unable to import CorticalID");

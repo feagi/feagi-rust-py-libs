@@ -1,8 +1,7 @@
-use pyo3::{pyclass, pymethods};
-use pyo3::prelude::*;
 
+// Note: While you can divide up derive blocks in multiple lines, you cannot with pyclass blocks
 
-//region Simple Classes (No Inheritance)
+// TODO instead of having so many macros, we should be having some sort of configuration into one
 
 /// Takes the Pyclass internal name, and the rust type, to crate a basic
 /// wrapper of the rust struct as inner
@@ -12,7 +11,7 @@ macro_rules! create_pyclass {
 
         #[pyclass(str)]
         #[pyo3(name = $py_name)]
-        #[derive(Debug)]
+        #[derive(Debug, Clone)]
         pub struct $py_wrapped_name {
             pub inner: $rust_name,
         }
@@ -28,7 +27,8 @@ macro_rules! create_pyclass_with_equal {
     ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
         #[pyclass(str, eq)]
         #[pyo3(name = $py_name)]
-        #[derive(Debug, Clone, PartialEq)]
+        #[derive(Debug, Clone)]
+
         pub struct $py_wrapped_name {
             pub inner: $rust_name,
         }
@@ -53,44 +53,28 @@ macro_rules! create_pyclass_with_hash {
     };
 }
 
-//endregion
-
-//region Classes with Inheritance
-
-macro_rules! create_parent_pyclass {
-    ($parent_class_name_in_python:expr, $py_class_parent_name_in_rust:ident) => {
-
-        #[pyclass(subclass)]
-        #[pyo3(name = $parent_class_name_in_python)]
-        pub struct $py_class_parent_name_in_rust {}
-
-        impl $py_class_parent_name_in_rust {
-            pub(crate) fn new_blank_parent() -> Self {
-                $py_class_parent_name_in_rust {}
-            }
-        }
-    };
-}
-
-
-
-
-//endregion
-
-
-
-//region Internal
 
 // NOTE: technically #[macro_export] is required for visibility
 /// Shared implementation of base py classes
 #[macro_export]
 macro_rules! __base_py_class_shared {
     ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
-
         // Require print support
         impl std::fmt::Display for $py_wrapped_name {
             fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
                 write!(f, "{}", self.inner.to_string())
+            }
+        }
+
+        impl From<$rust_name> for $py_wrapped_name {
+            fn from(inner: $rust_name) -> Self {
+                $py_wrapped_name { inner }
+            }
+        }
+
+        impl From<$py_wrapped_name> for $rust_name {
+            fn from(py: $py_wrapped_name) -> Self {
+                py.inner
             }
         }
 
@@ -101,6 +85,14 @@ macro_rules! __base_py_class_shared {
                 $py_wrapped_name {inner: rust_struct}
             }
 
+            /*
+            pub fn wrap_to_py_any(py: Python<'_>, rust_struct: $rust_name) -> PyResult<Py<PyAny>> {
+                let obj: Bound<'_, PyAny> =  Py::new(py, Self {inner: rust_struct})?.bind(py);
+                Ok(obj.unbind())
+            }
+             */
+
+             // NOTE: the next 2 functions may not be best practice to use
             /// Static wrapping an existing rust non-py wrapped instance directly to PyAny
             pub fn wrap_to_bound_any(py: Python<'_>, rust_struct: $rust_name) -> PyResult<Bound<'_, PyAny>> {
                 Bound::new(py, Self {inner: rust_struct} ).map(|b| b.into_any())
@@ -122,9 +114,14 @@ macro_rules! __base_py_class_shared {
                     .try_borrow()
                     .map_err(|e| FeagiDataError::BadParameters(format!("Failed to borrow: {}", e)))
             }
+        }
 
+        #[pyo3::pymethods]
+        impl $py_wrapped_name {
+            fn as_any<'py>(slf: Bound<'py, Self>) -> Py<PyAny> {
+                slf.unbind().into_any()
+            }
         }
     };
 }
 
-//endregion

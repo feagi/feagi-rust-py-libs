@@ -83,14 +83,6 @@ macro_rules! py_type_casts {
             }
         }
 
-        /*
-        impl From<&$feagi_type> for $py_type {
-            fn from(inner_ref: &$feagi_type) -> Self {
-                Self { inner_ref.clone() }
-            }
-        }
-        */
-
         impl From<$py_type> for $feagi_type {
             fn from(inner: $py_type) -> Self {
                 inner.inner
