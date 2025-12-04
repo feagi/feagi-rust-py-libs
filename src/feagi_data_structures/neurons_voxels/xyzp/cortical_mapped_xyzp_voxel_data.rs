@@ -225,9 +225,9 @@ impl PyCorticalMappedXYZPNeuronDataFullIter {
         if self.index >= self.items.len() {
             None
         } else {
-            let pair = self.items[self.index].clone();
+            let pair = &self.items[self.index];
             self.index += 1;
-            Some(pair)
+            Some(*pair)
         }
     }
 }

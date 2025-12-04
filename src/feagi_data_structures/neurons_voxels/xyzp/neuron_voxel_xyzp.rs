@@ -19,3 +19,17 @@ impl PyNeuronVoxelXYZP {
         self.inner.as_tuple()
     }
 }
+
+/*
+impl<'py> IntoPyObject<'py> for PyNeuronVoxelXYZP {
+    type Target = PyAny;
+    type Output = Bound<'py, PyNeuronVoxelXYZP>;
+    type Error = ();
+
+    // almost always PyAny
+    fn into_pyobject(self, py: Python<'_>) -> PyResult<&Self::Target> {
+        Py::new(py, self)?.into_ref(py).map(|r| r as &PyAny)
+    }
+}
+
+ */

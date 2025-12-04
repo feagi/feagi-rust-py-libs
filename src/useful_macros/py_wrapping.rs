@@ -13,6 +13,7 @@ macro_rules! create_pyclass {
 
         #[pyclass(str)]
         #[pyo3(name = $py_name)]
+        #[derive(Debug)]
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
@@ -28,7 +29,7 @@ macro_rules! create_pyclass_with_equal {
     ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
         #[pyclass(str, eq)]
         #[pyo3(name = $py_name)]
-        #[derive(PartialEq)]
+        #[derive(Debug, Clone, PartialEq)]
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
@@ -44,6 +45,7 @@ macro_rules! create_pyclass_with_hash {
     ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
         #[pyclass(str, hash)]
         #[pyo3(name = $py_name)]
+        #[derive(Debug, Clone)]
         pub struct $py_wrapped_name {
             pub inner: $rust,
         }
@@ -80,6 +82,7 @@ macro_rules! __base_py_class_shared {
             pub fn wrap_to_bound_any(py: Python<'_>, rust_struct: $rust) -> PyResult<Bound<'_, PyAny>> {
                 Bound::new(py, Self {inner: rust_struct} ).map(|b| b.into_any())
             }
+
             /// Wraps self into into a Bound<PyAny>
             pub fn wrap_self_into_bound_any(self, py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
                 Bound::new(py, self).map(|b| b.into_any())
@@ -100,3 +103,5 @@ macro_rules! __base_py_class_shared {
         }
     };
 }
+
+//endregion
