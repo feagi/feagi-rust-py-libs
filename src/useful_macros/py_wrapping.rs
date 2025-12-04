@@ -2,23 +2,22 @@ use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
 
 
-//region Base Classes (No Inheritance)
-
+//region Simple Classes (No Inheritance)
 
 /// Takes the Pyclass internal name, and the rust type, to crate a basic
 /// wrapper of the rust struct as inner
 #[macro_export]
 macro_rules! create_pyclass {
-    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+    ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
 
         #[pyclass(str)]
         #[pyo3(name = $py_name)]
         #[derive(Debug)]
         pub struct $py_wrapped_name {
-            pub inner: $rust,
+            pub inner: $rust_name,
         }
 
-        __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
+        __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
     };
 }
 
@@ -26,15 +25,15 @@ macro_rules! create_pyclass {
 /// wrapper of the rust struct as inner. allows comparison if equal
 #[macro_export]
 macro_rules! create_pyclass_with_equal {
-    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+    ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
         #[pyclass(str, eq)]
         #[pyo3(name = $py_name)]
         #[derive(Debug, Clone, PartialEq)]
         pub struct $py_wrapped_name {
-            pub inner: $rust,
+            pub inner: $rust_name,
         }
 
-         __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
+         __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
     };
 }
 
@@ -42,19 +41,43 @@ macro_rules! create_pyclass_with_equal {
 /// wrapper of the rust struct as inner. Allows Hashing
 #[macro_export]
 macro_rules! create_pyclass_with_hash {
-    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+    ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
         #[pyclass(str, hash)]
         #[pyo3(name = $py_name)]
         #[derive(Debug, Clone)]
         pub struct $py_wrapped_name {
-            pub inner: $rust,
+            pub inner: $rust_name,
         }
 
-         __base_py_class_shared!($py_wrapped_name, $rust, $py_name);
+         __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
     };
 }
 
 //endregion
+
+//region Classes with Inheritance
+
+macro_rules! create_parent_pyclass {
+    ($parent_class_name_in_python:expr, $py_class_parent_name_in_rust:ident) => {
+
+        #[pyclass(subclass)]
+        #[pyo3(name = $parent_class_name_in_python)]
+        pub struct $py_class_parent_name_in_rust {}
+
+        impl $py_class_parent_name_in_rust {
+            pub(crate) fn new_blank_parent() -> Self {
+                $py_class_parent_name_in_rust {}
+            }
+        }
+    };
+}
+
+
+
+
+//endregion
+
+
 
 //region Internal
 
@@ -62,7 +85,7 @@ macro_rules! create_pyclass_with_hash {
 /// Shared implementation of base py classes
 #[macro_export]
 macro_rules! __base_py_class_shared {
-    ($py_wrapped_name:ident, $rust:ty, $py_name:expr) => {
+    ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
 
         // Require print support
         impl std::fmt::Display for $py_wrapped_name {
@@ -74,12 +97,12 @@ macro_rules! __base_py_class_shared {
 
         impl $py_wrapped_name {
             /// Create Python wrapped instance of the given Rust structure
-            pub(crate) fn new_from_rust(rust_struct: $rust) -> Self {
+            pub(crate) fn new_from_rust(rust_struct: $rust_name) -> Self {
                 $py_wrapped_name {inner: rust_struct}
             }
 
             /// Static wrapping an existing rust non-py wrapped instance directly to PyAny
-            pub fn wrap_to_bound_any(py: Python<'_>, rust_struct: $rust) -> PyResult<Bound<'_, PyAny>> {
+            pub fn wrap_to_bound_any(py: Python<'_>, rust_struct: $rust_name) -> PyResult<Bound<'_, PyAny>> {
                 Bound::new(py, Self {inner: rust_struct} ).map(|b| b.into_any())
             }
 
