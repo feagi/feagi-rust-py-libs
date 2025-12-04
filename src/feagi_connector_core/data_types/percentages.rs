@@ -4,18 +4,13 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::Percentage;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::{project_display, py_object_cast_generic, py_type_casts, create_pyclass, __base_py_class_shared};
 
 // TODO port all remaining methods
 
 //region Percentage (0 - 1)
 
-#[pyclass(str)]
-#[pyo3(name = "Percentage")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyPercentage {
-    inner: Percentage
-}
+create_pyclass!(PyPercentage, Percentage, "Percentage");
 
 #[pymethods]
 impl PyPercentage {
@@ -107,12 +102,6 @@ impl PyPercentage {
 
     //endregion
 }
-
-py_type_casts!(PyPercentage, Percentage);
-py_object_cast_generic!(PyPercentage, Percentage, "Unable to retrieve Percentage data from given!");
-project_display!(PyPercentage);
-
-
 
 //endregion
 
