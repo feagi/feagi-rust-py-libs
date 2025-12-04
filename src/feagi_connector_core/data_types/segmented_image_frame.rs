@@ -1,22 +1,13 @@
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::FeagiDataError;
-use feagi_connector_core::data_types::{SegmentedImageFrame};
-use feagi_data_structures::genomic::cortical_area::descriptors::CorticalGroupIndex;
+use feagi_connector_core::data_types::SegmentedImageFrame;
 use crate::feagi_connector_core::data_types::descriptors::*;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
+use crate::{create_pyclass, __base_py_class_shared};
 
-#[pyclass]
-#[pyo3(name = "SegmentedImageFrame", str)]
-#[derive(Clone)]
-pub struct PySegmentedImageFrame{
-    pub(crate) inner: SegmentedImageFrame,
-}
+create_pyclass!(PySegmentedImageFrame, SegmentedImageFrame, "SegmentedImageFrame");
 
 #[pymethods]
 impl PySegmentedImageFrame {
-
     //region Common Constructors
     #[new]
     pub fn new(
@@ -40,7 +31,7 @@ impl PySegmentedImageFrame {
     pub fn from_segmented_image_frame_properties(properties: PySegmentedImageFrameProperties) -> PyResult<Self> {
         let result = SegmentedImageFrame::from_segmented_image_frame_properties(&properties.into());
         match result {
-            Ok(segmented) => Ok(PySegmentedImageFrame {inner: segmented}),
+            Ok(segmented) => Ok(PySegmentedImageFrame { inner: segmented }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
     }
@@ -71,33 +62,4 @@ impl PySegmentedImageFrame {
         self.inner.get_segmented_frame_target_resolutions().into()
     }
     //endregion
-
-
-    //region Neuron Export
-
-    /*
-    pub fn export_as_new_cortical_mapped_neuron_data<'py>(&mut self, py: Python<'py>, camera_index: u8) -> PyResult<PyObject> {
-
-        /*
-        match self.inner.export_as_new_cortical_mapped_neuron_data(camera_index) {
-            Ok(neuron_data) => {
-                let child = PyCorticalMappedXYZPNeuronData { inner: neuron_data };
-                let parent = crate::byte_structures::PyFeagiByteStructureCompatible::new();
-                let py_obj = Py::new(py, (child, parent))?;
-                Ok(py_obj.into())
-            },
-            Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
-        }
-        
-         */
-        Err(PyErr::new::<PyValueError, _>("Camera does not support neuron data")) // TODO
-    }
-
-     */
-
-    //endregion
 }
-
-py_type_casts!(PySegmentedImageFrame, SegmentedImageFrame);
-py_object_cast_generic!(PySegmentedImageFrame, SegmentedImageFrame, "Unable to retrieve SegmentedImageFrame data from given!");
-project_display!(PySegmentedImageFrame);
