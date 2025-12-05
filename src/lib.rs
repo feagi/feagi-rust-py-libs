@@ -11,6 +11,7 @@ mod feagi_connector_core;
 //mod feagi_evo;
 
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
 
 fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
     match parent.getattr(submodule_name) {
@@ -19,18 +20,34 @@ fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) ->
     }
 }
 
+/// Registers a submodule with sys.modules so Python can properly import it
+fn register_submodule_in_sys_modules(
+    py: Python<'_>,
+    full_module_path: &str,
+    module: &Bound<'_, PyModule>,
+) -> PyResult<()> {
+    let sys_modules: Bound<'_, PyDict> = py.import("sys")?.getattr("modules")?.downcast_into()?;
+    sys_modules.set_item(full_module_path, module)?;
+    Ok(())
+}
+
 macro_rules! add_python_class {
     ($python:expr, $root_python_module:expr, $class_path:expr, $class:ty) => {
         {
-
+            let root_name = $root_python_module.name()?.to_string();
             let path: Vec<String> = $class_path.split('.').map(|s| s.to_string()).collect();
             let mut current_module = $root_python_module.clone();
+            let mut full_path = root_name.clone();
 
             for path_step in path {
+                full_path = format!("{}.{}", full_path, path_step);
+                
                 if !check_submodule_exists(&current_module, &path_step) {
                     // we need to add a submodule
                     let child_module = PyModule::new($python, &path_step)?;
                     current_module.add_submodule(&child_module)?;
+                    // Register in sys.modules so Python can find it
+                    register_submodule_in_sys_modules($python, &full_path, &child_module)?;
                     current_module = child_module;
                 }
                 else {
@@ -87,7 +104,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     
     //region Feagi Connector Core
-    
+    // Data Types
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyImageFrame);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySegmentedImageFrame);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyMiscData);
@@ -100,8 +117,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage3D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage4D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage4D);
-    
-    
+
     // Data Descriptors
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYPoint);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYResolution);
@@ -123,6 +139,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyIdentityStageProperties);
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
+    add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
+
 
     //endregion
     

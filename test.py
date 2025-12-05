@@ -1,6 +1,12 @@
 
-import feagi_data_processing
+import feagi_rust_py_libs as frp
 import numpy as np
+
+agent = frp.connector_core.ConnectorAgent()
+agent.sensor_digital_gpio_register(0, 2)
+
+
+print(agent)
 
 print("start")
 
@@ -35,5 +41,3 @@ print("pause")
 
 
 
-
-print("pause")
