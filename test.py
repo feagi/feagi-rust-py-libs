@@ -5,6 +5,15 @@ import numpy as np
 agent = frp.connector_core.ConnectorAgent()
 agent.sensor_digital_gpio_register(0, 2)
 
+center_image_resolution = frp.connector_core.data_types.descriptors.ImageXYResolution(128, 128)
+peripheral_image_resolution = frp.connector_core.data_types.descriptors.ImageXYResolution(20, 40)
+segmented_resolution = frp.connector_core.data_types.descriptors.SegmentedXYImageResolutions.create_with_same_sized_peripheral(center_image_resolution, peripheral_image_resolution)
+color_space = frp.connector_core.data_types.descriptors.ColorSpace.Linear
+color_channels = frp.connector_core.data_types.descriptors.ColorChannelLayout.RGB;
+segmented = frp.connector_core.data_types.SegmentedImageFrame(segmented_resolution, color_space, color_channels, color_channels)
+
+
+
 
 print(agent)
 
