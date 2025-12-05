@@ -19,7 +19,6 @@ print(agent)
 
 print("start")
 
-agent.
 
 
 #sensor_cache = fdp.io_processing.cache.SensorCache()

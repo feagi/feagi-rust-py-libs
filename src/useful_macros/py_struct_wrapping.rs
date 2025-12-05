@@ -21,7 +21,6 @@ macro_rules! create_pyclass {
             pub fn copy_out_from_bound(bounded: &pyo3::Bound< $py_wrapped_name>) -> $rust_name { // needs clone
                 bounded.borrow().inner.clone()
             }
-
         }
     };
 }
