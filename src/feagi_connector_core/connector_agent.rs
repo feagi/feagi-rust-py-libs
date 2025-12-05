@@ -16,6 +16,7 @@ use crate::{create_pyclass_no_clone, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{PyPipelineStageProperties};
+use crate::feagi_connector_core::data_types::*;
 use crate::feagi_connector_core::wrapped_io_data::{py_any_to_wrapped_io_data, wrapped_io_data_to_py_object};
 use crate::feagi_data_serialization::PyFeagiByteContainer;
 
@@ -25,6 +26,8 @@ use crate::feagi_data_serialization::PyFeagiByteContainer;
 // TO TURN ON, THE BELOW COMMENT LINE MUST READ *EXACTLY* "BUILDRS_ON" (NO SPACES), CHANGE TO ANY OTHER VALUE TO DISABLE.
 // FURTHER NOTE: WHEN OFF, SOME ERROR CHECKING OF THE IDE MAY BE NON=FUNCTIONAL!
 //BUILDRS_OFF
+
+type Pybool = bool; // ALL HAIL THE LOAD BEARING BOOLEAN
 
 macro_rules! sensor_unit_functions {
     (
@@ -88,22 +91,19 @@ macro_rules! sensor_unit_functions {
                     Ok(())
                 }
 
-
-                /*
                 pub fn [<sensor_ $snake_case_name _read_postprocessed_cache_value>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
-                ) -> PyResult<Py<PyAny>> {
+                ) -> PyResult<[<Py $wrapped_data_type>]> {
 
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
-                    let wrapped_data = self.get_sensor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
-                    wrapped_io_data_to_py_object(py, wrapped_data)
+                    let expected_data = self.get_sensor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
+                    Ok(expected_data.into())
                 }
-                */
 
                 /*
                 pub fn [<sensor_ $snake_case_name _get_single_stage_properties>](
@@ -263,7 +263,7 @@ macro_rules! sensor_unit_functions {
             }
 
         }
-
+        // NOTE: Used the type Pybool at the to work. Fucking Cursed.
         sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, bool);
     };
 
@@ -307,7 +307,7 @@ macro_rules! sensor_unit_functions {
              */
         }
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage);
     };
 
     // Arm for WrappedIOType::Percentage_3D
@@ -350,7 +350,7 @@ macro_rules! sensor_unit_functions {
              */
         }
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage3D);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage3D);
     };
 
     // Arm for WrappedIOType::SignedPercentage_4D
@@ -393,7 +393,7 @@ macro_rules! sensor_unit_functions {
              */
         }
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SignedPercentage4D);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SignedPercentage4D);
     };
 
     // Arm for WrappedIOType::SegmentedImageFrame
@@ -402,36 +402,33 @@ macro_rules! sensor_unit_functions {
         $snake_case_name:expr,
         SegmentedImageFrame
     ) => {
-        /*
         ::paste::paste! {
-            pub fn [<$snake_case_name _register>](
-                &mut self,
-                group: CorticalGroupIndex,
-                number_channels: CorticalChannelCount,
-                frame_change_handling: FrameChangeHandling,
-                input_image_properties: ImageFrameProperties,
-                segmented_image_properties: SegmentedImageFrameProperties,
-                 initial_gaze: GazeProperties
-                ) -> Result<(), FeagiDataError>
-            {
-                let cortical_ids: [CorticalID; 9] = SensoryCorticalUnit::[<get_cortical_ids_array_for_ $snake_case_name >](frame_change_handling, group);
-                let encoder: Box<dyn NeuronVoxelXYZPEncoder + Sync + Send> = SegmentedImageFrameNeuronVoxelXYZPEncoder::new_box(cortical_ids, segmented_image_properties, number_channels)?;
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<sensor_ $snake_case_name _register>]<'py>(
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: &pyo3::Bound<'py, PyFrameChangeHandling>,
+                    input_image_properties: &pyo3::Bound<'py, PyImageFrameProperties>,
+                    segmented_image_properties: &pyo3::Bound<'py, PySegmentedImageFrameProperties>,
+                    initial_gaze: &pyo3::Bound<'py, PySGazeProperties>,
+                    ) -> Result<(), FeagiDataError>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::copy_out_from_bound<'py>(frame_change_handling);
+                    let input_image_properties: ImageFrameProperties = PyImageFrameProperties::copy_out_from_bound<'py>(input_image_properties);
+                    let segmented_image_properties: SegmentedImageFrameProperties = PySegmentedImageFrameProperties::copy_out_from_bound<'py>(segmented_image_properties);
 
-                let initial_val: WrappedIOData = WrappedIOType::SegmentedImageFrame(Some(segmented_image_properties)).create_blank_data_of_type()?;
-                let default_pipeline: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = {
-                    let mut output: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = Vec::new();
-                    for _i in 0..*number_channels {
-                        output.push( vec![ImageSegmentorStageProperties::new_box(input_image_properties, segmented_image_properties, initial_gaze)?]) // TODO properly implement clone so we dont need to do this
-                    };
-                    output
-                };
-                self.register(SensoryCorticalUnit::$sensory_unit, group, encoder, default_pipeline, initial_val)?;
-                Ok(())
+                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, input_image_properties, segmented_image_properties).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
             }
         }
-         */
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SegmentedImageFrame);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SegmentedImageFrame);
     };
 
     // Arm for WrappedIOType::MiscData
@@ -468,7 +465,7 @@ macro_rules! sensor_unit_functions {
              */
         }
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, MiscData);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, MiscData);
     };
 
 
@@ -499,7 +496,7 @@ macro_rules! sensor_unit_functions {
              */
         }
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, ImageFrame);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, ImageFrame);
     };
 }
 

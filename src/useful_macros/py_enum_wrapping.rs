@@ -22,7 +22,9 @@ macro_rules! wrap_flat_enum {
          __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
 
         impl $py_wrapped_name {
-
+            fn from_bound(bound: pyo3::Bound<$py_wrapped_name>) -> $rust_name { // Does this need frozen?
+                bound.get().inner
+            }
         }
     };
 }

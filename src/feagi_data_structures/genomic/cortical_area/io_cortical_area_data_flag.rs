@@ -178,5 +178,4 @@ impl PyFrameChangeHandling {
         PyFrameChangeHandling { inner: FrameChangeHandling::Incremental }
     }
 }
-
 //endregion
