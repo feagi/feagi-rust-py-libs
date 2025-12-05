@@ -6,7 +6,6 @@ use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::exceptions::PyValueError;
 use crate::py_error::PyFeagiError;
-use crate::{py_object_cast_generic, py_type_casts};
 use crate::{create_pyclass, __base_py_class_shared};
 use crate::feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels;
 //create_pyclass!(PyFeagiByteContainer, FeagiByteContainer, "FeagiByteContainer");

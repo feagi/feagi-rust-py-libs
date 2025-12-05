@@ -388,9 +388,7 @@ dependencies = [
 
 [[package]]
 name = "feagi_connector_core"
-version = "0.0.50-beta.60"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2adcaa31739eb5638031cf352ffe369eedd1849a27eb654fdf81d5c136a30bb2"
+version = "2.0.0"
 dependencies = [
  "feagi_data_serialization",
  "feagi_data_structures",
@@ -398,13 +396,12 @@ dependencies = [
  "ndarray",
  "paste",
  "rayon",
+ "serde",
 ]
 
 [[package]]
 name = "feagi_data_serialization"
-version = "0.0.50-beta.60"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f82e052e1e4a86da47d8d5549dd16d8dc44c9cdfa92c3fb1bceccc9e3cfa316"
+version = "2.0.0"
 dependencies = [
  "byteorder",
  "feagi_data_structures",
@@ -413,9 +410,7 @@ dependencies = [
 
 [[package]]
 name = "feagi_data_structures"
-version = "0.0.50-beta.60"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a99af73dd373c56289fc3a4bb31eec2c553a85fa8dd5498881e14efa16af227"
+version = "2.0.0"
 dependencies = [
  "base64",
  "ndarray",
@@ -423,6 +418,7 @@ dependencies = [
  "rayon",
  "serde",
  "serde_json",
+ "uuid",
 ]
 
 [[package]]
@@ -605,6 +601,16 @@ checksum = "9afb3de4395d6b3e67a780b6de64b51c978ecf11cb9a462c66be7d4ca9039d33"
 dependencies = [
  "getrandom",
  "libc",
+]
+
+[[package]]
+name = "js-sys"
+version = "0.3.83"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "464a3709c7f55f1f721e5389aa6ea4e3bc6aba669353300af094b29ffbdde1d8"
+dependencies = [
+ "once_cell",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -1475,6 +1481,18 @@ name = "unindent"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7264e107f553ccae879d21fbea1d6724ac785e8c3bfc762137959b5802826ef3"
+
+[[package]]
+name = "uuid"
+version = "1.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2e054861b4bd027cd373e18e8d8d8e6548085000e41290d95ce0c373a654b4a"
+dependencies = [
+ "getrandom",
+ "js-sys",
+ "serde_core",
+ "wasm-bindgen",
+]
 
 [[package]]
 name = "v_frame"

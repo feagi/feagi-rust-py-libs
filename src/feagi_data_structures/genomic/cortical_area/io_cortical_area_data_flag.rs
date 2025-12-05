@@ -3,21 +3,13 @@ use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::genomic::cortical_area::{IOCorticalAreaDataFlag};
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::{FrameChangeHandling, PercentageNeuronPositioning};
-use crate::{project_display, py_object_cast_generic, py_type_casts, wrap_flat_enum, __base_py_class_shared};
+use crate::{wrap_flat_enum, wrap_layered_enum, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 
 
 //region IOCorticalAreaDataFlag
 
-/// Enum representing the data type configuration for IO cortical areas.
-/// 
-/// This determines how data is encoded/decoded for brain input/output regions.
-#[pyclass(str, eq)]
-#[pyo3(name = "IOCorticalAreaDataFlag")]
-#[derive(Clone, PartialEq)]
-pub struct PyIOCorticalAreaDataFlag {
-    pub inner: IOCorticalAreaDataFlag,
-}
+wrap_layered_enum!(PyIOCorticalAreaDataFlag, IOCorticalAreaDataFlag, "IOCorticalAreaDataFlag");
 
 #[pymethods]
 #[allow(non_snake_case)]
@@ -143,27 +135,11 @@ impl PyIOCorticalAreaDataFlag {
     //endregion
 }
 
-project_display!(PyIOCorticalAreaDataFlag);
-py_type_casts!(PyIOCorticalAreaDataFlag, IOCorticalAreaDataFlag);
-py_object_cast_generic!(PyIOCorticalAreaDataFlag, IOCorticalAreaDataFlag, "Unable to retrieve IOCorticalAreaDataFlag data from given!");
-
 //endregion
 
 //region PercentageNeuronPositioning
 
-//wrap_flat_enum!(PyPercentageNeuronPositioning, PercentageNeuronPositioning, "PercentageNeuronPositioning");
-
-/// Enum representing how percentage values are mapped to neuron positions.
-///
-/// Variants:
-///     Linear: Linear mapping of percentage to neuron position
-///     Fractional: Fractional/exponential mapping (default)
-#[pyclass(str, eq)]
-#[pyo3(name = "PercentageNeuronPositioning")]
-#[derive(Clone, PartialEq)]
-pub struct PyPercentageNeuronPositioning {
-    pub inner: PercentageNeuronPositioning,
-}
+wrap_flat_enum!(PyPercentageNeuronPositioning, PercentageNeuronPositioning, "PercentageNeuronPositioning");
 
 #[pymethods]
 #[allow(non_snake_case)]
@@ -181,27 +157,11 @@ impl PyPercentageNeuronPositioning {
     }
 }
 
-project_display!(PyPercentageNeuronPositioning);
-py_type_casts!(PyPercentageNeuronPositioning, PercentageNeuronPositioning);
-py_object_cast_generic!(PyPercentageNeuronPositioning, PercentageNeuronPositioning, "Unable to retrieve PercentageNeuronPositioning data from given!");
-
 //endregion
 
 //region FrameChangeHandling
 
-//wrap_flat_enum!(PyFrameChangeHandling, FrameChangeHandling, "FrameChangeHandling");
-
-/// Enum representing how frame changes are handled.
-///
-/// Variants:
-///     Absolute: Values are treated as absolute positions (default)
-///     Incremental: Values are treated as incremental changes
-#[pyclass(str, eq)]
-#[pyo3(name = "FrameChangeHandling")]
-#[derive(Clone, PartialEq)]
-pub struct PyFrameChangeHandling {
-    pub inner: FrameChangeHandling,
-}
+wrap_flat_enum!(PyFrameChangeHandling, FrameChangeHandling, "FrameChangeHandling");
 
 #[pymethods]
 #[allow(non_snake_case)]
@@ -218,9 +178,5 @@ impl PyFrameChangeHandling {
         PyFrameChangeHandling { inner: FrameChangeHandling::Incremental }
     }
 }
-
-project_display!(PyFrameChangeHandling);
-py_type_casts!(PyFrameChangeHandling, FrameChangeHandling);
-py_object_cast_generic!(PyFrameChangeHandling, FrameChangeHandling, "Unable to retrieve FrameChangeHandling data from given!");
 
 //endregion

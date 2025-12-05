@@ -4,15 +4,9 @@ use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties, PyMiscDataDimensions};
-use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::py_error::PyFeagiError;
+use crate::{wrap_flat_enum, __base_py_class_shared};
 
-#[pyclass(subclass, str)] //TODO subclass?
-#[pyo3(name = "WrappedIOType")]
-#[derive(Clone)]
-pub struct PyWrappedIOType {
-    pub inner: WrappedIOType,
-}
+wrap_flat_enum!(PyWrappedIOType, WrappedIOType, "WrappedIOType");
 
 #[pymethods]
 #[allow(non_snake_case)]
@@ -109,10 +103,6 @@ impl PyWrappedIOType {
         WrappedIOType::is_same_variant(&self.inner, &other.inner)
     }
 }
-
-project_display!(PyWrappedIOType);
-py_type_casts!(PyWrappedIOType, WrappedIOType);
-py_object_cast_generic!(PyWrappedIOType, WrappedIOType, "Unable to retrieve WrappedIOType data from given!");
 
 
 

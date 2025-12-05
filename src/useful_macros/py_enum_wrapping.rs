@@ -28,7 +28,6 @@ macro_rules! wrap_flat_enum {
 }
 
 // For now these are duplicates, however future automation may make a divergence of functionality
-// TODO fix hash!
 
 /// Allows easy wrapping of a flat enum
 /// keys must be added as static methods to a pymethods block.
