@@ -16,6 +16,13 @@ macro_rules! create_pyclass {
         }
 
         __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
+
+        impl $py_wrapped_name {
+            pub fn copy_out_from_bound(bounded: &pyo3::Bound< $py_wrapped_name>) -> $rust_name { // needs clone
+                bounded.borrow().inner.clone()
+            }
+
+        }
     };
 }
 
@@ -128,12 +135,6 @@ macro_rules! __base_py_class_shared {
                     .try_borrow()
                     .map_err(|e| FeagiDataError::BadParameters(format!("Failed to borrow: {}", e)))
             }
-
-            pub fn copy_out_from_bound<'py>(bounded: &pyo3::Bound<'py, $py_wrapped_name>) -> $rust_name { // needs clone
-                bounded.borrow().inner.clone()
-            }
-
-
 
         }
 

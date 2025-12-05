@@ -246,7 +246,6 @@ macro_rules! sensor_unit_functions {
 
             #[pymethods]
             impl PyConnectorAgent {
-
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
                     py: Python<'_>,
@@ -405,22 +404,22 @@ macro_rules! sensor_unit_functions {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>]<'py>(
+                pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     number_channels: u32,
-                    frame_change_handling: &pyo3::Bound<'py, PyFrameChangeHandling>,
-                    input_image_properties: &pyo3::Bound<'py, PyImageFrameProperties>,
-                    segmented_image_properties: &pyo3::Bound<'py, PySegmentedImageFrameProperties>,
-                    initial_gaze: &pyo3::Bound<'py, PySGazeProperties>,
-                    ) -> Result<(), FeagiDataError>
+                    frame_change_handling: &pyo3::Bound<PyFrameChangeHandling>,
+                    input_image_properties: &pyo3::Bound<PyImageFrameProperties>,
+                    segmented_image_properties: &pyo3::Bound<PySegmentedImageFrameProperties>,
+                    initial_gaze: &pyo3::Bound<PyGazeProperties>,
+                    ) -> PyResult<()>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
-                    let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::copy_out_from_bound<'py>(frame_change_handling);
-                    let input_image_properties: ImageFrameProperties = PyImageFrameProperties::copy_out_from_bound<'py>(input_image_properties);
-                    let segmented_image_properties: SegmentedImageFrameProperties = PySegmentedImageFrameProperties::copy_out_from_bound<'py>(segmented_image_properties);
+                    let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::copy_out_from_bound::(frame_change_handling);
+                    let input_image_properties: ImageFrameProperties = PyImageFrameProperties::copy_out_from_bound::(input_image_properties);
+                    let segmented_image_properties: SegmentedImageFrameProperties = PySegmentedImageFrameProperties::copy_out_from_bound::(segmented_image_properties);
 
                     self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, input_image_properties, segmented_image_properties).map_err(PyFeagiError::from)?;
                     Ok(())
