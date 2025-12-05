@@ -1,64 +1,69 @@
 use feagi_connector_core::data_types::{ImageFrame, MiscData, Percentage, Percentage2D, Percentage3D, Percentage4D, SegmentedImageFrame, SignedPercentage, SignedPercentage2D, SignedPercentage3D, SignedPercentage4D};
 use feagi_connector_core::wrapped_io_data::WrappedIOData;
-use pyo3::{PyResult };
+use pyo3::{IntoPyObjectExt, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
-use crate::feagi_connector_core::data_types::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D};
+use crate::feagi_connector_core::data_types::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D, PyGazeProperties};
 
 
 // Conversion functions for backward compatibility
-pub fn wrapped_io_data_to_py_object(wrapped_iodata: WrappedIOData) -> PyResult<PyObject> {
-    Python::with_gil(|py| {
-        Ok(match wrapped_iodata {
-            WrappedIOData::Percentage(percentage) => {
-                let py_percentage = PyPercentage::from(percentage);
-                py_percentage.into_py(py)
-            },
-            WrappedIOData::Percentage_2D(percentage_2d) => {
-                let py_percentage_2d = PyPercentage2D::from(percentage_2d);
-                py_percentage_2d.into_py(py)
-            },
-            WrappedIOData::Percentage_3D(percentage_3d) => {
-                let py_percentage_3d = PyPercentage3D::from(percentage_3d);
-                py_percentage_3d.into_py(py)
-            },
-            WrappedIOData::Percentage_4D(percentage_4d) => {
-                let py_percentage_4d = PyPercentage4D::from(percentage_4d);
-                py_percentage_4d.into_py(py)
-            },
-            WrappedIOData::SignedPercentage(signed_percentage) => {
-                let py_signed_percentage = PySignedPercentage::from(signed_percentage);
-                py_signed_percentage.into_py(py)
-            },
-            WrappedIOData::SignedPercentage_2D(signed_percentage_2d) => {
-                let py_signed_percentage_2d = PySignedPercentage2D::from(signed_percentage_2d);
-                py_signed_percentage_2d.into_py(py)
-            },
-            WrappedIOData::SignedPercentage_3D(signed_percentage_3d) => {
-                let py_signed_percentage_3d = PySignedPercentage3D::from(signed_percentage_3d);
-                py_signed_percentage_3d.into_py(py)
-            },
-            WrappedIOData::SignedPercentage_4D(signed_percentage_4d) => {
-                let py_signed_percentage_4d = PySignedPercentage4D::from(signed_percentage_4d);
-                py_signed_percentage_4d.into_py(py)
-            },
-            WrappedIOData::ImageFrame(frame) => {
-                let py_frame = PyImageFrame::from(frame);
-                py_frame.into_py(py)
-            },
-            WrappedIOData::SegmentedImageFrame(segmented_frame) => {
-                let py_segmented_frame = PySegmentedImageFrame::from(segmented_frame);
-                py_segmented_frame.into_py(py)
-            },
-            WrappedIOData::MiscData(misc_data) => {
-                let py_misc_data = PyMiscData::from(misc_data);
-                py_misc_data.into_py(py)
-            },
-        })
-    })
+pub fn wrapped_io_data_to_py_object(py: Python, wrapped_iodata: WrappedIOData) -> PyResult<Py<PyAny>> {
+    match wrapped_iodata {
+        WrappedIOData::Boolean(boolean) => {
+            boolean.into_py_any(py)
+        },
+        WrappedIOData::Percentage(percentage) => {
+            let py_percentage = PyPercentage::from(percentage);
+            py_percentage.into_py_any(py)
+        },
+        WrappedIOData::Percentage_2D(percentage_2d) => {
+            let py_percentage_2d = PyPercentage2D::from(percentage_2d);
+            py_percentage_2d.into_py_any(py)
+        },
+        WrappedIOData::Percentage_3D(percentage_3d) => {
+            let py_percentage_3d = PyPercentage3D::from(percentage_3d);
+            py_percentage_3d.into_py_any(py)
+        },
+        WrappedIOData::Percentage_4D(percentage_4d) => {
+            let py_percentage_4d = PyPercentage4D::from(percentage_4d);
+            py_percentage_4d.into_py_any(py)
+        },
+        WrappedIOData::SignedPercentage(signed_percentage) => {
+            let py_signed_percentage = PySignedPercentage::from(signed_percentage);
+            py_signed_percentage.into_py_any(py)
+        },
+        WrappedIOData::SignedPercentage_2D(signed_percentage_2d) => {
+            let py_signed_percentage_2d = PySignedPercentage2D::from(signed_percentage_2d);
+            py_signed_percentage_2d.into_py_any(py)
+        },
+        WrappedIOData::SignedPercentage_3D(signed_percentage_3d) => {
+            let py_signed_percentage_3d = PySignedPercentage3D::from(signed_percentage_3d);
+            py_signed_percentage_3d.into_py_any(py)
+        },
+        WrappedIOData::SignedPercentage_4D(signed_percentage_4d) => {
+            let py_signed_percentage_4d = PySignedPercentage4D::from(signed_percentage_4d);
+            py_signed_percentage_4d.into_py_any(py)
+        },
+        WrappedIOData::ImageFrame(frame) => {
+            let py_frame = PyImageFrame::from(frame);
+            py_frame.into_py_any(py)
+        },
+        WrappedIOData::SegmentedImageFrame(segmented_frame) => {
+            let py_segmented_frame = PySegmentedImageFrame::from(segmented_frame);
+            py_segmented_frame.into_py_any(py)
+        },
+        WrappedIOData::MiscData(misc_data) => {
+            let py_misc_data = PyMiscData::from(misc_data);
+            py_misc_data.into_py_any(py)
+        },
+        WrappedIOData::GazeProperties(gaze_properties) => {
+            let py_gaze_properties = PyGazeProperties::from(gaze_properties);
+            py_gaze_properties.into_py_any(py)
+        }
+    }
 }
 
-pub fn py_object_to_wrapped_io_data<'py>(py: Python<'_>, py_wrapped: PyObject) -> Result<WrappedIOData, FeagiDataError> {
+pub fn py_object_to_wrapped_io_data<'py>(py: Python<'_>, py_wrapped: Py<PyAny>) -> Result<WrappedIOData, FeagiDataError> {
     let bound = py_wrapped.bind(py);
 
     match () {

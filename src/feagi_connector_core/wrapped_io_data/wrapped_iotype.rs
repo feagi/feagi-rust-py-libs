@@ -19,6 +19,11 @@ pub struct PyWrappedIOType {
 impl PyWrappedIOType {
 
     #[staticmethod]
+    pub fn Boolean() ->Self {
+        PyWrappedIOType { inner: WrappedIOType::Boolean }
+    }
+    
+    #[staticmethod]
     pub fn Percentage() -> Self {
         PyWrappedIOType { inner: WrappedIOType::Percentage }
     }
@@ -93,6 +98,11 @@ impl PyWrappedIOType {
             }
         }
         PyWrappedIOType { inner: WrappedIOType::MiscData(convert(optional_misc_dimensions)) }
+    }
+
+    #[staticmethod]
+    pub fn GazeProperties() ->Self {
+        PyWrappedIOType { inner: WrappedIOType::GazeProperties }
     }
 
     pub fn is_same_variant(&self, other: &PyWrappedIOType) -> bool {
