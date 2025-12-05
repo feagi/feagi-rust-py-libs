@@ -53,6 +53,23 @@ macro_rules! create_pyclass_with_hash {
     };
 }
 
+/// Takes the Pyclass internal name, and the rust type, to crate a basic
+/// wrapper of the rust struct as inner
+#[macro_export]
+macro_rules! create_pyclass_no_clone {
+    ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
+
+        #[pyclass(str)]
+        #[pyo3(name = $py_name)]
+        //#[derive(Debug)]
+        pub struct $py_wrapped_name {
+            pub inner: $rust_name,
+        }
+
+        __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
+    };
+}
+
 
 // NOTE: technically #[macro_export] is required for visibility
 /// Shared implementation of base py classes
