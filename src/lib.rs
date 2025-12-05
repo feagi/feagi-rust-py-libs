@@ -29,44 +29,18 @@ macro_rules! add_python_class {
             for path_step in path {
                 if !check_submodule_exists(&current_module, &path_step) {
                     // we need to add a submodule
-                    let child_module = PyModule::new_bound($python, &path_step)?;
+                    let child_module = PyModule::new($python, &path_step)?;
                     current_module.add_submodule(&child_module)?;
                     current_module = child_module;
                 }
                 else {
                     // child module already exists. Switch to it
                     let child_module = current_module.getattr(&path_step)?;
-                    current_module = child_module.downcast::<PyModule>()?.clone();
+                    current_module = child_module.downcast_into::<PyModule>()?;
                 }
             }
 
             current_module.add_class::<$class>()?;
-        }
-    };
-}
-
-macro_rules! add_python_function {
-    ($python:expr, $root_python_module:expr, $class_path:expr, $function:ty) => {
-        {
-
-            let path: Vec<String> = $class_path.split('.').map(|s| s.to_string()).collect();
-            let mut current_module = $root_python_module.clone();
-
-            for path_step in path {
-                if !check_submodule_exists(&current_module, &path_step) {
-                    // we need to add a submodule
-                    let child_module = PyModule::new_bound($python, &path_step)?;
-                    current_module.add_submodule(&child_module)?;
-                    current_module = child_module;
-                }
-                else {
-                    // child module already exists. Switch to it
-                    let child_module = current_module.getattr(&path_step)?;
-                    current_module = child_module.downcast::<PyModule>()?.clone();
-                }
-            }
-
-            current_module.add_function::<$function>()?;
         }
     };
 }
