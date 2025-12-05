@@ -3,6 +3,7 @@ use feagi_connector_core::wrapped_io_data::WrappedIOData;
 use pyo3::{IntoPyObjectExt, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
+use pyo3::types::PyBool;
 use crate::feagi_connector_core::data_types::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D, PyGazeProperties};
 
 
@@ -63,67 +64,51 @@ pub fn wrapped_io_data_to_py_object(py: Python, wrapped_iodata: WrappedIOData) -
     }
 }
 
-pub fn py_object_to_wrapped_io_data<'py>(py: Python<'_>, py_wrapped: Py<PyAny>) -> Result<WrappedIOData, FeagiDataError> {
-    let bound = py_wrapped.bind(py);
+pub fn py_any_to_wrapped_io_data<'py>(py: Python<'_>, py_wrapped: &Bound<'py, PyAny>) -> Result<WrappedIOData, FeagiDataError> {
 
-    match () {
-        _ if bound.is_instance_of::<PyImageFrame>() => {
-            let py_obj = py_wrapped.extract::<PyImageFrame>(py).unwrap();
-            let image_frame: ImageFrame = py_obj.into();
-            Ok(image_frame.into())
-        }
-        _ if bound.is_instance_of::<PySegmentedImageFrame>() => {
-            let py_obj = py_wrapped.extract::<PySegmentedImageFrame>(py).unwrap();
-            let segmented_frame: SegmentedImageFrame = py_obj.into();
-            Ok(segmented_frame.into())
-        }
-        _ if bound.is_instance_of::<PyMiscData>() => {
-            let py_obj = py_wrapped.extract::<PyMiscData>(py).unwrap();
-            let misc_data: MiscData = py_obj.into();
-            Ok(misc_data.into())
-        }
-        _ if bound.is_instance_of::<PyPercentage>() => {
-            let py_obj = py_wrapped.extract::<PyPercentage>(py).unwrap();
-            let percentage: Percentage = py_obj.into();
-            Ok(percentage.into())
-        }
-        _ if bound.is_instance_of::<PyPercentage2D>() => {
-            let py_obj = py_wrapped.extract::<PyPercentage2D>(py).unwrap();
-            let percentage_2d: Percentage2D = py_obj.into();
-            Ok(percentage_2d.into())
-        }
-        _ if bound.is_instance_of::<PyPercentage3D>() => {
-            let py_obj = py_wrapped.extract::<PyPercentage3D>(py).unwrap();
-            let percentage_3d: Percentage3D = py_obj.into();
-            Ok(percentage_3d.into())
-        }
-        _ if bound.is_instance_of::<PyPercentage4D>() => {
-            let py_obj = py_wrapped.extract::<PyPercentage4D>(py).unwrap();
-            let percentage_4d: Percentage4D = py_obj.into();
-            Ok(percentage_4d.into())
-        }
-        _ if bound.is_instance_of::<PySignedPercentage>() => {
-            let py_obj = py_wrapped.extract::<PySignedPercentage>(py).unwrap();
-            let signed_percentage: SignedPercentage = py_obj.into();
-            Ok(signed_percentage.into())
-        }
-        _ if bound.is_instance_of::<PySignedPercentage2D>() => {
-            let py_obj = py_wrapped.extract::<PySignedPercentage2D>(py).unwrap();
-            let signed_percentage_2d: SignedPercentage2D = py_obj.into();
-            Ok(signed_percentage_2d.into())
-        }
-        _ if bound.is_instance_of::<PySignedPercentage3D>() => {
-            let py_obj = py_wrapped.extract::<PySignedPercentage3D>(py).unwrap();
-            let signed_percentage_3d: SignedPercentage3D = py_obj.into();
-            Ok(signed_percentage_3d.into())
-        }
-        _ if bound.is_instance_of::<PySignedPercentage4D>() => {
-            let py_obj = py_wrapped.extract::<PySignedPercentage4D>(py).unwrap();
-            let signed_percentage_4d: SignedPercentage4D = py_obj.into();
-            Ok(signed_percentage_4d.into())
-        }
-        _ => {
-            Err(FeagiDataError::BadParameters("Unable to parse object as any supported wrapped io data!".into()))
-        }
+    // Yes this is an if else chain. But this is the way the docs suggested for best performance https://pyo3.rs/main/performance.html#extract-versus-cast
+    // Other ideas are welcome
+
+    if let Ok(reference) = py_wrapped.cast::<PyImageFrame>() {
+        let image_frame = &reference.borrow().inner;
+        return Ok(WrappedIOData::ImageFrame(image_frame.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PySegmentedImageFrame>() {
+        let segmented_frame = &reference.borrow().inner;
+        return Ok(WrappedIOData::SegmentedImageFrame(segmented_frame.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyGazeProperties>() {
+        let gaze_properties = &reference.borrow().inner;
+        return Ok(WrappedIOData::GazeProperties(gaze_properties.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyMiscData>() {
+        let misc_data = &reference.borrow().inner;
+        return Ok(WrappedIOData::MiscData(misc_data.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PySignedPercentage4D>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::SignedPercentage_4D(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PySignedPercentage3D>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::SignedPercentage_3D(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PySignedPercentage2D>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::SignedPercentage_2D(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PySignedPercentage>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::SignedPercentage(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyPercentage4D>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::Percentage_4D(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyPercentage3D>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::Percentage_3D(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyPercentage2D>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::Percentage_2D(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyPercentage>() {
+        let percentage = &reference.borrow().inner;
+        return Ok(WrappedIOData::Percentage(percentage.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyBool>() {
+        let boolean: bool = reference.is_true(); // lol
+        return Ok(WrappedIOData::Boolean(boolean))
     }
+
+    Err(FeagiDataError::BadParameters("Unable to parse object as any supported wrapped io data!".into()))
 }

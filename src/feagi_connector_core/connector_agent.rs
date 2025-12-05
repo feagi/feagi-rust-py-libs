@@ -13,7 +13,6 @@ use crate::{create_pyclass_no_clone, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{PyPipelineStageProperties};
-use crate::feagi_connector_core::wrapped_io_data::py_object_to_wrapped_io_data;
 use crate::feagi_data_serialization::PyFeagiByteContainer;
 use feagi_data_structures::{sensor_cortical_units, FeagiDataError, FeagiSignal};
 
@@ -22,8 +21,6 @@ use feagi_data_structures::{sensor_cortical_units, FeagiDataError, FeagiSignal};
 // TO TURN ON, THE BELOW COMMENT LINE MUST READ *EXACTLY* "BUILDRS_ON" (NO SPACES), CHANGE TO ANY OTHER VALUE TO DISABLE.
 // FURTHER NOTE: WHEN OFF, SOME ERROR CHECKING OF THE IDE MAY BE NON=FUNCTIONAL!
 //BUILDRS_OFF
-
-create_pyclass_no_clone!(PyConnectorAgent, ConnectorAgent, "ConnectorAgent");
 
 macro_rules! sensor_unit_functions {
     (
@@ -430,6 +427,8 @@ macro_rules! sensor_unit_functions {
     };
 }
 
+create_pyclass_no_clone!(PyConnectorAgent, ConnectorAgent, "ConnectorAgent");
+
 impl PyConnectorAgent {
     fn get_sensor_cache(&self) -> MutexGuard<SensorDeviceCache> {
         self.inner.get_sensor_cache()
@@ -437,6 +436,10 @@ impl PyConnectorAgent {
 
     fn get_motor_cache(&self) -> MutexGuard<MotorDeviceCache> {
         self.inner.get_motor_cache()
+    }
+
+    fn test(&self) {
+        let a = self.get_sensor_cache();
     }
 }
 

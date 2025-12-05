@@ -8,7 +8,6 @@
 #[macro_export]
 macro_rules! create_pyclass {
     ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
-
         #[pyclass(str)]
         #[pyo3(name = $py_name)]
         #[derive(Debug, Clone)]
@@ -54,14 +53,14 @@ macro_rules! create_pyclass_with_hash {
 }
 
 /// Takes the Pyclass internal name, and the rust type, to crate a basic
-/// wrapper of the rust struct as inner
+/// wrapper of the rust struct as inner. Uniquely lacks clone support, limiting its uses
 #[macro_export]
 macro_rules! create_pyclass_no_clone {
     ($py_wrapped_name:ident, $rust_name:ty, $py_name:expr) => {
 
         #[pyclass(str)]
         #[pyo3(name = $py_name)]
-        //#[derive(Debug)]
+        #[derive(Debug)]
         pub struct $py_wrapped_name {
             pub inner: $rust_name,
         }
@@ -108,14 +107,12 @@ macro_rules! __base_py_class_shared {
                 Ok(obj.unbind())
             }
              */
-
-             // NOTE: the next 2 functions may not be best practice to use
-            /// Static wrapping an existing rust non-py wrapped instance directly to PyAny
+            /// Static wrapping an existing rust non-py wrapped instance directly to PyAny. Used only in specific contexts
             pub fn wrap_to_bound_any(py: Python<'_>, rust_struct: $rust_name) -> PyResult<Bound<'_, PyAny>> {
                 Bound::new(py, Self {inner: rust_struct} ).map(|b| b.into_any())
             }
 
-            /// Wraps self into into a Bound<PyAny>
+            /// Wraps self into into a Bound<PyAny>. Used only in specific contexts
             pub fn wrap_self_into_bound_any(self, py: Python<'_>) -> PyResult<Bound<'_, PyAny>> {
                 Bound::new(py, self).map(|b| b.into_any())
             }
