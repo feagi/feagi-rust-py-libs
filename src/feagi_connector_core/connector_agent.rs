@@ -1,4 +1,4 @@
-use feagi_data_structures::genomic::cortical_area::descriptors::CorticalGroupIndex;
+use feagi_data_structures::genomic::cortical_area::descriptors::{CorticalChannelIndex, CorticalGroupIndex};
 use feagi_data_structures::genomic::cortical_area::descriptors::CorticalChannelCount;
 use std::sync::MutexGuard;
 use pyo3::{pyclass, pymethods, PyResult};
@@ -71,12 +71,12 @@ macro_rules! sensor_unit_functions {
             #[pymethods]
             impl PyConnectorAgent {
 
-                pub fn [sensor_ <$snake_case_name _write>](
+                pub fn [<sensor_ $snake_case_name _write>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
-                    data: &Bound<'py, PyAny>,
+                    data: &Bound<'_, PyAny>,
                 ) -> PyResult<()> {
 
 
@@ -88,9 +88,9 @@ macro_rules! sensor_unit_functions {
                     Ok(())
                 }
 
-                /*
 
-                pub fn [sensor_ <$snake_case_name _read_postprocessed_cache_value>](
+                /*
+                pub fn [<sensor_ $snake_case_name _read_postprocessed_cache_value>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -101,10 +101,12 @@ macro_rules! sensor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let wrapped_data = self.get_sensor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
-                    wrapped_io_data_to_py_object(wrapped_data)
+                    wrapped_io_data_to_py_object(py, wrapped_data)
                 }
+                */
 
-                pub fn [sensor_ <$snake_case_name _get_single_stage_properties>](
+                /*
+                pub fn [<sensor_ $snake_case_name _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -120,7 +122,8 @@ macro_rules! sensor_unit_functions {
                     PyPipelineStageProperties::boxed_to_py(boxed_stage);
                 }
 
-                pub fn [sensor_ <$snake_case_name _get_all_stage_properties>](
+
+                pub fn [<sensor_ $snake_case_name _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -139,7 +142,11 @@ macro_rules! sensor_unit_functions {
                     Ok(output)
                 }
 
-                pub fn [sensor_ <$snake_case_name _update_single_stage_properties>](
+                 */
+
+                /*
+
+                pub fn [<sensor_ $snake_case_name _update_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -156,11 +163,12 @@ macro_rules! sensor_unit_functions {
                     self.get_sensor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
-                */
+
+                 */
 
                 /*
 
-                pub fn [sensor_ <$snake_case_name _update_all_stage_properties>](
+                pub fn [<sensor_ $snake_case_name _update_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -175,7 +183,7 @@ macro_rules! sensor_unit_functions {
 
 
 
-                pub fn [sensor_ <$snake_case_name _replace_single_stage>](
+                pub fn [<sensor_ $snake_case_name _replace_single_stage>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -194,7 +202,7 @@ macro_rules! sensor_unit_functions {
                     Ok(())
                 }
 
-                pub fn [sensor_ <$snake_case_name _replace_all_stages>](
+                pub fn [<sensor_ $snake_case_name _replace_all_stages>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -207,7 +215,7 @@ macro_rules! sensor_unit_functions {
                     Ok(())
                 }
 
-                pub fn [sensor_ <$snake_case_name _removing_all_stages>](
+                pub fn [<sensor_ $snake_case_name _removing_all_stages>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,

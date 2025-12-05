@@ -6,7 +6,6 @@ agent = frp.connector_core.ConnectorAgent()
 agent.sensor_digital_gpio_register(0, 2)
 
 
-
 print(agent)
 
 print("start")
