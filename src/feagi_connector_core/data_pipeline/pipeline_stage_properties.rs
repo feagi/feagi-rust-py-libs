@@ -6,7 +6,6 @@ use feagi_data_structures::FeagiDataError;
 use pyo3::exceptions::PyValueError;
 use crate::feagi_connector_core::data_pipeline::stage_properties::{PyIdentityStageProperties, PyImageQuickDiffStageProperties, PyImageSegmentorStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
-use crate::py_object_cast_generic_no_unwrap;
 
 #[pyclass(subclass)]
 #[derive(Debug)]
@@ -69,5 +68,3 @@ impl PyPipelineStageProperties {
     }
 
 }
-
-py_object_cast_generic_no_unwrap!(PyPipelineStageProperties, "unable to extract pipeline stage properties");

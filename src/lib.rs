@@ -2,13 +2,11 @@
 //! All docs pertaining to python exposed modules must 
 //! be reflected to the 'feagi_data_processing.pyi.template' file!
 
-
-mod feagi_data_structures;
 mod py_error;
-mod macro_helpers;
+mod useful_macros;
+mod feagi_data_structures;
 mod feagi_data_serialization;
 mod feagi_connector_core;
-mod useful_macros;
 //mod feagi_agent_sdk;
 //mod feagi_evo;
 
@@ -87,16 +85,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyMemoryCorticalType);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalAreaType);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCoreCorticalType);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalChannelCount);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalGroupIndex);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalChannelIndex);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalChannelDimensions);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyCorticalUnitIndex);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area.descriptors", feagi_data_structures::genomic::cortical_area::descriptors::PyNeuronDepth);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyFrameChangeHandling);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaDataFlag);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyPercentageNeuronPositioning);
-    add_python_class!(py, m, "data_structures.genomic.descriptors", feagi_data_structures::genomic::descriptors::PyAgentDeviceIndex);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalUnit);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensoryCorticalUnit);
 
@@ -122,9 +113,6 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     
     //region Feagi Connector Core
-    
-    // Cache - MotorDeviceCache (new clean API)
-    add_python_class!(py, m, "connector_core.caching", feagi_connector_core::caching::PyMotorDeviceCache);
     
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyImageFrame);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySegmentedImageFrame);

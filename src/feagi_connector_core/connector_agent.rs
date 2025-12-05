@@ -22,6 +22,27 @@ use feagi_data_structures::{sensor_cortical_units, FeagiDataError, FeagiSignal};
 // FURTHER NOTE: WHEN OFF, SOME ERROR CHECKING OF THE IDE MAY BE NON=FUNCTIONAL!
 //BUILDRS_OFF
 
+macro_rules! pymethod_block {
+    (
+
+    ) => {
+
+        #[pymethods]
+        impl PyConnectorAgent {
+            #[new]
+            pub fn new() -> Self {
+                PyConnectorAgent {
+                    inner: ConnectorAgent::new(),
+                }
+            }
+
+        }
+
+
+
+    };
+}
+
 macro_rules! sensor_unit_functions {
     (
         SensoryCorticalUnit {
@@ -53,6 +74,7 @@ macro_rules! sensor_unit_functions {
         )*
     };
 
+
     //region Similar Functions
     // Helper macro to generate stage and other similar functions
     (@generate_similar_functions
@@ -62,6 +84,7 @@ macro_rules! sensor_unit_functions {
     ) => {
         ::paste::paste! {
 
+            /*
             pub fn [<$snake_case_name _write>](
                 &mut self,
                 group: CorticalGroupIndex,
@@ -171,6 +194,7 @@ macro_rules! sensor_unit_functions {
                 self.try_removing_all_stages(SENSOR_UNIT_TYPE, group, channel_index)?;
                 Ok(())
             }
+             */
         }
     };
     //endregion
@@ -205,7 +229,7 @@ macro_rules! sensor_unit_functions {
             }
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, bool);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, bool);
     };
 
     // Arm for WrappedIOType::Percentage
@@ -215,6 +239,7 @@ macro_rules! sensor_unit_functions {
         Percentage
     ) => {
         ::paste::paste! {
+            /*
             pub fn [<$snake_case_name _register>](
                 &mut self,
                 group: CorticalGroupIndex,
@@ -243,9 +268,11 @@ macro_rules! sensor_unit_functions {
                 self.register(SensoryCorticalUnit::$sensory_unit, group, encoder, default_pipeline, initial_val)?;
                 Ok(())
             }
+
+             */
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage);
     };
 
     // Arm for WrappedIOType::Percentage_3D
@@ -255,6 +282,7 @@ macro_rules! sensor_unit_functions {
         Percentage_3D
     ) => {
         ::paste::paste! {
+            /*
             pub fn [<$snake_case_name _register>](
                 &mut self,
                 group: CorticalGroupIndex,
@@ -283,9 +311,11 @@ macro_rules! sensor_unit_functions {
                 self.register(SensoryCorticalUnit::$sensory_unit, group, encoder, default_pipeline, initial_val)?;
                 Ok(())
             }
+
+             */
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage3D);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage3D);
     };
 
     // Arm for WrappedIOType::SignedPercentage_4D
@@ -295,6 +325,7 @@ macro_rules! sensor_unit_functions {
         SignedPercentage_4D
     ) => {
         ::paste::paste! {
+            /*
             pub fn [<$snake_case_name _register>](
                 &mut self,
                 group: CorticalGroupIndex,
@@ -323,9 +354,11 @@ macro_rules! sensor_unit_functions {
                 self.register(SensoryCorticalUnit::$sensory_unit, group, encoder, default_pipeline, initial_val)?;
                 Ok(())
             }
+
+             */
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SignedPercentage4D);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SignedPercentage4D);
     };
 
     // Arm for WrappedIOType::SegmentedImageFrame
@@ -334,6 +367,7 @@ macro_rules! sensor_unit_functions {
         $snake_case_name:expr,
         SegmentedImageFrame
     ) => {
+        /*
         ::paste::paste! {
             pub fn [<$snake_case_name _register>](
                 &mut self,
@@ -360,8 +394,9 @@ macro_rules! sensor_unit_functions {
                 Ok(())
             }
         }
+         */
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SegmentedImageFrame);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SegmentedImageFrame);
     };
 
     // Arm for WrappedIOType::MiscData
@@ -371,6 +406,7 @@ macro_rules! sensor_unit_functions {
         MiscData
     ) => {
         ::paste::paste! {
+            /*
             pub fn [<$snake_case_name _register>](
                 &mut self,
                 group: CorticalGroupIndex,
@@ -393,9 +429,11 @@ macro_rules! sensor_unit_functions {
                 self.register(SensoryCorticalUnit::$sensory_unit, group, encoder, default_pipeline, initial_val)?;
                 Ok(())
             }
+
+             */
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, MiscData);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, MiscData);
     };
 
 
@@ -406,6 +444,7 @@ macro_rules! sensor_unit_functions {
         ImageFrame
     ) => {
         ::paste::paste! {
+            /*
             pub fn [<$snake_case_name _register>](
                 &mut self,
                 group: CorticalGroupIndex,
@@ -421,9 +460,11 @@ macro_rules! sensor_unit_functions {
                 self.register(SensoryCorticalUnit::$sensory_unit, group, encoder, Vec::new(), initial_val)?;
                 Ok(())
             }
+
+             */
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, ImageFrame);
+        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, ImageFrame);
     };
 }
 
@@ -437,11 +478,9 @@ impl PyConnectorAgent {
     fn get_motor_cache(&self) -> MutexGuard<MotorDeviceCache> {
         self.inner.get_motor_cache()
     }
-
-    fn test(&self) {
-        let a = self.get_sensor_cache();
-    }
 }
+
+pymethod_block!();
 
 
 
