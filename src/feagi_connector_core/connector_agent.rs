@@ -16,6 +16,7 @@ use crate::{create_pyclass_no_clone, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{PyPipelineStageProperties};
+use crate::feagi_connector_core::wrapped_io_data::{py_any_to_wrapped_io_data, wrapped_io_data_to_py_object};
 use crate::feagi_data_serialization::PyFeagiByteContainer;
 
 
@@ -67,117 +68,159 @@ macro_rules! sensor_unit_functions {
     ) => {
         ::paste::paste! {
 
-            /*
-            pub fn [<$snake_case_name _write>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel: CorticalChannelIndex,
-                data: WrappedIOData,
-            ) -> Result<(), FeagiDataError>
-            {
-                const SENSOR_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                let instant = Instant::now();
+            #[pymethods]
+            impl PyConnectorAgent {
 
-                self.try_update_value(SENSOR_TYPE, group, channel, data, instant)?;
-                Ok(())
-            }
+                pub fn [sensor_ <$snake_case_name _write>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    data: &Bound<'py, PyAny>,
+                ) -> PyResult<()> {
 
-            pub fn [<$snake_case_name _read_postprocessed_cache_value>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel: CorticalChannelIndex,
-            ) -> Result< $wrapped_data_type, FeagiDataError> {
 
-                const SENSOR_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                let wrapped = self.try_read_postprocessed_cached_value(SENSOR_TYPE, group, channel)?;
-                let val: $wrapped_data_type = wrapped.try_into()?;
-                Ok(val)
-            }
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let data: WrappedIOData = py_any_to_wrapped_io_data(py, data).map_err(PyFeagiError::from)?;
 
-            pub fn [<$snake_case_name _get_single_stage_properties>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex,
-                stage_index: PipelineStagePropertyIndex
-            ) -> Result<Box<dyn PipelineStageProperties + Sync + Send>, FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                let stage = self.try_get_single_stage_properties(SENSOR_UNIT_TYPE, group, channel_index, stage_index)?;
-                Ok(stage)
-            }
+                    self.get_sensor_cache().[<$snake_case_name _write>](group, channel_index, data).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
 
-            pub fn [<$snake_case_name _get_all_stage_properties>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex
-            ) -> Result<Vec<Box<dyn PipelineStageProperties + Sync + Send>>, FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                let stages = self.try_get_all_stage_properties(SENSOR_UNIT_TYPE, group, channel_index)?;
-                Ok(stages)
-            }
+                /*
 
-            pub fn [<$snake_case_name _update_single_stage_properties>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex,
-                pipeline_stage_property_index: PipelineStagePropertyIndex,
-                updating_property: Box<dyn PipelineStageProperties + Sync + Send>
-            ) -> Result<(), FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                self.try_update_single_stage_properties(SENSOR_UNIT_TYPE, group, channel_index, pipeline_stage_property_index, updating_property)?;
-                Ok(())
-            }
+                pub fn [sensor_ <$snake_case_name _read_postprocessed_cache_value>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                ) -> PyResult<Py<PyAny>> {
 
-            pub fn [<$snake_case_name _update_all_stage_properties>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex,
-                updated_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
-            ) -> Result<(), FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                self.try_update_all_stage_properties(SENSOR_UNIT_TYPE, group, channel_index, updated_pipeline_stage_properties)?;
-                Ok(())
-            }
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
 
-            pub fn [<$snake_case_name _replace_single_stage>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex,
-                pipeline_stage_property_index: PipelineStagePropertyIndex,
-                replacing_property: Box<dyn PipelineStageProperties + Sync + Send>
-            ) -> Result<(), FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                self.try_replace_single_stage(SENSOR_UNIT_TYPE, group, channel_index, pipeline_stage_property_index, replacing_property)?;
-                Ok(())
-            }
+                    let wrapped_data = self.get_sensor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
+                    wrapped_io_data_to_py_object(wrapped_data)
+                }
 
-            pub fn [<$snake_case_name _replace_all_stages>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex,
-                new_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
-            ) -> Result<(), FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                self.try_replace_all_stages(SENSOR_UNIT_TYPE, group, channel_index, new_pipeline_stage_properties)?;
-                Ok(())
-            }
+                pub fn [sensor_ <$snake_case_name _get_single_stage_properties>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    pipeline_stage_property_index: u32
+                ) -> PyResult<PyObject>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
-            pub fn [<$snake_case_name _removing_all_stages>](
-                &mut self,
-                group: CorticalGroupIndex,
-                channel_index: CorticalChannelIndex
-            ) -> Result<(), FeagiDataError>
-            {
-                const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                self.try_removing_all_stages(SENSOR_UNIT_TYPE, group, channel_index)?;
-                Ok(())
-            }
-             */
+                    let boxed_stage = self.get_sensor_cache().[<$snake_case_name _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
+                    PyPipelineStageProperties::boxed_to_py(boxed_stage);
+                }
+
+                pub fn [sensor_ <$snake_case_name _get_all_stage_properties>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                ) -> Result<Vec<Box<dyn PipelineStageProperties + Sync + Send>>, FeagiDataError>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+
+                    let boxed_stages = self.get_sensor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
+
+                    let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len()); // TODO we need a cleaner implementation
+                    for boxed_stage in boxed_stages {{
+                        output.push(boxed_stage.into());
+                    }}
+                    Ok(output)
+                }
+
+                pub fn [sensor_ <$snake_case_name _update_single_stage_properties>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    pipeline_stage_property_index: u32,
+                    updating_property: PyObject // TODO this needs to be updated
+                ) -> Result<(), FeagiDataError>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
+                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, updating_property).map_err(PyFeagiError::from)?;
+
+                    self.get_sensor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+                */
+
+                /*
+
+                pub fn [sensor_ <$snake_case_name _update_all_stage_properties>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    updated_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
+                ) -> Result<(), FeagiDataError>
+                {
+                    const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
+                    self.try_update_all_stage_properties(SENSOR_UNIT_TYPE, group, channel_index, updated_pipeline_stage_properties)?;
+                    Ok(())
+                }
+
+
+
+                pub fn [sensor_ <$snake_case_name _replace_single_stage>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: CorticalChannelIndex,
+                    pipeline_stage_property_index: PipelineStagePropertyIndex,
+                    replacing_property: Box<dyn PipelineStageProperties + Sync + Send>
+                ) -> Result<(), FeagiDataError>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
+                    let replacing_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, replacing_property).map_err(PyFeagiError::from)?;
+
+                    const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
+                    self.try_replace_single_stage(SENSOR_UNIT_TYPE, group, channel_index, pipeline_stage_property_index, replacing_property)?;
+                    Ok(())
+                }
+
+                pub fn [sensor_ <$snake_case_name _replace_all_stages>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: CorticalChannelIndex,
+                    new_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
+                ) -> Result<(), FeagiDataError>
+                {
+                    const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
+                    self.try_replace_all_stages(SENSOR_UNIT_TYPE, group, channel_index, new_pipeline_stage_properties)?;
+                    Ok(())
+                }
+
+                pub fn [sensor_ <$snake_case_name _removing_all_stages>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: CorticalChannelIndex
+                ) -> Result<(), FeagiDataError>
+                {
+                    const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
+                    self.try_removing_all_stages(SENSOR_UNIT_TYPE, group, channel_index)?;
+                    Ok(())
+                }
+
+                 */
+             }
         }
     };
     //endregion
@@ -213,7 +256,7 @@ macro_rules! sensor_unit_functions {
 
         }
 
-        //sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, bool);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, bool);
     };
 
     // Arm for WrappedIOType::Percentage

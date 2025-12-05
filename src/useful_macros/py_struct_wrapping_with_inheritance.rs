@@ -26,6 +26,29 @@ macro_rules! create_trait_parent_pyclass {
     };
 }
 
+#[macro_export]
+macro_rules! create_trait_parent_with_box_pyclass {
+    ($parent_class_name_in_python:ident, $parent_class_name_in_python_str:expr, $py_class_parent_name_in_rust:ident) => {
+
+        #[pyo3::pyclass(str, subclass)]
+        #[pyo3(name = $parent_class_name_in_python)]
+        #[derive(Debug, Clone)]
+        pub struct $py_class_parent_name_in_rust {}
+
+        impl $py_class_parent_name_in_rust {
+            pub(crate) fn new_blank_parent() -> Self {
+                $py_class_parent_name_in_rust {}
+            }
+        }
+
+        impl std::fmt::Display for $py_class_parent_name_in_rust {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+                write!(f, "{}", $parent_class_name_in_python)
+            }
+        }
+    };
+}
+
 
 /// Creates a child class for python, with a parent defined by create_trait_parent_pyclass.
 /// Has private method python_new_child_constructor that creates a tuple of (child_py_struct, parent_py_struct)

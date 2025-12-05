@@ -4,8 +4,11 @@ use feagi_connector_core::data_pipeline::PipelineStageProperties;
 use feagi_connector_core::data_pipeline::stage_properties::{IdentityStageProperties, ImageQuickDiffStageProperties, ImageSegmentorStageProperties};
 use feagi_data_structures::FeagiDataError;
 use pyo3::exceptions::PyValueError;
+use crate::create_trait_parent_pyclass;
 use crate::feagi_connector_core::data_pipeline::stage_properties::{PyIdentityStageProperties, PyImageQuickDiffStageProperties, PyImageSegmentorStageProperties};
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
+
+// TODO we need to update this file!
 
 #[pyclass(subclass)]
 #[derive(Debug)]

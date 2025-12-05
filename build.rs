@@ -6,7 +6,8 @@ use feagi_data_structures::motor_cortical_units;
 fn main() {
     println!("cargo:rerun-if-changed=feagi_data_processing.pyi.template");
     println!("cargo:rerun-if-changed=src/feagi_connector_core/connector_agent.rs");
-    
+    return;
+
     let template_path = "feagi_data_processing.pyi.template";
     let pyi_output_path = "feagi_data_processing.pyi";
 

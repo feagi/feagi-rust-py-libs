@@ -64,7 +64,7 @@ pub fn wrapped_io_data_to_py_object(py: Python, wrapped_iodata: WrappedIOData) -
     }
 }
 
-pub fn py_any_to_wrapped_io_data<'py>(py: Python<'_>, py_wrapped: &Bound<'py, PyAny>) -> Result<WrappedIOData, FeagiDataError> {
+pub fn py_any_to_wrapped_io_data<'py>(_py: Python<'_>, py_wrapped: &Bound<'py, PyAny>) -> Result<WrappedIOData, FeagiDataError> {
 
     // Yes this is an if else chain. But this is the way the docs suggested for best performance https://pyo3.rs/main/performance.html#extract-versus-cast
     // Other ideas are welcome
