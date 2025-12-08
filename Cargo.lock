@@ -397,6 +397,7 @@ dependencies = [
  "paste",
  "rayon",
  "serde",
+ "tracing",
 ]
 
 [[package]]

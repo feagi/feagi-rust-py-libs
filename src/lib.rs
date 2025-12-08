@@ -12,6 +12,7 @@ mod feagi_connector_core;
 
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+use crate::feagi_connector_core::data_types::PyGazeProperties;
 
 fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
     match parent.getattr(submodule_name) {
@@ -108,7 +109,6 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyImageFrame);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySegmentedImageFrame);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyMiscData);
-    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGazeProperties);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage2D);
@@ -130,6 +130,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PySegmentedImageFrameProperties);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyCornerPoints);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMiscDataDimensions);
+    // PyGazeProperties is in data_types module, not descriptors - register at descriptors path using imported type
+    add_python_class!(py, m, "connector_core.data_types.descriptors", PyGazeProperties);
     
     //Wrapped IO Data
     add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
@@ -140,6 +142,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
     add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
+    
+    // Register init_rust_logging function
+    m.add_function(pyo3::wrap_pyfunction!(feagi_connector_core::init_rust_logging, m)?)?;
 
 
     //endregion
