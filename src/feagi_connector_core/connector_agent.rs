@@ -944,33 +944,19 @@ impl PyConnectorAgent {
     /// sensor data and before sending to FEAGI.
     pub fn sensors_encode_cached_data_to_bytes(&mut self) -> PyResult<()> {
         use std::time::Instant;
-        use tracing::info;
 
-        let t_total_start = Instant::now();
         let mut sensor_cache = self.get_sensor_cache();
         
         // Get current time for burst
         let time_of_burst = Instant::now();
         
         // Encode all sensors to neurons
-        let t_encode_neurons_start = Instant::now();
         sensor_cache.encode_all_sensors_to_neurons(time_of_burst)
             .map_err(PyFeagiError::from)?;
-        let t_encode_neurons = t_encode_neurons_start.elapsed();
         
         // Encode neurons to bytes
-        let t_encode_bytes_start = Instant::now();
         sensor_cache.encode_neurons_to_bytes()
             .map_err(PyFeagiError::from)?;
-        let t_encode_bytes = t_encode_bytes_start.elapsed();
-        
-        let t_total = t_total_start.elapsed();
-        info!(
-            "⏱️ [PERF-PY-BINDING] sensors_encode_cached_data_to_bytes: total={:.2}ms | encode_neurons={:.2}ms | encode_bytes={:.2}ms",
-            t_total.as_secs_f64() * 1000.0,
-            t_encode_neurons.as_secs_f64() * 1000.0,
-            t_encode_bytes.as_secs_f64() * 1000.0
-        );
         
         Ok(())
     }
