@@ -16,7 +16,7 @@ use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::F
 use crate::{create_pyclass_no_clone, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data_types::descriptors::*;
-use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::{PyPipelineStageProperties};
+use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::*;
 use crate::feagi_connector_core::wrapped_io_data::{py_any_to_wrapped_io_data, wrapped_io_data_to_py_object};
 use crate::feagi_data_serialization::PyFeagiByteContainer;
@@ -144,27 +144,27 @@ macro_rules! sensor_unit_functions {
 
                  */
 
-                /*
-
                 pub fn [<sensor_ $snake_case_name _update_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     pipeline_stage_property_index: u32,
-                    updating_property: PyObject // TODO this needs to be updated
-                ) -> Result<(), FeagiDataError>
+                    updating_property: &Bound<'_, PyAny>
+                ) -> PyResult<()>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
-                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, updating_property).map_err(PyFeagiError::from)?;
+                    
+                    // Extract PipelineStageProperties from Python object
+                    // The Python object should be a PyPipelineStageProperties or subclass
+                    let py_props: PyPipelineStageProperties = updating_property.extract()?;
+                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = py_props.into();
 
                     self.get_sensor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
-
-                 */
 
                 /*
 
