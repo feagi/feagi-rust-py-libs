@@ -1,6 +1,7 @@
 use feagi_data_structures::genomic::cortical_area::descriptors::{CorticalChannelIndex, CorticalGroupIndex};
 use feagi_data_structures::genomic::cortical_area::descriptors::CorticalChannelCount;
 use std::sync::MutexGuard;
+use std::time::Instant;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::{motor_cortical_units, sensor_cortical_units, FeagiDataError};
@@ -13,6 +14,7 @@ use feagi_connector_core::data_types::*;
 use feagi_connector_core::data_types::descriptors::*;
 use feagi_connector_core::wrapped_io_data::WrappedIOData;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::FrameChangeHandling;
+use pyo3::types::{PyByteArray, PyBytes};
 use crate::{create_pyclass_no_clone, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data_types::descriptors::*;
@@ -906,14 +908,14 @@ impl PyConnectorAgent {
 pub fn init_rust_logging() {
     use std::sync::OnceLock;
     static INIT: OnceLock<()> = OnceLock::new();
-    
+
     INIT.get_or_init(|| {
         use tracing_subscriber::{fmt, EnvFilter};
-        
+
         // Default to INFO level if RUST_LOG not set
         let filter = EnvFilter::try_from_default_env()
             .unwrap_or_else(|_| EnvFilter::new("info"));
-        
+
         fmt()
             .with_env_filter(filter)
             .with_target(false)
@@ -937,7 +939,7 @@ impl PyConnectorAgent {
     /// Encodes all sensor data that has been written to cache into neuron voxel format
     /// and then serializes to FeagiByteContainer. This should be called after writing
     /// sensor data and before sending to FEAGI.
-    pub fn sensors_encode_cached_data_to_bytes(&mut self) -> PyResult<()> {
+    pub fn sensors_encode_cached_sensor_data_to_bytes(&mut self) -> PyResult<()> {
         use std::time::Instant;
 
         let mut sensor_cache = self.get_sensor_cache();
@@ -956,48 +958,70 @@ impl PyConnectorAgent {
         Ok(())
     }
 
-    /// Get the encoded sensor byte container
-    /// 
-    /// Returns the FeagiByteContainer after encoding. Call sensors_encode_cached_data_to_bytes()
-    /// first to encode the data.
-    pub fn sensor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
-        use crate::feagi_data_serialization::PyFeagiByteContainer;
-        
-        let sensor_cache = self.get_sensor_cache();
-        let byte_container = sensor_cache.get_feagi_byte_container();
-        
-        // Convert to PyFeagiByteContainer (clone the inner FeagiByteContainer)
-        // PyFeagiByteContainer has pub(crate) inner field, so we can create it directly
-        Ok(PyFeagiByteContainer {
-            inner: byte_container.clone()
-        })
+    /// Can take in a BytesArray (faster) or Bytes. Loads into rust memory and ensures the structure is sound.
+    pub fn motors_load_in_bytes_and_verify(&mut self, py: Python<'_>, obj: &Bound<PyAny>) -> PyResult<()> {
+        if let Ok(bytes) = Bound::cast::<PyByteArray>(obj) {
+            let byte_data = bytes.to_vec();
+            let mut motor_cache = self.get_motor_cache();
+            let mut byte_container = motor_cache.get_feagi_byte_container_mut();;
+            byte_container.try_write_data_by_ownership_to_container_and_verify(byte_data).map_err(PyFeagiError::from)?;
+        }
+        else if let Ok(bytes) = Bound::cast::<PyBytes>(obj) {
+            let byte_data = bytes.extract::<&[u8]>()?;
+            let mut motor_cache = self.get_motor_cache();
+            let mut byte_container = motor_cache.get_feagi_byte_container_mut();;
+            byte_container.try_write_data_by_copy_and_verify(byte_data).map_err(PyFeagiError::from)?;
+        }
+        Err(FeagiDataError::BadParameters("Expected preferably a ByteArray or Bytes!".into())).map_err(PyFeagiError::from)?
     }
 
-    /// Encode all cached motor data to bytes
-    /// 
-    /// NOTE: Motors typically decode data FROM FEAGI, not encode TO FEAGI.
-    /// This method is deprecated as motors don't have encode methods.
-    pub fn motors_encode_cached_data_to_bytes(&mut self) -> PyResult<()> {
-        // Motors decode from FEAGI, they don't encode to FEAGI
-        // This method is kept for API compatibility but does nothing
+    pub fn motors_decode_cached_byte_data_to_motor(&mut self) -> PyResult<()> {
+        let mut motor_cache = self.get_motor_cache();
+        motor_cache.try_decode_bytes_to_neural_data().map_err(PyFeagiError::from)?;
+        motor_cache.try_decode_neural_data_into_cache(Instant::now()).map_err(PyFeagiError::from)?;
         Ok(())
     }
 
-    /// Get the encoded motor byte container
-    /// 
-    /// Returns the FeagiByteContainer after encoding. Call motors_encode_cached_data_to_bytes()
-    /// first to encode the data.
-    pub fn motor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
-        use crate::feagi_data_serialization::PyFeagiByteContainer;
-        
-        let motor_cache = self.get_motor_cache();
-        let byte_container = motor_cache.get_feagi_byte_container();
-        
-        // Convert to PyFeagiByteContainer
-        Ok(PyFeagiByteContainer {
-            inner: byte_container.clone()
-        })
-    }
+
+    // While technically possible, we are going to discourage grabbing the FeagiByteContainer directly and
+    // instead push to use the above methods to access the byte data, as they make use of
+    // internal optimizations
+    /*
+/// Get the encoded sensor byte container
+///
+/// Returns the FeagiByteContainer after encoding. Call sensors_encode_cached_data_to_bytes()
+/// first to encode the data.
+pub fn sensor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
+    use crate::feagi_data_serialization::PyFeagiByteContainer;
+
+    let sensor_cache = self.get_sensor_cache();
+    let byte_container = sensor_cache.get_feagi_byte_container();
+
+    // Convert to PyFeagiByteContainer (clone the inner FeagiByteContainer)
+    // PyFeagiByteContainer has pub(crate) inner field, so we can create it directly
+    Ok(PyFeagiByteContainer {
+        inner: byte_container.clone()
+    })
+
+        /// Get the encoded motor byte container
+///
+/// Returns the FeagiByteContainer after encoding. Call motors_encode_cached_data_to_bytes()
+/// first to encode the data.
+pub fn motor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
+    use crate::feagi_data_serialization::PyFeagiByteContainer;
+
+    let motor_cache = self.get_motor_cache();
+    let byte_container = motor_cache.get_feagi_byte_container();
+
+    // Convert to PyFeagiByteContainer
+    Ok(PyFeagiByteContainer {
+        inner: byte_container.clone()
+    })
+}
+}
+
+ */
+
 }
 
 sensor_cortical_units!(sensor_unit_functions);

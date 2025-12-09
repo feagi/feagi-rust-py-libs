@@ -1,9 +1,11 @@
- pub mod descriptors;
  mod image_frame;
  mod segmented_image_frame;
  mod misc_data;
  mod percentages;
  mod gaze_properties;
+
+ pub mod descriptors;
+ pub mod processing;
 
  pub use image_frame::PyImageFrame;
  pub use segmented_image_frame::PySegmentedImageFrame;

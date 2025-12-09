@@ -12,7 +12,6 @@ mod feagi_connector_core;
 
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use crate::feagi_connector_core::data_types::PyGazeProperties;
 
 fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
     match parent.getattr(submodule_name) {
@@ -88,12 +87,6 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
     add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
 
-    // Processing
-    // TODO should even have this module?
-
-    //endregion
-
-    
     
     //region Feagi Data Serialization
     add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
@@ -117,6 +110,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage3D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage4D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage4D);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::PyGazeProperties);
 
     // Data Descriptors
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYPoint);
@@ -130,16 +124,15 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PySegmentedImageFrameProperties);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyCornerPoints);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMiscDataDimensions);
-    // PyGazeProperties is in data_types module, not descriptors - register at descriptors path using imported type
-    add_python_class!(py, m, "connector_core.data_types.descriptors", PyGazeProperties);
     
     //Wrapped IO Data
     add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 
    // Data Pipeline Stage Properties
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageSegmentorStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageFrameSegmentatorStageProperties);
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImagePixelValueCountThresholdStageProperties);
     add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
     
     // Register init_rust_logging function
