@@ -161,7 +161,7 @@ macro_rules! create_trait_child_with_box_pyclass {
 
         impl $py_class_name_in_rust {
             /// You MUST use this for the new constructor, and ONLY for that usecase!. Your "new" must use this and return (PyChild, PyParent)
-            fn python_new_child_constructor(boxed_data: Box<dyn $boxed_rust_type + Send + Sync>) -> (Self, $parent_pyclass_in_rust) {
+            pub(crate) fn python_new_child_constructor(boxed_data: Box<dyn $boxed_rust_type + Send + Sync>) -> (Self, $parent_pyclass_in_rust) {
                 ($py_class_name_in_rust {}, $parent_pyclass_in_rust::new_parent(boxed_data))
             }
         }

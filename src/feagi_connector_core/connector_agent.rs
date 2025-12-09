@@ -103,30 +103,31 @@ macro_rules! sensor_unit_functions {
                     Ok(expected_data.into())
                 }
 
-                /*
+
                 pub fn [<sensor_ $snake_case_name _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     pipeline_stage_property_index: u32
-                ) -> PyResult<PyObject>
+                ) -> PyResult<Py<PyAny>>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
                     let boxed_stage = self.get_sensor_cache().[<$snake_case_name _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
+
+
                     PyPipelineStageProperties::boxed_to_py(boxed_stage);
                 }
-
 
                 pub fn [<sensor_ $snake_case_name _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
-                ) -> Result<Vec<Box<dyn PipelineStageProperties + Sync + Send>>, FeagiDataError>
+                ) -> PyResult<Vec<Box<dyn PipelineStageProperties + Sync + Send>>>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
@@ -140,7 +141,6 @@ macro_rules! sensor_unit_functions {
                     Ok(output)
                 }
 
-                 */
 
                 pub fn [<sensor_ $snake_case_name _update_single_stage_properties>](
                     &mut self,
