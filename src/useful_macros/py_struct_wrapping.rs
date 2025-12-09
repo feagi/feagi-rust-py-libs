@@ -17,6 +17,12 @@ macro_rules! create_pyclass {
 
         __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
 
+        impl From<&$rust_name> for $py_wrapped_name {
+            fn from(reference: &$rust_name) -> Self {
+                $py_wrapped_name { inner: reference.clone() }
+            }
+        }
+
         impl $py_wrapped_name {
             pub fn copy_out_from_bound(bounded: &pyo3::Bound< $py_wrapped_name>) -> $rust_name { // needs clone
                 bounded.borrow().inner.clone()
@@ -38,6 +44,12 @@ macro_rules! create_pyclass_with_equal {
             pub inner: $rust_name,
         }
 
+        impl From<&$rust_name> for $py_wrapped_name {
+            fn from(inner: &$rust_name) -> Self {
+                $py_wrapped_name { inner.clone() }
+            }
+        }
+
          __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);
     };
 }
@@ -52,6 +64,12 @@ macro_rules! create_pyclass_with_hash {
         #[derive(Debug, Clone)]
         pub struct $py_wrapped_name {
             pub inner: $rust_name,
+        }
+
+        impl From<&$rust_name> for $py_wrapped_name {
+            fn from(inner: &$rust_name) -> Self {
+                $py_wrapped_name { inner.clone() }
+            }
         }
 
          __base_py_class_shared!($py_wrapped_name, $rust_name, $py_name);

@@ -168,6 +168,9 @@ macro_rules! create_trait_child_with_box_pyclass {
 
 
         impl $py_class_name_in_rust {
+
+            // To use the following functions, call them from a a pymethods block with input "slf: PyRef<Self>" and in the format of "Self::get_parent_box(&slf)"
+
             fn get_parent_box<'a>(slf: &'a PyRef<'_, Self>) -> &'a Box<dyn $boxed_rust_type + Send + Sync> {
                 let parent: &$parent_pyclass_in_rust = slf.as_ref();
                 &parent.inner

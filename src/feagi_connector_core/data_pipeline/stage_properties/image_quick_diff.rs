@@ -10,6 +10,7 @@ use feagi_data_structures::FeagiDataError;
 use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties;
 use crate::feagi_connector_core::data_types::PyPercentage;
+use crate::py_error::PyFeagiError;
 
 create_trait_child_with_box_pyclass!(PyPipelineStageProperties, PyImageQuickDiffStageProperties, "ImageQuickDiffStageProperties", PipelineStageProperties, ImageQuickDiffStageProperties);
 
@@ -23,36 +24,40 @@ impl PyImageQuickDiffStageProperties {
         let quick_diff_stage_properties = ImageQuickDiffStageProperties::new_box(per_pixel_allowed_range, acceptable_image_activity, image_properties);
         Ok(Self::python_new_child_constructor(quick_diff_stage_properties))
     }
-}
-
-impl PyImageQuickDiffStageProperties {
     
-    fn test<'a>(slf: &'a PyRef<'_, Self>) {
-        let a = Self::get_parent_box()
-    }
-    
-    /*
-    fn get_parent_box<'a>(slf: &'a PyRef<'_, Self>) -> &'a Box<dyn PipelineStageProperties + Send + Sync> {
-        let parent: &PyPipelineStageProperties = slf.as_ref();
-        &parent.inner
+    #[getter]
+    pub fn get_per_pixel_range(slf: PyRef<Self>) -> PyResult<(u8, u8)> {
+        let parent = Self::get_ref(&slf).map_err(PyFeagiError::from)?;
+        Ok((*parent.per_pixel_allowed_range.start(), *parent.per_pixel_allowed_range.end()))
     }
 
-    fn get_parent_box_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> &'a mut Box<dyn PipelineStageProperties + Send + Sync> {
-        let parent: &mut PyPipelineStageProperties = slf.as_mut();
-        &mut parent.inner
+    #[getter]
+    pub fn get_acceptable_amount_of_activity_in_image(slf: PyRef<Self>) -> PyResult<(PyPercentage, PyPercentage)> {
+        let parent = Self::get_ref(&slf).map_err(PyFeagiError::from)?;
+        Ok((parent.acceptable_amount_of_activity_in_image.start().into(), parent.acceptable_amount_of_activity_in_image.end().into()))
     }
 
-    fn get_ref<'a>(slf: &'a PyRef<'_, Self>) -> Result<&'a ImageQuickDiffStageProperties, FeagiDataError> {
-        let parent_box = Self::get_parent_box(slf);
-        parent_box.as_any().downcast_ref::<ImageQuickDiffStageProperties>()
-            
+    #[setter]
+    pub fn set_per_pixel_range(mut slf: PyRefMut<Self>, range: (u8, u8)) -> PyResult<()> {
+
+        if range.0 >= range.1 {
+            Err(FeagiDataError::BadParameters("The first (min) parameter of the pixel range must be smaller than the second (max) parameter!".into())).map_err(PyFeagiError::from)?;
+        }
+        let parent = Self::get_ref_mut(&mut slf).map_err(PyFeagiError::from)?;
+        parent.per_pixel_allowed_range = RangeInclusive::new(range.0, range.1);
+
+        Ok(())
     }
 
-    fn get_ref_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> Result<&'a mut ImageQuickDiffStageProperties, FeagiDataError> {
-        let parent_box = Self::get_parent_box_mut(slf);
-        parent_box.as_any_mut().downcast_mut::<ImageQuickDiffStageProperties>()
-            .ok_or_else(|| FeagiDataError::InternalError("Type mismatch: expected ImageQuickDiffStageProperties".into()))
+    #[setter]
+    pub fn set_acceptable_amount_of_activity_in_image(mut slf: PyRefMut<Self>, range: (PyPercentage, PyPercentage)) -> PyResult<()> {
+        if range.0.get_as_0_1() >= range.1.get_as_0_1() {
+            Err(FeagiDataError::BadParameters("The first (min) parameter of the acceptable image activity must be smaller than the second (max) parameter!".into())).map_err(PyFeagiError::from)?;
+        }
+        let parent = Self::get_ref_mut(&mut slf).map_err(PyFeagiError::from)?;
+        parent.acceptable_amount_of_activity_in_image = RangeInclusive::new(range.0.inner, range.1.inner);
+        Ok(())
     }
-    
-     */
+
+
 }
