@@ -1,16 +1,17 @@
 use std::ops::RangeInclusive;
 use feagi_connector_core::data_pipeline::PipelineStageProperties;
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods, PyResult, PyRef, PyRefMut};
 use pyo3::prelude::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use feagi_connector_core::data_pipeline::stage_properties::ImageQuickDiffStageProperties;
 use feagi_connector_core::data_types::descriptors::ImageFrameProperties;
 use feagi_connector_core::data_types::Percentage;
+use feagi_data_structures::FeagiDataError;
 use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties;
 use crate::feagi_connector_core::data_types::PyPercentage;
 
-create_trait_child_with_box_pyclass!(PyPipelineStageProperties, PyImageQuickDiffStageProperties, "ImageQuickDiffStageProperties", PipelineStageProperties);
+create_trait_child_with_box_pyclass!(PyPipelineStageProperties, PyImageQuickDiffStageProperties, "ImageQuickDiffStageProperties", PipelineStageProperties, ImageQuickDiffStageProperties);
 
 #[pymethods]
 impl PyImageQuickDiffStageProperties {
@@ -25,18 +26,33 @@ impl PyImageQuickDiffStageProperties {
 }
 
 impl PyImageQuickDiffStageProperties {
-    fn get_parent_box<'a>(self) -> &'a Box<dyn PipelineStageProperties + Send + Sync> {
-        todo!()
-    }
-
-    fn get_parent_box_mut<'a>(self) -> &'a mut Box<dyn PipelineStageProperties + Send + Sync> {
-        todo!()
-    }
-
-    fn get_ref<'a>(self) -> &'a ImageQuickDiffStageProperties {
-        let parent_box = self.get_parent_box();
-        parent_box.as_any()
+    
+    fn test<'a>(slf: &'a PyRef<'_, Self>) {
+        let a = Self::get_parent_box()
     }
     
+    /*
+    fn get_parent_box<'a>(slf: &'a PyRef<'_, Self>) -> &'a Box<dyn PipelineStageProperties + Send + Sync> {
+        let parent: &PyPipelineStageProperties = slf.as_ref();
+        &parent.inner
+    }
 
+    fn get_parent_box_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> &'a mut Box<dyn PipelineStageProperties + Send + Sync> {
+        let parent: &mut PyPipelineStageProperties = slf.as_mut();
+        &mut parent.inner
+    }
+
+    fn get_ref<'a>(slf: &'a PyRef<'_, Self>) -> Result<&'a ImageQuickDiffStageProperties, FeagiDataError> {
+        let parent_box = Self::get_parent_box(slf);
+        parent_box.as_any().downcast_ref::<ImageQuickDiffStageProperties>()
+            
+    }
+
+    fn get_ref_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> Result<&'a mut ImageQuickDiffStageProperties, FeagiDataError> {
+        let parent_box = Self::get_parent_box_mut(slf);
+        parent_box.as_any_mut().downcast_mut::<ImageQuickDiffStageProperties>()
+            .ok_or_else(|| FeagiDataError::InternalError("Type mismatch: expected ImageQuickDiffStageProperties".into()))
+    }
+    
+     */
 }

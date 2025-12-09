@@ -1,4 +1,5 @@
 use feagi_data_structures::FeagiDataError;
+use pyo3::pymethods;
 
 /// These implementations do not need the parent to store a shared state in a box (child st
 //region No Box (Child stores data)
@@ -142,7 +143,7 @@ macro_rules! create_trait_parent_with_box_pyclass {
 
 #[macro_export]
 macro_rules! create_trait_child_with_box_pyclass {
-    ($parent_pyclass_in_rust:ident, $py_class_name_in_rust:ident, $class_name_in_python_str:expr, $boxed_rust_type:ident) => {
+    ($parent_pyclass_in_rust:ident, $py_class_name_in_rust:ident, $class_name_in_python_str:expr, $boxed_rust_type:ident, $rust_child_concrete_type:ident) => {
 
         #[pyo3::pyclass(str, extends=$parent_pyclass_in_rust)]
         #[derive(Debug, Clone)]
@@ -156,17 +157,40 @@ macro_rules! create_trait_child_with_box_pyclass {
             }
         }
 
-        // Into gets weird due to parenbt owning data. skipping for now
+        // Into gets weird due to parent owning data. skipping for now
+
         impl $py_class_name_in_rust {
             /// You MUST use this for the new constructor, and ONLY for that usecase!. Your "new" must use this and return (PyChild, PyParent)
             fn python_new_child_constructor(boxed_data: Box<dyn $boxed_rust_type + Send + Sync>) -> (Self, $parent_pyclass_in_rust) {
                 ($py_class_name_in_rust {}, $parent_pyclass_in_rust::new_parent(boxed_data))
             }
-
-
-
-
         }
+
+
+        impl $py_class_name_in_rust {
+            fn get_parent_box<'a>(slf: &'a PyRef<'_, Self>) -> &'a Box<dyn $boxed_rust_type + Send + Sync> {
+                let parent: &$parent_pyclass_in_rust = slf.as_ref();
+                &parent.inner
+            }
+
+            fn get_parent_box_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> &'a mut Box<dyn $boxed_rust_type + Send + Sync> {
+                let parent: &mut $parent_pyclass_in_rust = slf.as_mut();
+                &mut parent.inner
+            }
+
+            fn get_ref<'a>(slf: &'a PyRef<'_, Self>) -> Result<&'a $rust_child_concrete_type, FeagiDataError> {
+                let parent_box = Self::get_parent_box(slf);
+                parent_box.as_any().downcast_ref::<$rust_child_concrete_type>()
+                    .ok_or_else(|| FeagiDataError::InternalError("Type mismatch: expected unwrapped $py_class_name_in_rust".into()))
+            }
+
+            fn get_ref_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> Result<&'a mut $rust_child_concrete_type, FeagiDataError> {
+                let parent_box = Self::get_parent_box_mut(slf);
+                parent_box.as_any_mut().downcast_mut::<$rust_child_concrete_type>()
+                .ok_or_else(|| FeagiDataError::InternalError("Type mismatch: expected unwrapped $py_class_name_in_rust".into()))
+            }
+        }
+
 
     };
 }
