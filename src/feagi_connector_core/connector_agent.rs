@@ -511,7 +511,6 @@ macro_rules! motor_unit_functions {
             #[pymethods]
             impl PyConnectorAgent {
 
-
                 pub fn [<motor_ $snake_case_name _read_preprocessed_cache_value>](
                     &mut self,
                     py: Python<'_>,
@@ -540,107 +539,119 @@ macro_rules! motor_unit_functions {
                     Ok(expected_data.into())
                 }
 
-
-
-                /*
-                pub fn [<motor_ $snake_case_name _try_register_motor_callback>]<F>(
+                pub fn [<motor_ $snake_case_name _get_single_stage_properties>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex,
-                    callback: F
-                ) -> Result<FeagiSignalIndex, FeagiDataError>
-                where F: Fn(&WrappedIOData) + Send + Sync + 'static,
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    pipeline_stage_property_index: u32
+                ) -> PyResult<Py<PyPipelineStageProperties>>
                 {
-                    const MOTOR_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    let signal_index = self.try_register_motor_callback(MOTOR_TYPE, group, channel_index, callback)?;
-                    Ok(signal_index)
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
+
+                    let boxed_stage = self.get_motor_cache().[<$snake_case_name _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
+                    let py_stage = PyPipelineStageProperties::from_box_to_parent_typed(py, boxed_stage)?;
+                    Ok(py_stage)
                 }
 
-                pub fn [<$snake_case_name _get_single_stage_properties>](
+                pub fn [<motor_ $snake_case_name _get_all_stage_properties>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex,
-                    stage_index: PipelineStagePropertyIndex
-                ) -> Result<Box<dyn PipelineStageProperties + Sync + Send>, FeagiDataError>
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                ) -> PyResult<Vec<pyo3::Py<PyPipelineStageProperties>>>
                 {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    let stage = self.try_get_single_stage_properties(MOTOR_UNIT_TYPE, group, channel_index, stage_index)?;
-                    Ok(stage)
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+
+                    let boxed_stages = self.get_motor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
+                    PyPipelineStageProperties::from_vec_box_to_vec_parent_typed(py, boxed_stages)
                 }
 
-                pub fn [<$snake_case_name _get_all_stage_properties>](
+                pub fn [<motor_ $snake_case_name _update_single_stage_properties>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex
-                ) -> Result<Vec<Box<dyn PipelineStageProperties + Sync + Send>>, FeagiDataError>
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    pipeline_stage_property_index: u32,
+                    updating_property: Py<PyPipelineStageProperties>
+                ) -> PyResult<()>
                 {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    let stages = self.try_get_all_stage_properties(MOTOR_UNIT_TYPE, group, channel_index)?;
-                    Ok(stages)
-                }
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
+                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::from_py_to_box(py, &updating_property).map_err(PyFeagiError::from)?;
 
-                pub fn [<$snake_case_name _update_single_stage_properties>](
-                    &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex,
-                    pipeline_stage_property_index: PipelineStagePropertyIndex,
-                    updating_property: Box<dyn PipelineStageProperties + Sync + Send>
-                ) -> Result<(), FeagiDataError>
-                {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    self.try_update_single_stage_properties(MOTOR_UNIT_TYPE, group, channel_index, pipeline_stage_property_index, updating_property)?;
+                    self.get_motor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<$snake_case_name _update_all_stage_properties>](
+                pub fn [<motor_ $snake_case_name _update_all_stage_properties>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex,
-                    updated_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
-                ) -> Result<(), FeagiDataError>
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
+                ) -> PyResult<()>
                 {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    self.try_update_all_stage_properties(MOTOR_UNIT_TYPE, group, channel_index, updated_pipeline_stage_properties)?;
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec_box(py, &updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+
+                    self.get_motor_cache().[<$snake_case_name _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+
                     Ok(())
                 }
 
-                pub fn [<$snake_case_name _replace_single_stage>](
+                pub fn [<motor_ $snake_case_name _replace_single_stage>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex,
-                    pipeline_stage_property_index: PipelineStagePropertyIndex,
-                    replacing_property: Box<dyn PipelineStageProperties + Sync + Send>
-                ) -> Result<(), FeagiDataError>
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    pipeline_stage_property_index: u32,
+                    updating_property: Py<PyPipelineStageProperties>
+                ) -> PyResult<()>
                 {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    self.try_replace_single_stage(MOTOR_UNIT_TYPE, group, channel_index, pipeline_stage_property_index, replacing_property)?;
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
+                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::from_py_to_box(py, &updating_property).map_err(PyFeagiError::from)?;
+
+                    self.get_motor_cache().[<$snake_case_name _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<$snake_case_name _replace_all_stages>](
+                pub fn [<motor_ $snake_case_name _replace_all_stages>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex,
-                    new_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
-                ) -> Result<(), FeagiDataError>
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                    updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
+                ) -> PyResult<()>
                 {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    self.try_replace_all_stages(MOTOR_UNIT_TYPE, group, channel_index, new_pipeline_stage_properties)?;
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec_box(py, &updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+
+                    self.get_motor_cache().[<$snake_case_name _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<$snake_case_name _removing_all_stages>](
+                pub fn [<motor_ $snake_case_name _removing_all_stages>](
                     &mut self,
-                    group: CorticalGroupIndex,
-                    channel_index: CorticalChannelIndex
-                ) -> Result<(), FeagiDataError>
+                    py: Python<'_>,
+                    group: u8,
+                    channel_index: u32
+                ) -> PyResult<()>
                 {
-                    const MOTOR_UNIT_TYPE: MotorCorticalUnit = MotorCorticalUnit::$cortical_type_key_name;
-                    self.try_removing_all_stages(MOTOR_UNIT_TYPE, group, channel_index)?;
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    self.get_motor_cache().[<$snake_case_name _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                 */
             }
         }
     };
@@ -652,42 +663,32 @@ macro_rules! motor_unit_functions {
         $snake_case_name:expr,
         GazeProperties
     ) => {
-        /*
         ::paste::paste! {
-            pub fn [<$snake_case_name _register>](
-                &mut self,
-                group: CorticalGroupIndex,
-                number_channels: CorticalChannelCount,
-                frame_change_handling: FrameChangeHandling,
-                eccentricity_z_neuron_resolution: NeuronDepth,
-                modulation_z_neuron_resolution: NeuronDepth,
-                percentage_neuron_positioning: PercentageNeuronPositioning
-                ) -> Result<(), FeagiDataError>
-            {
-                let eccentricity_cortical_id: CorticalID = MotorCorticalUnit::[<get_cortical_ids_array_for_ $snake_case_name >](frame_change_handling, percentage_neuron_positioning, group)[0];
-                let modularity_cortical_id: CorticalID = MotorCorticalUnit::[<get_cortical_ids_array_for_ $snake_case_name >](frame_change_handling, percentage_neuron_positioning, group)[1];
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $snake_case_name _register>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    eccentricity_z_neuron_resolution: u32,
+                    modulation_z_neuron_resolution: u32,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning
+                ) -> PyResult<()>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let eccentricity_z_neuron_resolution: NeuronDepth = eccentricity_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let modulation_z_neuron_resolution: NeuronDepth = modulation_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                let decoder: Box<dyn NeuronVoxelXYZPDecoder + Sync + Send> = {
-                    match percentage_neuron_positioning {
-                        PercentageNeuronPositioning::Linear => GazePropertiesLinearNeuronVoxelXYZPDecoder::new_box(eccentricity_cortical_id, modularity_cortical_id, eccentricity_z_neuron_resolution, modulation_z_neuron_resolution, number_channels)?,
-                        PercentageNeuronPositioning::Fractional => GazePropertiesExponentialNeuronVoxelXYZPDecoder::new_box(eccentricity_cortical_id, modularity_cortical_id, eccentricity_z_neuron_resolution, modulation_z_neuron_resolution, number_channels)?
-                    }
-                };
-
-                let initial_val: WrappedIOData = WrappedIOData::GazeProperties(GazeProperties::create_default_centered());
-                let default_pipeline: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = {
-                    let mut output: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = Vec::new();
-                    for _i in 0..*number_channels {
-                        output.push( Vec::new()) // TODO properly implement clone so we dont need to do this
-                    };
-                    output
-                };
-                self.register(MotorCorticalUnit::$motor_unit, group, decoder, default_pipeline, initial_val)?;
-                Ok(())
+                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, eccentricity_z_neuron_resolution, modulation_z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
             }
         }
-
-         */
 
         motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, GazeProperties);
 
@@ -699,42 +700,32 @@ macro_rules! motor_unit_functions {
         $snake_case_name:expr,
         Percentage
     ) => {
-        /*
         ::paste::paste! {
-            pub fn [<$snake_case_name _register>](
-                &mut self,
-                group: CorticalGroupIndex,
-                number_channels: CorticalChannelCount,
-                frame_change_handling: FrameChangeHandling,
-                z_neuron_resolution: NeuronDepth,
-                percentage_neuron_positioning: PercentageNeuronPositioning
-                ) -> Result<(), FeagiDataError>
-            {
-                let cortical_id: CorticalID = MotorCorticalUnit::[<get_cortical_ids_array_for_ $snake_case_name >](frame_change_handling, percentage_neuron_positioning, group)[0];
-                let decoder: Box<dyn NeuronVoxelXYZPDecoder + Sync + Send> = {
-                    match percentage_neuron_positioning { // TODO fix naming of exponential / fractional
-                        PercentageNeuronPositioning::Linear => PercentageLinearNeuronVoxelXYZPDecoder::new_box(cortical_id, z_neuron_resolution, number_channels)?,
-                        PercentageNeuronPositioning::Fractional => PercentageExponentialNeuronVoxelXYZPDecoder::new_box(cortical_id, z_neuron_resolution, number_channels)?,
-                    }
-                };
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $snake_case_name _register>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    z_neuron_resolution: u32,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning
+                ) -> PyResult<()>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                let initial_val: WrappedIOData = WrappedIOData::Percentage(Percentage::new_zero());
-                let default_pipeline: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = {
-                    let mut output: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = Vec::new();
-                    for _i in 0..*number_channels {
-                        output.push( Vec::new()) // TODO properly implement clone so we dont need to do this
-                    };
-                    output
-                };
-                self.register(MotorCorticalUnit::$motor_unit, group, decoder, default_pipeline, initial_val)?;
-                Ok(())
+                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
             }
         }
 
-         */
-
         motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, Percentage);
-
 
     };
 
@@ -744,39 +735,30 @@ macro_rules! motor_unit_functions {
         $snake_case_name:expr,
         Percentage_3D
     ) => {
-        /*
         ::paste::paste! {
-            pub fn [<$snake_case_name _register>](
-                &mut self,
-                group: CorticalGroupIndex,
-                number_channels: CorticalChannelCount,
-                frame_change_handling: FrameChangeHandling,
-                z_neuron_resolution: NeuronDepth,
-                percentage_neuron_positioning: PercentageNeuronPositioning
-                ) -> Result<(), FeagiDataError>
-            {
-                let cortical_id: CorticalID = MotorCorticalUnit::[<get_cortical_ids_array_for_ $snake_case_name >](frame_change_handling, percentage_neuron_positioning, group)[0];
-                let decoder: Box<dyn NeuronVoxelXYZPDecoder + Sync + Send> = {
-                    match percentage_neuron_positioning { // TODO fix naming of exponential / fractional
-                        PercentageNeuronPositioning::Linear => Percentage3DLinearNeuronVoxelXYZPDecoder::new_box(cortical_id, z_neuron_resolution, number_channels)?,
-                        PercentageNeuronPositioning::Fractional => Percentage3DExponentialNeuronVoxelXYZPDecoder::new_box(cortical_id, z_neuron_resolution, number_channels)?,
-                    }
-                };
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $snake_case_name _register>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    z_neuron_resolution: u32,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning
+                ) -> PyResult<()>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                let initial_val: WrappedIOData = WrappedIOData::Percentage_3D(Percentage3D::new_zero());
-                let default_pipeline: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = {
-                    let mut output: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = Vec::new();
-                    for _i in 0..*number_channels {
-                        output.push( Vec::new()) // TODO properly implement clone so we dont need to do this
-                    };
-                    output
-                };
-                self.register(MotorCorticalUnit::$motor_unit, group, decoder, default_pipeline, initial_val)?;
-                Ok(())
+                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
             }
         }
-
-         */
 
         motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, Percentage3D);
 
@@ -789,37 +771,28 @@ macro_rules! motor_unit_functions {
         SignedPercentage
     ) => {
         ::paste::paste! {
-            /*
-            pub fn [<$snake_case_name _register>](
-                &mut self,
-                group: CorticalGroupIndex,
-                number_channels: CorticalChannelCount,
-                frame_change_handling: FrameChangeHandling,
-                z_neuron_resolution: NeuronDepth,
-                percentage_neuron_positioning: PercentageNeuronPositioning
-                ) -> Result<(), FeagiDataError>
-            {
-                let cortical_id: CorticalID = MotorCorticalUnit::[<get_cortical_ids_array_for_ $snake_case_name >](frame_change_handling, percentage_neuron_positioning, group)[0];
-                let decoder: Box<dyn NeuronVoxelXYZPDecoder + Sync + Send> = {
-                    match percentage_neuron_positioning { // TODO fix naming of exponential / fractional
-                        PercentageNeuronPositioning::Linear => SignedPercentageLinearNeuronVoxelXYZPDecoder::new_box(cortical_id, z_neuron_resolution, number_channels)?,
-                        PercentageNeuronPositioning::Fractional => SignedPercentageExponentialNeuronVoxelXYZPDecoder::new_box(cortical_id, z_neuron_resolution, number_channels)?,
-                    }
-                };
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $snake_case_name _register>](
+                    &mut self,
+                    py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    z_neuron_resolution: u32,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning
+                ) -> PyResult<()>
+                {
+                    let group: CorticalGroupIndex = group.into();
+                    let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                let initial_val: WrappedIOData = WrappedIOData::SignedPercentage(SignedPercentage::new_from_m1_1_unchecked(0.0));
-                let default_pipeline: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = {
-                    let mut output: Vec<Vec<Box<(dyn PipelineStageProperties + Send + Sync + 'static)>>> = Vec::new();
-                    for _i in 0..*number_channels {
-                        output.push( Vec::new()) // TODO properly implement clone so we dont need to do this
-                    };
-                    output
-                };
-                self.register(MotorCorticalUnit::$motor_unit, group, decoder, default_pipeline, initial_val)?;
-                Ok(())
+                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
             }
-
-             */
         }
 
         motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, SignedPercentage);

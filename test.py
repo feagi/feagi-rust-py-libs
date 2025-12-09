@@ -14,7 +14,6 @@ segmented = frp.connector_core.data_types.SegmentedImageFrame(segmented_resoluti
 
 
 
-
 print(agent)
 
 print("start")
