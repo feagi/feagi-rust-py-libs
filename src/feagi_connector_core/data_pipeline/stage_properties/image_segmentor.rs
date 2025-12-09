@@ -1,20 +1,18 @@
+use feagi_connector_core::data_pipeline::PipelineStageProperties;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_connector_core::data_pipeline::stage_properties::ImageFrameSegmentatorStageProperties;
 use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
 use feagi_connector_core::data_types::GazeProperties;
+use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::feagi_connector_core::data_types::PyGazeProperties;
-use crate::py_error::PyFeagiError;
 
-#[pyclass(extends=PyPipelineStageProperties)]
-#[pyo3(name = "ImageSegmentorStageProperties")]
-#[derive(Clone)]
-pub struct PyImageSegmentorStageProperties;
+create_trait_child_with_box_pyclass!(PyPipelineStageProperties, PyImageFrameSegmentatorStageProperties, "ImageFrameSegmentatorStageProperties", PipelineStageProperties, ImageFrameSegmentatorStageProperties);
 
 #[pymethods]
-impl PyImageSegmentorStageProperties {
+impl PyImageFrameSegmentatorStageProperties {
     #[new]
     pub fn new(
         input_image_properties: PyImageFrameProperties,
@@ -30,8 +28,8 @@ impl PyImageSegmentorStageProperties {
             output_properties,
             gaze
         );
-        
-        Ok((PyImageSegmentorStageProperties, PyPipelineStageProperties::new_parent(result_properties)))
+
+        Ok(Self::python_new_child_constructor(result_properties))
     }
 }
 

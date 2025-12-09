@@ -181,16 +181,16 @@ macro_rules! create_trait_child_with_box_pyclass {
                 &mut parent.inner
             }
 
-            fn get_ref<'a>(slf: &'a PyRef<'_, Self>) -> Result<&'a $rust_child_concrete_type, FeagiDataError> {
+            fn get_ref<'a>(slf: &'a PyRef<'_, Self>) -> Result<&'a $rust_child_concrete_type, feagi_data_structures::FeagiDataError> {
                 let parent_box = Self::get_parent_box(slf);
                 parent_box.as_any().downcast_ref::<$rust_child_concrete_type>()
-                    .ok_or_else(|| FeagiDataError::InternalError("Type mismatch: expected unwrapped $py_class_name_in_rust".into()))
+                    .ok_or_else(|| feagi_data_structures::FeagiDataError::InternalError("Type mismatch: expected unwrapped $py_class_name_in_rust".into()))
             }
 
-            fn get_ref_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> Result<&'a mut $rust_child_concrete_type, FeagiDataError> {
+            fn get_ref_mut<'a>(slf: &'a mut PyRefMut<'_, Self>) -> Result<&'a mut $rust_child_concrete_type, feagi_data_structures::FeagiDataError> {
                 let parent_box = Self::get_parent_box_mut(slf);
                 parent_box.as_any_mut().downcast_mut::<$rust_child_concrete_type>()
-                .ok_or_else(|| FeagiDataError::InternalError("Type mismatch: expected unwrapped $py_class_name_in_rust".into()))
+                .ok_or_else(|| feagi_data_structures::FeagiDataError::InternalError("Type mismatch: expected unwrapped $py_class_name_in_rust".into()))
             }
         }
 
