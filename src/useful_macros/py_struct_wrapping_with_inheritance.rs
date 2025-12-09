@@ -1,5 +1,4 @@
 use feagi_data_structures::FeagiDataError;
-use pyo3::pymethods;
 
 /// These implementations do not need the parent to store a shared state in a box (child st
 //region No Box (Child stores data)
@@ -93,11 +92,26 @@ macro_rules! create_trait_child_pyclass {
 }
 //endregion
 
-///This implementation assumes the parent is a rust trait, implemented in python as a Box dyn. "clone_box" must be defined!
+/// This implementation assumes the parent is a rust trait, implemented in python as a Box dyn. "clone_box" must be defined!
+/// Parameter 1: str parent class name as visible in python ("ParentClass")
+/// Parameter 2: identity name of this struct as visible in rust (PyParentClass)
+/// Parameter 3: identity of the boxed rust trait type (RustTrait)
+/// Parameter 4: list of (PyWrappedStruct, RustConcreteStruct) pairs for from_box_to_correct_child conversion
+///
+/// Example:
+/// ```ignore
+/// create_trait_parent_with_box_pyclass!(
+///     "PipelineStageProperties",
+///     PyPipelineStageProperties,
+///     PipelineStageProperties,
+///     [(PyImageQuickDiffStageProperties, ImageQuickDiffStageProperties),
+///      (PyImageSegmentatorStageProperties, ImageFrameSegmentatorStageProperties)]
+/// );
+/// ```
 //region Shared Parent Data
 #[macro_export]
 macro_rules! create_trait_parent_with_box_pyclass {
-    ($parent_class_name_in_python_str:expr, $py_class_parent_name_in_rust:ident, $boxed_rust_type:ident) => {
+    ($parent_class_name_in_python_str:expr, $py_class_parent_name_in_rust:ident, $boxed_rust_type:ident, [$(($py_wrapped:ident, $rust_struct:ident)),* $(,)?]) => {
 
         #[pyo3::pyclass(str, subclass)]
         #[pyo3(name = $parent_class_name_in_python_str)]
@@ -134,7 +148,53 @@ macro_rules! create_trait_parent_with_box_pyclass {
                 if let Ok(reference) = py_any.cast::<( $py_class_parent_name_in_rust )>() {
                     return Ok(reference.borrow().inner.clone_box());
                 }
-                Err(FeagiDataError::BadParameters(format!("Unable to parse object as any child of {}!", $parent_class_name_in_python_str)))
+                Err(feagi_data_structures::FeagiDataError::BadParameters(format!("Unable to parse object as any child of {}!", $parent_class_name_in_python_str)))
+            }
+
+            /// Converts a boxed trait object to the correct Python child class.
+            /// This is needed when returning stage properties from Rust to Python,
+            /// ensuring the correct subclass type is returned rather than just the parent.
+            pub(crate) fn from_box_to_correct_child(py: pyo3::Python<'_>, boxed: Box<dyn $boxed_rust_type + Send + Sync>) -> pyo3::PyResult<pyo3::Py<pyo3::PyAny>> {
+
+                $(
+                    if boxed.as_any().downcast_ref::<$rust_struct>().is_some() {
+                        let (child, parent) = $py_wrapped::python_new_child_constructor(boxed);
+                        return pyo3::Py::new(py, (child, parent)).map(|obj| obj.into_any());
+                    }
+                )*
+
+                Err(feagi_data_structures::FeagiDataError::InternalError(
+                    format!("Missing Definition for {} - unknown concrete type!", $parent_class_name_in_python_str)
+                )).map_err(crate::py_error::PyFeagiError::from)?
+            }
+
+            /// Converts a vector of boxed trait objects to a vector of Python wrapped objects (as PyAny).
+            /// Each element is converted to its correct Python child class.
+            pub(crate) fn from_vec_box_to_vec_py(py: pyo3::Python<'_>, vec: Vec<Box<dyn $boxed_rust_type + Send + Sync>>) -> pyo3::PyResult<Vec<pyo3::Py<pyo3::PyAny>>> {
+                vec.into_iter()
+                    .map(|boxed| Self::from_box_to_correct_child(py, boxed))
+                    .collect()
+            }
+
+            /// Converts a boxed trait object to a Python object typed as the parent class.
+            /// Python will still see the actual child type - this just changes the Rust return type.
+            pub(crate) fn from_box_to_parent_typed(py: pyo3::Python<'_>, boxed: Box<dyn $boxed_rust_type + Send + Sync>) -> pyo3::PyResult<pyo3::Py<$py_class_parent_name_in_rust>> {
+                // Get as PyAny first, then extract as parent type
+                // This is safe because all children extend the parent
+                use crate::py_error::PyFeagiError;
+                let py_any = Self::from_box_to_correct_child(py, boxed)?;
+                if let Ok(extracted) = py_any.extract::<pyo3::Py<$py_class_parent_name_in_rust>>(py) {
+                    return Ok(extracted)
+                }
+                Err(feagi_data_structures::FeagiDataError::InternalError(format!("Unable to extract the child of type {}", $parent_class_name_in_python_str))).map_err(PyFeagiError::from)?
+            }
+
+            /// Converts a vector of boxed trait objects to a vector typed as the parent class.
+            /// Python will still see each element as its actual child type.
+            pub(crate) fn from_vec_box_to_vec_parent_typed(py: pyo3::Python<'_>, vec: Vec<Box<dyn $boxed_rust_type + Send + Sync>>) -> pyo3::PyResult<Vec<pyo3::Py<$py_class_parent_name_in_rust>>> {
+                vec.into_iter()
+                    .map(|boxed| Self::from_box_to_parent_typed(py, boxed))
+                    .collect()
             }
         }
 

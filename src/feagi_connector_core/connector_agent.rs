@@ -103,42 +103,36 @@ macro_rules! sensor_unit_functions {
                     Ok(expected_data.into())
                 }
 
-
                 pub fn [<sensor_ $snake_case_name _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     pipeline_stage_property_index: u32
-                ) -> PyResult<Py<PyAny>>
+                ) -> PyResult<Py<PyPipelineStageProperties>>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
                     let boxed_stage = self.get_sensor_cache().[<$snake_case_name _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
-
-
-                    PyPipelineStageProperties::boxed_to_py(boxed_stage);
+                    let py_stage = PyPipelineStageProperties::from_box_to_correct_child(py, boxed_stage)?;
+                    Ok(py_stage)
                 }
+
 
                 pub fn [<sensor_ $snake_case_name _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
-                ) -> PyResult<Vec<Box<dyn PipelineStageProperties + Sync + Send>>>
+                ) -> PyResult<Vec<pyo3::Py<PyPipelineStageProperties>>>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let boxed_stages = self.get_sensor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
-
-                    let mut output: Vec<PyPipelineStageProperties> = Vec::with_capacity(boxed_stages.len()); // TODO we need a cleaner implementation
-                    for boxed_stage in boxed_stages {{
-                        output.push(boxed_stage.into());
-                    }}
-                    Ok(output)
+                    PyPipelineStageProperties::from_vec_box_to_vec_parent_typed(py, boxed_stages)
                 }
 
 
@@ -148,38 +142,38 @@ macro_rules! sensor_unit_functions {
                     group: u8,
                     channel_index: u32,
                     pipeline_stage_property_index: u32,
-                    updating_property: &Bound<'_, PyAny>
+                    updating_property: &Bound<'_, PyPipelineStageProperties>
                 ) -> PyResult<()>
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
-                    
-                    // Extract PipelineStageProperties from Python object
-                    // The Python object should be a PyPipelineStageProperties or subclass
-                    let py_props: PyPipelineStageProperties = updating_property.extract()?;
-                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = py_props.into();
 
+                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = py_props.into();
                     self.get_sensor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                /*
 
                 pub fn [<sensor_ $snake_case_name _update_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
                     channel_index: u32,
-                    updated_pipeline_stage_properties: Vec<Box<dyn PipelineStageProperties + Sync + Send>>
-                ) -> Result<(), FeagiDataError>
+                    updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
+                ) -> PyResult<()>
                 {
-                    const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                    self.try_update_all_stage_properties(SENSOR_UNIT_TYPE, group, channel_index, updated_pipeline_stage_properties)?;
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+
+
+
+                    self.get_sensor_cache().[<$snake_case_name _update_all_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
+
                     Ok(())
                 }
 
-
+/*
 
                 pub fn [<sensor_ $snake_case_name _replace_single_stage>](
                     &mut self,
@@ -213,19 +207,21 @@ macro_rules! sensor_unit_functions {
                     Ok(())
                 }
 
+
+ */
                 pub fn [<sensor_ $snake_case_name _removing_all_stages>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
-                    channel_index: CorticalChannelIndex
-                ) -> Result<(), FeagiDataError>
+                    channel_index: u32
+                ) -> PyResult<()>
                 {
-                    const SENSOR_UNIT_TYPE: SensoryCorticalUnit = SensoryCorticalUnit::$cortical_type_key_name;
-                    self.try_removing_all_stages(SENSOR_UNIT_TYPE, group, channel_index)?;
+                    let group: CorticalGroupIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    self.get_sensor_cache().[<$snake_case_name _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                 */
              }
         }
     };
