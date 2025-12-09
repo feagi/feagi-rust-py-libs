@@ -1,4 +1,7 @@
+use feagi_data_structures::FeagiDataError;
 
+/// These implementations do not need the parent to store a shared state in a box (child st
+//region No Box (Child stores data)
 /// Creates a parent class for python, when exposing rust structs that share a trait.
 /// Doesn't do much on its own and not intended to be instantiated directly, either in rust or python.
 /// Parameter 1: str parent class name as visible in python (ParentClass)
@@ -26,30 +29,6 @@ macro_rules! create_trait_parent_pyclass {
     };
 }
 
-#[macro_export]
-macro_rules! create_trait_parent_with_box_pyclass {
-    ($parent_class_name_in_python:ident, $parent_class_name_in_python_str:expr, $py_class_parent_name_in_rust:ident) => {
-
-        #[pyo3::pyclass(str, subclass)]
-        #[pyo3(name = $parent_class_name_in_python)]
-        #[derive(Debug, Clone)]
-        pub struct $py_class_parent_name_in_rust {}
-
-        impl $py_class_parent_name_in_rust {
-            pub(crate) fn new_blank_parent() -> Self {
-                $py_class_parent_name_in_rust {}
-            }
-        }
-
-        impl std::fmt::Display for $py_class_parent_name_in_rust {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-                write!(f, "{}", $parent_class_name_in_python)
-            }
-        }
-    };
-}
-
-
 /// Creates a child class for python, with a parent defined by create_trait_parent_pyclass.
 /// Has private method python_new_child_constructor that creates a tuple of (child_py_struct, parent_py_struct)
 /// which you must use for your new function. All other constructors are to use python_etc_child_constructor and return
@@ -60,9 +39,9 @@ macro_rules! create_trait_parent_with_box_pyclass {
 /// Parameter 4: type representing rust type in inner for this py wrapper (RustStruct)
 #[macro_export]
 macro_rules! create_trait_child_pyclass {
-    ($parent_struct_in_rust:ident, $py_class_name_in_rust:ident, $class_name_in_python_str:expr, $representing_rust_struct:ty) => {
+    ($parent_pyclass_in_rust:ident, $py_class_name_in_rust:ident, $class_name_in_python_str:expr, $representing_rust_struct:ty) => {
 
-        #[pyo3::pyclass(str, extends=$parent_struct_in_rust)]
+        #[pyo3::pyclass(str, extends=$parent_pyclass_in_rust)]
         #[derive(Debug, Clone)]
         #[pyo3(name = $class_name_in_python_str)]
         pub struct $py_class_name_in_rust {
@@ -90,24 +69,107 @@ macro_rules! create_trait_child_pyclass {
 
         impl $py_class_name_in_rust {
             /// You MUST use this for the new constructor, and ONLY for that usecase!. Your "new" must use this and return (PyChild, PyParent)
-            fn python_new_child_constructor(child_rust_struct: $representing_rust_struct) -> (Self, $parent_struct_in_rust) {
-                ($py_class_name_in_rust {inner: child_rust_struct}, $parent_struct_in_rust::new_blank_parent())
+            fn python_new_child_constructor(child_rust_struct: $representing_rust_struct) -> (Self, $parent_pyclass_in_rust) {
+                ($py_class_name_in_rust {inner: child_rust_struct}, $parent_pyclass_in_rust::new_blank_parent())
             }
 
             /// You MUST use for all other constructors except for "new"
             pub fn python_etc_child_constructor<'py>(py: Python<'py>, child_rust_struct: $representing_rust_struct) -> PyResult<Py<Self>> {
                 Python::with_gil(|py| {
-                    Py::new(py, ($py_class_name_in_rust { inner: child_rust_struct}, $parent_struct_in_rust::new_blank_parent()) ) // TODO this is outdated
+                    Py::new(py, ($py_class_name_in_rust { inner: child_rust_struct}, $parent_pyclass_in_rust::new_blank_parent()) ) // TODO this is outdated
                 })
             }
 
             /// Use this if you want to export this py-wrapped struct to python with proper inheritance
             fn export_as_python_child<'py>(self, py: Python<'py>) -> PyResult<Py<Self>> {
                 Python::with_gil(|py| {
-                    Py::new(py, (self, $parent_struct_in_rust::new_blank_parent()) ) // TODO this is outdated
+                    Py::new(py, (self, $parent_pyclass_in_rust::new_blank_parent()) ) // TODO this is outdated
                 })
             }
         }
 
     };
 }
+//endregion
+
+///This implementation assumes the parent is a rust trait, implemented in python as a Box dyn. "clone_box" must be defined!
+//region Shared Parent Data
+#[macro_export]
+macro_rules! create_trait_parent_with_box_pyclass {
+    ($parent_class_name_in_python_str:expr, $py_class_parent_name_in_rust:ident, $boxed_rust_type:ident) => {
+
+        #[pyo3::pyclass(str, subclass)]
+        #[pyo3(name = $parent_class_name_in_python_str)]
+        #[derive(Debug)]
+        pub struct $py_class_parent_name_in_rust {
+            pub inner: Box<dyn $boxed_rust_type + Send + Sync>,
+        }
+
+        // Manual implementation
+        impl Clone for $py_class_parent_name_in_rust {
+            fn clone(&self) -> Self {
+                Self {
+                    inner: self.inner.clone_box(),
+                }
+            }
+        }
+
+        // Require print support
+        impl std::fmt::Display for $py_class_parent_name_in_rust {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+                write!(f, "{}", $parent_class_name_in_python_str)
+            }
+        }
+
+        impl $py_class_parent_name_in_rust {
+            // Do not allow direct instantiation from Python
+            pub(crate) fn new_parent(boxed: Box<dyn $boxed_rust_type + Send + Sync>) -> Self {
+                $py_class_parent_name_in_rust {
+                    inner: boxed,
+                }
+            }
+
+            pub(crate) fn py_any_to_box<'py>(_py: Python<'_>, py_any: &pyo3::Bound<'py, pyo3::PyAny>) -> Result<Box<dyn $boxed_rust_type + Send + Sync>, feagi_data_structures::FeagiDataError> {
+                if let Ok(reference) = py_any.cast::<( $py_class_parent_name_in_rust )>() {
+                    return Ok(reference.borrow().inner.clone_box());
+                }
+                Err(FeagiDataError::BadParameters(format!("Unable to parse object as any child of {}!", $parent_class_name_in_python_str)))
+            }
+        }
+
+    };
+}
+
+#[macro_export]
+macro_rules! create_trait_child_with_box_pyclass {
+    ($parent_pyclass_in_rust:ident, $py_class_name_in_rust:ident, $class_name_in_python_str:expr, $boxed_rust_type:ident) => {
+
+        #[pyo3::pyclass(str, extends=$parent_pyclass_in_rust)]
+        #[derive(Debug, Clone)]
+        #[pyo3(name = $class_name_in_python_str)]
+        pub struct $py_class_name_in_rust {}
+
+        // Require print support // TODO improve
+        impl std::fmt::Display for $py_class_name_in_rust {
+            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                write!(f, "{}", $class_name_in_python_str)
+            }
+        }
+
+        // Into gets weird due to parenbt owning data. skipping for now
+        impl $py_class_name_in_rust {
+            /// You MUST use this for the new constructor, and ONLY for that usecase!. Your "new" must use this and return (PyChild, PyParent)
+            fn python_new_child_constructor(boxed_data: Box<dyn $boxed_rust_type + Send + Sync>) -> (Self, $parent_pyclass_in_rust) {
+                ($py_class_name_in_rust {}, $parent_pyclass_in_rust::new_parent(boxed_data))
+            }
+
+
+
+
+        }
+
+    };
+}
+
+
+//endregion

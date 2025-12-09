@@ -31,7 +31,7 @@ impl PyImageSegmentorStageProperties {
             gaze
         );
         
-        Ok((PyImageSegmentorStageProperties, PyPipelineStageProperties::new(result_properties)))
+        Ok((PyImageSegmentorStageProperties, PyPipelineStageProperties::new_parent(result_properties)))
     }
 }
 
