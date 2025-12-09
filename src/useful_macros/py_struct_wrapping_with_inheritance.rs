@@ -196,6 +196,29 @@ macro_rules! create_trait_parent_with_box_pyclass {
                     .map(|boxed| Self::from_box_to_parent_typed(py, boxed))
                     .collect()
             }
+
+            /// Converts a Py<PyParentClass> to a boxed trait object.
+            /// Clones the inner data from the Python object.
+            pub(crate) fn from_py_to_box(py: pyo3::Python<'_>, py_obj: &pyo3::Py<$py_class_parent_name_in_rust>) -> Result<Box<dyn $boxed_rust_type + Send + Sync>, feagi_data_structures::FeagiDataError> {
+                let bound = py_obj.bind(py);
+                Ok(bound.borrow().inner.clone_box())
+            }
+
+            /// Converts a vector of Py<PyParentClass> to a vector of boxed trait objects.
+            /// Clones the inner data from each Python object.
+            pub(crate) fn from_vec_py_to_vec_box(py: pyo3::Python<'_>, vec: &[pyo3::Py<$py_class_parent_name_in_rust>]) -> Result<Vec<Box<dyn $boxed_rust_type + Send + Sync>>, feagi_data_structures::FeagiDataError> {
+                vec.iter()
+                    .map(|py_obj| Self::from_py_to_box(py, py_obj))
+                    .collect()
+            }
+
+            /// Converts a vector of Bound PyAny references to a vector of boxed trait objects.
+            /// Useful when receiving a list from Python.
+            pub(crate) fn from_vec_py_any_to_vec_box<'py>(py: pyo3::Python<'py>, vec: Vec<pyo3::Bound<'py, pyo3::PyAny>>) -> Result<Vec<Box<dyn $boxed_rust_type + Send + Sync>>, feagi_data_structures::FeagiDataError> {
+                vec.iter()
+                    .map(|py_any| Self::py_any_to_box(py, py_any))
+                    .collect()
+            }
         }
 
     };
