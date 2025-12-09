@@ -24,7 +24,7 @@ impl PyImageQuickDiffStageProperties {
         let quick_diff_stage_properties = ImageQuickDiffStageProperties::new_box(per_pixel_allowed_range, acceptable_image_activity, image_properties);
         Ok(Self::python_new_child_constructor(quick_diff_stage_properties))
     }
-    
+
     #[getter]
     pub fn get_per_pixel_range(slf: PyRef<Self>) -> PyResult<(u8, u8)> {
         let parent = Self::get_ref(&slf).map_err(PyFeagiError::from)?;
