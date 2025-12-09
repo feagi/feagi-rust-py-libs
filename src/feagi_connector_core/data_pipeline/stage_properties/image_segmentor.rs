@@ -1,6 +1,6 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_connector_core::data_pipeline::stage_properties::ImageSegmentorStageProperties;
+use feagi_connector_core::data_pipeline::stage_properties::ImageFrameSegmentatorStageProperties;
 use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
 use feagi_connector_core::data_types::GazeProperties;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
@@ -25,11 +25,11 @@ impl PyImageSegmentorStageProperties {
         let output_properties: SegmentedImageFrameProperties = output_image_properties.into();
         let gaze: GazeProperties = initial_gaze.into();
         
-        let result_properties = ImageSegmentorStageProperties::new_box(
+        let result_properties = ImageFrameSegmentatorStageProperties::new_box(
             input_properties,
             output_properties,
             gaze
-        ).map_err(PyFeagiError::from)?;
+        );
         
         Ok((PyImageSegmentorStageProperties, PyPipelineStageProperties::new(result_properties)))
     }

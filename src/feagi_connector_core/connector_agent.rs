@@ -722,7 +722,7 @@ macro_rules! motor_unit_functions {
 
          */
 
-        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, Percentage);
+        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, GazeProperties);
 
     };
 
@@ -969,7 +969,7 @@ impl PyConnectorAgent {
         use crate::feagi_data_serialization::PyFeagiByteContainer;
         
         let sensor_cache = self.get_sensor_cache();
-        let byte_container = sensor_cache.get_byte_container();
+        let byte_container = sensor_cache.get_feagi_byte_container();
         
         // Convert to PyFeagiByteContainer (clone the inner FeagiByteContainer)
         // PyFeagiByteContainer has pub(crate) inner field, so we can create it directly
@@ -980,24 +980,11 @@ impl PyConnectorAgent {
 
     /// Encode all cached motor data to bytes
     /// 
-    /// NOTE: Motors typically decode data FROM FEAGI. This method may not be needed
-    /// unless motors need to send commands back to FEAGI.
+    /// NOTE: Motors typically decode data FROM FEAGI, not encode TO FEAGI.
+    /// This method is deprecated as motors don't have encode methods.
     pub fn motors_encode_cached_data_to_bytes(&mut self) -> PyResult<()> {
-        use std::time::Instant;
-
-        let mut motor_cache = self.get_motor_cache();
-        
-        // Get current time for burst
-        let time_of_burst = Instant::now();
-        
-        // Encode all motors to neurons
-        motor_cache.encode_all_motors_to_neurons(time_of_burst)
-            .map_err(PyFeagiError::from)?;
-        
-        // Encode neurons to bytes
-        motor_cache.encode_neurons_to_bytes()
-            .map_err(PyFeagiError::from)?;
-        
+        // Motors decode from FEAGI, they don't encode to FEAGI
+        // This method is kept for API compatibility but does nothing
         Ok(())
     }
 
@@ -1009,7 +996,7 @@ impl PyConnectorAgent {
         use crate::feagi_data_serialization::PyFeagiByteContainer;
         
         let motor_cache = self.get_motor_cache();
-        let byte_container = motor_cache.get_byte_container();
+        let byte_container = motor_cache.get_feagi_byte_container();
         
         // Convert to PyFeagiByteContainer
         Ok(PyFeagiByteContainer {

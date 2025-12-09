@@ -389,10 +389,10 @@ impl PySegmentedImageFrameProperties {
         color_space: PyColorSpace,
     ) -> PyResult<Self> {
         Ok(SegmentedImageFrameProperties::new(
-            &segment_xy_resolutions.into(),
-            &center_color_channels.into(),
-            &peripheral_color_channels.into(),
-            &color_space.into(),
+            segment_xy_resolutions.into(),
+            center_color_channels.into(),
+            peripheral_color_channels.into(),
+            color_space.into(),
         ).into())
     }
 

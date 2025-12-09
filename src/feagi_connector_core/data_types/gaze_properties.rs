@@ -6,6 +6,13 @@ use crate::feagi_connector_core::data_types::{PyPercentage, PyPercentage2D};
 
 create_pyclass!(PyGazeProperties, GazeProperties, "GazeProperties");
 
+// Additional From implementation to ensure compatibility with connector_agent macros
+impl From<&GazeProperties> for PyGazeProperties {
+    fn from(inner: &GazeProperties) -> Self {
+        PyGazeProperties { inner: inner.clone() }
+    }
+}
+
 #[pymethods]
 impl PyGazeProperties {
 
