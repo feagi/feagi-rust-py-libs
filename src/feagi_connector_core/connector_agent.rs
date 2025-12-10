@@ -901,6 +901,13 @@ impl PyConnectorAgent {
         Ok(())
     }
 
+    pub fn sensors_read_bytes(&mut self) -> PyResult<Vec<u8>> {
+        let mut sensor_cache = self.get_sensor_cache();
+        let byte_container = sensor_cache.get_feagi_byte_container();;
+        let bytes = byte_container.get_byte_ref().to_vec();
+        Ok(bytes)
+    }
+
     /// Can take in a BytesArray (faster) or Bytes. Loads into rust memory and ensures the structure is sound.
     pub fn motors_load_in_bytes_and_verify(&mut self, py: Python<'_>, obj: &Bound<PyAny>) -> PyResult<()> {
         if let Ok(bytes) = Bound::cast::<PyByteArray>(obj) {
