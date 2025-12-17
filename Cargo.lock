@@ -387,6 +387,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "feagi-async"
+version = "0.0.1"
+
+[[package]]
 name = "feagi_connector_core"
 version = "2.0.0"
 dependencies = [
@@ -414,6 +418,7 @@ name = "feagi_data_structures"
 version = "2.0.0"
 dependencies = [
  "base64",
+ "feagi-async",
  "ndarray",
  "paste",
  "rayon",
@@ -424,7 +429,7 @@ dependencies = [
 
 [[package]]
 name = "feagi_rust_py_libs"
-version = "0.0.79"
+version = "0.0.80"
 dependencies = [
  "feagi_connector_core",
  "feagi_data_serialization",

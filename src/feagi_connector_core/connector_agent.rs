@@ -8,8 +8,7 @@ use feagi_data_structures::{motor_cortical_units, sensor_cortical_units, FeagiDa
 use feagi_data_structures::genomic::cortical_area::descriptors::*;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::FrameChangeHandling;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::PercentageNeuronPositioning;
-use feagi_connector_core::caching::motor_device_cache::MotorDeviceCache;
-use feagi_connector_core::caching::sensor_device_cache::SensorDeviceCache;
+use feagi_connector_core::caching::{MotorDeviceCache, SensorDeviceCache};
 use feagi_connector_core::ConnectorAgent;
 use feagi_connector_core::data_pipeline::{PipelineStageProperties, PipelineStagePropertyIndex};
 use feagi_connector_core::data_types::*;

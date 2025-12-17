@@ -110,7 +110,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage3D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage4D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage4D);
-    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::PyGazeProperties);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGazeProperties);
 
     // Data Descriptors
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYPoint);
