@@ -1,17 +1,11 @@
 use feagi_connector_core::data_types::descriptors::MiscDataDimensions;
-use feagi_connector_core::data_types::{MiscData};
+use feagi_connector_core::data_types::MiscData;
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
-use feagi_data_structures::FeagiDataError;
 use pyo3::exceptions::PyValueError;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::{create_pyclass, __base_py_class_shared};
 
-#[pyclass(str)]
-#[pyo3(name = "MiscData")]
-#[derive(Clone)]
-pub struct PyMiscData {
-    pub inner: MiscData,
-}
+create_pyclass!(PyMiscData, MiscData, "MiscData");
 
 #[pymethods]
 impl PyMiscData {
@@ -25,7 +19,7 @@ impl PyMiscData {
     #[staticmethod]
     pub fn new_from_array(input: PyReadonlyArray3<f32>, py: Python) -> PyResult<PyMiscData> {
         let array = input.as_array().to_owned();
-        match MiscData::new_with_data(array) {
+        match MiscData::new_with_data(array.into()) { // TODO is this into a good idea?
             Ok(inner) => Ok(PyMiscData { inner }),
             Err(err) => Err(PyErr::new::<PyValueError, _>(err.to_string())),
         }
@@ -41,9 +35,3 @@ impl PyMiscData {
     }
 
 }
-
-py_type_casts!(PyMiscData, MiscData);
-py_object_cast_generic!(PyMiscData, MiscData, "Unable to retrieve MiscData data from given!");
-project_display!(PyMiscData);
-
-

@@ -1,15 +1,12 @@
 use std::fmt::Debug;
-use pyo3::{pyclass, pymethods};
-use feagi_data_structures::neuron_voxels::xyzp::NeuronVoxelXYZP;
-use crate::{project_display, py_type_casts};
 
-//region NeuronVoxelXYZP Implementation
-#[pyclass(str)]
-#[derive(Clone)]
-#[pyo3(name = "NeuronVoxelXYZP")]
-pub struct PyNeuronVoxelXYZP {
-    pub inner: NeuronVoxelXYZP,
-}
+use pyo3::{pyclass, pymethods};
+use pyo3::prelude::*;
+use feagi_data_structures::FeagiDataError;
+use feagi_data_structures::neuron_voxels::xyzp::NeuronVoxelXYZP;
+use crate::{create_pyclass, __base_py_class_shared};
+
+create_pyclass!(PyNeuronVoxelXYZP, NeuronVoxelXYZP, "PyNeuronVoxelXYZP");
 
 #[pymethods]
 impl PyNeuronVoxelXYZP {
@@ -22,7 +19,3 @@ impl PyNeuronVoxelXYZP {
         self.inner.as_tuple()
     }
 }
-//endregion
-
-py_type_casts!(PyNeuronVoxelXYZP, NeuronVoxelXYZP);
-project_display!(PyNeuronVoxelXYZP);

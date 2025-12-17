@@ -1,18 +1,12 @@
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::ImageFrame;
 use pyo3::types::PyBytes;
-use crate::feagi_connector_core::data::descriptors::*;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::feagi_connector_core::data_types::descriptors::*;
+use crate::{create_pyclass, __base_py_class_shared};
 
-#[pyclass(str)]
-#[pyo3(name = "ImageFrame")]
-#[derive(Clone)]
-pub struct PyImageFrame {
-    pub inner: ImageFrame,
-}
+create_pyclass!(PyImageFrame, ImageFrame, "ImageFrame");
 
 #[pymethods]
 impl PyImageFrame {
@@ -203,7 +197,3 @@ impl PyImageFrame {
 
     //endregion
 }
-
-py_type_casts!(PyImageFrame, ImageFrame);
-py_object_cast_generic!(PyImageFrame, ImageFrame, "Unable to retrieve ImageFrame data from given!");
-project_display!(PyImageFrame);

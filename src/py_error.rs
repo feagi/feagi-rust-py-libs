@@ -3,6 +3,9 @@ use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::{PyErr, PyResult};
 use std::fmt;
 
+/// Type alias for Results using our custom error type
+pub type PyFeagiResult<T> = Result<T, PyFeagiError>;
+
 /// Custom error type for this crate that wraps FeagiDataError
 /// This allows us to implement From traits without violating the orphan rule
 #[derive(Debug)]
@@ -37,11 +40,5 @@ impl From<PyFeagiError> for PyErr {
 }
 
 impl PyFeagiError {
-    /// Create a PyFeagiError from a string message
-    pub fn from_string(msg: &str) -> Self {
-        PyFeagiError(FeagiDataError::BadParameters(msg.to_string()))
-    }
+    
 }
-
-/// Type alias for Results using our custom error type
-pub type PyFeagiResult<T> = Result<T, PyFeagiError>;

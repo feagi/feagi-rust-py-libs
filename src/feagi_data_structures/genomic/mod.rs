@@ -1,7 +1,9 @@
-pub mod cortical_type;
-mod cortical_id;
 
 pub mod descriptors;
+pub mod cortical_area;
+mod brain_regions;
+mod sensory_cortical_unit;
+mod motor_cortical_unit;
 
-pub use cortical_id::PyCorticalID;
-pub use cortical_type::{/* PyCorticalType, */ PySensorCorticalType, PyCoreCorticalType, PyMotorCorticalType};
+pub use sensory_cortical_unit::PySensoryCorticalUnit;
+pub use motor_cortical_unit::PyMotorCorticalUnit;

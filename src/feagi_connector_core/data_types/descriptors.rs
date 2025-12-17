@@ -1,23 +1,15 @@
-use std::fmt::{Display, Formatter};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use pyo3::exceptions::PyValueError;
-use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::descriptors::*;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
-use crate::feagi_connector_core::data::{PyImageFrame, PyPercentage2D, PySegmentedImageFrame};
+use crate::{create_pyclass, __base_py_class_shared};
+use crate::feagi_connector_core::data_types::{PyImageFrame, PySegmentedImageFrame};
 use crate::py_error::PyFeagiError;
 
 //region Images
 
 //region Image XY
 
-#[pyclass(str)]
-#[pyo3(name = "ImageXYPoint")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PyImageXYPoint {
-    inner: ImageXYPoint
-}
+create_pyclass!(PyImageXYPoint, ImageXYPoint, "ImageXYPoint");
 
 #[pymethods]
 impl PyImageXYPoint {
@@ -49,18 +41,7 @@ impl From<PyImageXYPoint> for (u32, u32) {
 }
 
 
-py_type_casts!(PyImageXYPoint, ImageXYPoint);
-py_object_cast_generic!(PyImageXYPoint, ImageXYPoint, "Unable to retrieve ImageXYPoint data from given!");
-project_display!(PyImageXYPoint);
-
-
-
-#[pyclass(str)]
-#[pyo3(name = "ImageXYResolution")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PyImageXYResolution {
-    inner: ImageXYResolution
-}
+create_pyclass!(PyImageXYResolution, ImageXYResolution, "ImageXYResolution");
 
 #[pymethods]
 impl PyImageXYResolution {
@@ -95,20 +76,11 @@ impl From<PyImageXYResolution> for (u32, u32) {
     }
 }
 
-py_type_casts!(PyImageXYResolution, ImageXYResolution);
-py_object_cast_generic!(PyImageXYResolution, ImageXYResolution, "Unable to retrieve ImageXYResolution data from given!");
-project_display!(PyImageXYResolution);
-
 //endregion
 
 //region Image XYZ
 
-#[pyclass(str)]
-#[pyo3(name = "ImageXYZDimensions")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PyImageXYZDimensions {
-    inner: ImageXYZDimensions
-}
+create_pyclass!(PyImageXYZDimensions, ImageXYZDimensions, "ImageXYZDimensions");
 
 #[pymethods]
 impl PyImageXYZDimensions {
@@ -143,20 +115,11 @@ impl From<PyImageXYZDimensions> for (u32, u32, u32) {
 }
 
 
-py_type_casts!(PyImageXYZDimensions, ImageXYZDimensions);
-py_object_cast_generic!(PyImageXYZDimensions, ImageXYZDimensions, "Unable to retrieve ImageXYZDimensions data from given!");
-project_display!(PyImageXYZDimensions);
-
 //endregion
 
 //region Segmented Image XY Resolutions
 
-#[pyclass(str)]
-#[pyo3(name = "SegmentedXYImageResolutions")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PySegmentedXYImageResolutions {
-    inner: SegmentedXYImageResolutions
-}
+create_pyclass!(PySegmentedXYImageResolutions, SegmentedXYImageResolutions, "SegmentedXYImageResolutions");
 
 #[pymethods]
 impl PySegmentedXYImageResolutions {
@@ -243,10 +206,6 @@ impl PySegmentedXYImageResolutions {
         self.inner.upper_right.into()
     }
 }
-
-py_type_casts!(PySegmentedXYImageResolutions, SegmentedXYImageResolutions);
-py_object_cast_generic!(PySegmentedXYImageResolutions, SegmentedXYImageResolutions, "Unable to retrieve SegmentedXYImageResolutions data from given!");
-project_display!(PySegmentedXYImageResolutions);
 
 //endregion
 
@@ -371,12 +330,7 @@ impl From<MemoryOrderLayout> for PyMemoryOrderLayout {
 
 //region Image Frame Properties
 
-#[pyclass(str)]
-#[pyo3(name = "ImageFrameProperties")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PyImageFrameProperties {
-    inner: ImageFrameProperties
-}
+create_pyclass!(PyImageFrameProperties, ImageFrameProperties, "ImageFrameProperties");
 
 #[pymethods]
 impl PyImageFrameProperties {
@@ -419,20 +373,11 @@ impl PyImageFrameProperties {
     }
 }
 
-py_type_casts!(PyImageFrameProperties, ImageFrameProperties);
-py_object_cast_generic!(PyImageFrameProperties, ImageFrameProperties, "Unable to retrieve ImageFrameProperties data from given!");
-project_display!(PyImageFrameProperties);
-
 //endregion
 
 //region Segmented Image Frame Properties
 
-#[pyclass(str)]
-#[pyo3(name = "SegmentedImageFrameProperties")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PySegmentedImageFrameProperties {
-    inner: SegmentedImageFrameProperties
-}
+create_pyclass!(PySegmentedImageFrameProperties, SegmentedImageFrameProperties, "SegmentedImageFrameProperties");
 
 #[pymethods]
 impl PySegmentedImageFrameProperties {
@@ -444,10 +389,10 @@ impl PySegmentedImageFrameProperties {
         color_space: PyColorSpace,
     ) -> PyResult<Self> {
         Ok(SegmentedImageFrameProperties::new(
-            &segment_xy_resolutions.into(),
-            &center_color_channels.into(),
-            &peripheral_color_channels.into(),
-            &color_space.into(),
+            segment_xy_resolutions.into(),
+            center_color_channels.into(),
+            peripheral_color_channels.into(),
+            color_space.into(),
         ).into())
     }
 
@@ -478,20 +423,13 @@ impl PySegmentedImageFrameProperties {
     }
 }
 
-py_type_casts!(PySegmentedImageFrameProperties, SegmentedImageFrameProperties);
-py_object_cast_generic!(PySegmentedImageFrameProperties, SegmentedImageFrameProperties, "Unable to retrieve SegmentedImageFrameProperties data from given!");
-project_display!(PySegmentedImageFrameProperties);
+
 
 //endregion
 
 //region Corner Points
 
-#[pyclass(str)]
-#[pyo3(name = "CornerPoints")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyCornerPoints {
-    inner: CornerPoints
-}
+create_pyclass!(PyCornerPoints, CornerPoints, "CornerPoints");
 
 #[pymethods]
 impl PyCornerPoints {
@@ -539,60 +477,13 @@ impl PyCornerPoints {
     }
 }
 
-py_type_casts!(PyCornerPoints, CornerPoints);
-py_object_cast_generic!(PyCornerPoints, CornerPoints, "Unable to retrieve CornerPoints data from given!");
-project_display!(PyCornerPoints);
-
-//endregion
-
-//region Gaze Properties
-
-#[pyclass(str)]
-#[derive(Clone)]
-#[pyo3(name = "GazeProperties")]
-pub struct PyGazeProperties{
-    pub inner: GazeProperties,
-}
-
-#[pymethods]
-impl PyGazeProperties {
-
-    #[new]
-    fn new(eccentricity_center_xy: PyPercentage2D, modularity_size_xy: PyPercentage2D) -> PyResult<Self> {
-        let inner = GazeProperties::new(eccentricity_center_xy.into(), modularity_size_xy.into());
-        Ok(PyGazeProperties { inner })
-    }
-
-    #[staticmethod]
-    fn create_default_centered() -> Self {
-        PyGazeProperties {
-            inner: GazeProperties::create_default_centered(),
-        }
-    }
-
-    pub fn calculate_source_corner_points_for_segmented_video_frame(&self, source_frame_resolution: PyImageXYResolution) -> PyResult<Vec<PyCornerPoints>> {
-        let corner_points = self.inner.calculate_source_corner_points_for_segmented_video_frame(source_frame_resolution.into())
-            .map_err(PyFeagiError::from)?;
-        Ok(corner_points.iter().map(|&cp| cp.into()).collect())
-    }
-}
-
-py_type_casts!(PyGazeProperties, GazeProperties);
-py_object_cast_generic!(PyGazeProperties, GazeProperties, "Unable to retrieve GazeProperties data from given!");
-project_display!(PyGazeProperties);
-
 //endregion
 
 //endregion
 
 //region Misc Data Dimensions
 
-#[pyclass(str)]
-#[pyo3(name = "MiscDataDimensions")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct PyMiscDataDimensions {
-    inner: MiscDataDimensions
-}
+create_pyclass!(PyMiscDataDimensions, MiscDataDimensions, "MiscDataDimensions");
 
 #[pymethods]
 impl PyMiscDataDimensions {
@@ -618,9 +509,5 @@ impl PyMiscDataDimensions {
         self.inner.depth
     }
 }
-
-py_type_casts!(PyMiscDataDimensions, MiscDataDimensions);
-py_object_cast_generic!(PyMiscDataDimensions, MiscDataDimensions, "Unable to retrieve MiscDataDimensions data from given!");
-project_display!(PyMiscDataDimensions);
 
 //endregion

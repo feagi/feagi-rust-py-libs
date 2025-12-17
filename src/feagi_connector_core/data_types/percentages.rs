@@ -1,21 +1,14 @@
-use std::fmt::{Display, Formatter};
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pymethods, PyResult};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_data_structures::FeagiDataError;
 use feagi_connector_core::data_types::Percentage;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use crate::{create_pyclass, __base_py_class_shared};
 
 // TODO port all remaining methods
 
 //region Percentage (0 - 1)
 
-#[pyclass(str)]
-#[pyo3(name = "Percentage")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyPercentage {
-    inner: Percentage
-}
+create_pyclass!(PyPercentage, Percentage, "Percentage");
 
 #[pymethods]
 impl PyPercentage {
@@ -108,22 +101,11 @@ impl PyPercentage {
     //endregion
 }
 
-py_type_casts!(PyPercentage, Percentage);
-py_object_cast_generic!(PyPercentage, Percentage, "Unable to retrieve Percentage data from given!");
-project_display!(PyPercentage);
-
-
-
 //endregion
 
 //region SignedPercentage (-1 to 1)
 
-#[pyclass(str)]
-#[pyo3(name = "SignedPercentage")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PySignedPercentage {
-    inner: feagi_connector_core::data_types::SignedPercentage
-}
+create_pyclass!(PySignedPercentage, feagi_connector_core::data_types::SignedPercentage, "SignedPercentage");
 
 #[pymethods]
 impl PySignedPercentage {
@@ -200,20 +182,11 @@ impl PySignedPercentage {
     //endregion
 }
 
-py_type_casts!(PySignedPercentage, feagi_connector_core::data_types::SignedPercentage);
-py_object_cast_generic!(PySignedPercentage, feagi_connector_core::data_types::SignedPercentage, "Unable to retrieve SignedPercentage data from given!");
-project_display!(PySignedPercentage);
-
 //endregion
 
 //region 2D Percentage Types
 
-#[pyclass(str)]
-#[pyo3(name = "Percentage2D")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyPercentage2D {
-    inner: feagi_connector_core::data_types::Percentage2D
-}
+create_pyclass!(PyPercentage2D, feagi_connector_core::data_types::Percentage2D, "Percentage2D");
 
 #[pymethods]
 impl PyPercentage2D {
@@ -259,16 +232,7 @@ impl PyPercentage2D {
     }
 }
 
-py_type_casts!(PyPercentage2D, feagi_connector_core::data_types::Percentage2D);
-py_object_cast_generic!(PyPercentage2D, feagi_connector_core::data_types::Percentage2D, "Unable to retrieve Percentage2D data from given!");
-project_display!(PyPercentage2D);
-
-#[pyclass(str)]
-#[pyo3(name = "SignedPercentage2D")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PySignedPercentage2D {
-    inner: feagi_connector_core::data_types::SignedPercentage2D
-}
+create_pyclass!(PySignedPercentage2D, feagi_connector_core::data_types::SignedPercentage2D, "SignedPercentage2D");
 
 #[pymethods]
 impl PySignedPercentage2D {
@@ -314,20 +278,11 @@ impl PySignedPercentage2D {
     }
 }
 
-py_type_casts!(PySignedPercentage2D, feagi_connector_core::data_types::SignedPercentage2D);
-py_object_cast_generic!(PySignedPercentage2D, feagi_connector_core::data_types::SignedPercentage2D, "Unable to retrieve SignedPercentage2D data from given!");
-project_display!(PySignedPercentage2D);
-
 //endregion
 
 //region 3D Percentage Types
 
-#[pyclass(str)]
-#[pyo3(name = "Percentage3D")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyPercentage3D {
-    inner: feagi_connector_core::data_types::Percentage3D
-}
+create_pyclass!(PyPercentage3D, feagi_connector_core::data_types::Percentage3D, "Percentage3D");
 
 #[pymethods]
 impl PyPercentage3D {
@@ -383,16 +338,7 @@ impl PyPercentage3D {
     }
 }
 
-py_type_casts!(PyPercentage3D, feagi_connector_core::data_types::Percentage3D);
-py_object_cast_generic!(PyPercentage3D, feagi_connector_core::data_types::Percentage3D, "Unable to retrieve Percentage3D data from given!");
-project_display!(PyPercentage3D);
-
-#[pyclass(str)]
-#[pyo3(name = "SignedPercentage3D")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PySignedPercentage3D {
-    inner: feagi_connector_core::data_types::SignedPercentage3D
-}
+create_pyclass!(PySignedPercentage3D, feagi_connector_core::data_types::SignedPercentage3D, "SignedPercentage3D");
 
 #[pymethods]
 impl PySignedPercentage3D {
@@ -448,20 +394,11 @@ impl PySignedPercentage3D {
     }
 }
 
-py_type_casts!(PySignedPercentage3D, feagi_connector_core::data_types::SignedPercentage3D);
-py_object_cast_generic!(PySignedPercentage3D, feagi_connector_core::data_types::SignedPercentage3D, "Unable to retrieve SignedPercentage3D data from given!");
-project_display!(PySignedPercentage3D);
-
 //endregion
 
 //region 4D Percentage Types
 
-#[pyclass(str)]
-#[pyo3(name = "Percentage4D")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyPercentage4D {
-    inner: feagi_connector_core::data_types::Percentage4D
-}
+create_pyclass!(PyPercentage4D, feagi_connector_core::data_types::Percentage4D, "Percentage4D");
 
 #[pymethods]
 impl PyPercentage4D {
@@ -527,16 +464,7 @@ impl PyPercentage4D {
     }
 }
 
-py_type_casts!(PyPercentage4D, feagi_connector_core::data_types::Percentage4D);
-py_object_cast_generic!(PyPercentage4D, feagi_connector_core::data_types::Percentage4D, "Unable to retrieve Percentage4D data from given!");
-project_display!(PyPercentage4D);
-
-#[pyclass(str)]
-#[pyo3(name = "SignedPercentage4D")]
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PySignedPercentage4D {
-    inner: feagi_connector_core::data_types::SignedPercentage4D
-}
+create_pyclass!(PySignedPercentage4D, feagi_connector_core::data_types::SignedPercentage4D, "SignedPercentage4D");
 
 #[pymethods]
 impl PySignedPercentage4D {
@@ -601,9 +529,5 @@ impl PySignedPercentage4D {
         self.inner.d = value.into();
     }
 }
-
-py_type_casts!(PySignedPercentage4D, feagi_connector_core::data_types::SignedPercentage4D);
-py_object_cast_generic!(PySignedPercentage4D, feagi_connector_core::data_types::SignedPercentage4D, "Unable to retrieve SignedPercentage4D data from given!");
-project_display!(PySignedPercentage4D);
 
 //endregion

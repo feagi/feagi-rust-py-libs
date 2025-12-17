@@ -1,15 +1,11 @@
-use feagi_data_serialization::FeagiByteStructureType;
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use feagi_data_serialization::FeagiByteStructureType;
+use crate::{wrap_flat_enum, __base_py_class_shared};
 
-#[pyclass(str)]
-#[pyo3(name = "FeagiByteStructureType")]
-#[derive(Clone)]
-pub struct PyFeagiByteStructureType {
-    pub inner: FeagiByteStructureType,
-}
+wrap_flat_enum!(PyFeagiByteStructureType, FeagiByteStructureType, "FeagiByteStructureType");
+
 
 #[pymethods]
 #[allow(non_snake_case)]
@@ -25,7 +21,3 @@ impl PyFeagiByteStructureType {
     }
     
 }
-
-project_display!(PyFeagiByteStructureType);
-py_type_casts!(PyFeagiByteStructureType, FeagiByteStructureType);
-py_object_cast_generic!(PyFeagiByteStructureType, FeagiByteStructureType, "Unable to retrieve FeagiByteStructureType data from given!");
