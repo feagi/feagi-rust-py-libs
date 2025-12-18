@@ -36,9 +36,9 @@ fn init_rust_logging() {
     });
 }
 
-/// Register the feagi_agent_sdk module with Python
+/// Register the feagi_agent module with Python
 pub fn register_module(py: Python, parent_module: &Bound<'_, PyModule>) -> PyResult<()> {
-    let submodule = PyModule::new(py, "feagi_agent_sdk")?;
+    let submodule = PyModule::new(py, "feagi_agent")?;
     
     // Register types
     submodule.add_class::<PyAgentClient>()?;

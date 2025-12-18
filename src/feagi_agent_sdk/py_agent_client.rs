@@ -9,14 +9,14 @@ use std::sync::{Arc, Mutex};
 
 #[pyclass(name = "PyAgentClient")]
 pub struct PyAgentClient {
-    inner: Arc<Mutex<feagi_agent_sdk::AgentClient>>,
+    inner: Arc<Mutex<feagi_agent::AgentClient>>,
 }
 
 #[pymethods]
 impl PyAgentClient {
     #[new]
     fn new(config: &PyAgentConfig) -> PyResult<Self> {
-        let client = feagi_agent_sdk::AgentClient::new(config.inner().clone())
+        let client = feagi_agent::AgentClient::new(config.inner().clone())
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
         
         Ok(PyAgentClient {

@@ -8,14 +8,14 @@ use super::py_agent_type::PyAgentType;
 #[pyclass(name = "PyAgentConfig")]
 #[derive(Clone)]
 pub struct PyAgentConfig {
-    inner: feagi_agent_sdk::AgentConfig,
+    inner: feagi_agent::AgentConfig,
 }
 
 #[pymethods]
 impl PyAgentConfig {
     #[new]
     fn new(agent_id: String, agent_type: PyAgentType) -> Self {
-        let inner = feagi_agent_sdk::AgentConfig::new(agent_id, agent_type.inner());
+        let inner = feagi_agent::AgentConfig::new(agent_id, agent_type.inner());
         PyAgentConfig { inner }
     }
     
@@ -129,11 +129,11 @@ impl PyAgentConfig {
 }
 
 impl PyAgentConfig {
-    pub fn inner(&self) -> &feagi_agent_sdk::AgentConfig {
+    pub fn inner(&self) -> &feagi_agent::AgentConfig {
         &self.inner
     }
     
-    pub fn into_inner(self) -> feagi_agent_sdk::AgentConfig {
+    pub fn into_inner(self) -> feagi_agent::AgentConfig {
         self.inner
     }
 }

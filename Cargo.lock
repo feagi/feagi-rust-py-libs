@@ -391,30 +391,31 @@ name = "feagi-async"
 version = "0.0.1"
 
 [[package]]
-name = "feagi_connector_core"
+name = "feagi-connector-core"
 version = "2.0.0"
 dependencies = [
- "feagi_data_serialization",
- "feagi_data_structures",
+ "feagi-data-serialization",
+ "feagi-data-structures",
  "image",
  "ndarray",
  "paste",
  "rayon",
  "serde",
+ "serde_json",
  "tracing",
 ]
 
 [[package]]
-name = "feagi_data_serialization"
+name = "feagi-data-serialization"
 version = "2.0.0"
 dependencies = [
  "byteorder",
- "feagi_data_structures",
+ "feagi-data-structures",
  "serde_json",
 ]
 
 [[package]]
-name = "feagi_data_structures"
+name = "feagi-data-structures"
 version = "2.0.0"
 dependencies = [
  "base64",
@@ -431,9 +432,9 @@ dependencies = [
 name = "feagi_rust_py_libs"
 version = "0.0.80"
 dependencies = [
- "feagi_connector_core",
- "feagi_data_serialization",
- "feagi_data_structures",
+ "feagi-connector-core",
+ "feagi-data-serialization",
+ "feagi-data-structures",
  "ndarray",
  "numpy",
  "paste",
