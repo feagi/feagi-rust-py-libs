@@ -130,9 +130,12 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
    // Data Pipeline Stage Properties
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageFrameSegmentatorStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImagePixelValueCountThresholdStageProperties);
+    
+    // TEMPORARILY DISABLED: Individual stage property wrappers need refactoring after json_config merge
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageFrameSegmentatorStageProperties);
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
+    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImagePixelValueCountThresholdStageProperties);
+    
     add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
     
     // Register init_rust_logging function

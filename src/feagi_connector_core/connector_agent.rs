@@ -146,7 +146,7 @@ macro_rules! sensor_unit_functions {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
-                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::from_py_to_box(py, &updating_property).map_err(PyFeagiError::from)?;
+                    let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
                     self.get_sensor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -162,7 +162,7 @@ macro_rules! sensor_unit_functions {
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
-                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec_box(py, &updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
                     self.get_sensor_cache().[<$snake_case_name _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
 
@@ -182,7 +182,7 @@ macro_rules! sensor_unit_functions {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
-                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::from_py_to_box(py, &updating_property).map_err(PyFeagiError::from)?;
+                    let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
                     self.get_sensor_cache().[<$snake_case_name _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -199,7 +199,7 @@ macro_rules! sensor_unit_functions {
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
-                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec_box(py, &updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
                     self.get_sensor_cache().[<$snake_case_name _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -581,7 +581,7 @@ macro_rules! motor_unit_functions {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
-                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::from_py_to_box(py, &updating_property).map_err(PyFeagiError::from)?;
+                    let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
                     self.get_motor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -597,7 +597,7 @@ macro_rules! motor_unit_functions {
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
-                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec_box(py, &updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
                     self.get_motor_cache().[<$snake_case_name _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
 
@@ -616,7 +616,7 @@ macro_rules! motor_unit_functions {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
-                    let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = PyPipelineStageProperties::from_py_to_box(py, &updating_property).map_err(PyFeagiError::from)?;
+                    let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
                     self.get_motor_cache().[<$snake_case_name _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -632,7 +632,7 @@ macro_rules! motor_unit_functions {
                 {
                     let group: CorticalGroupIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
-                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec_box(py, &updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
                     self.get_motor_cache().[<$snake_case_name _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -874,6 +874,39 @@ impl PyConnectorAgent {
         PyConnectorAgent {
             inner: ConnectorAgent::new(),
         }
+    }
+
+    /// Export all registered device capabilities as JSON string in new format
+    /// 
+    /// Returns a JSON string containing all registered sensors and motors with their
+    /// configurations including pipeline stages and friendly names.
+    /// 
+    /// # Returns
+    /// JSON string in format: {"capabilities": {"input": {...}, "output": {...}}}
+    pub fn export_capabilities_json(&self, _py: Python<'_>) -> PyResult<String> {
+        let json_value = self.inner.export_device_registrations_as_config_json()
+            .map_err(PyFeagiError::from)?;
+        serde_json::to_string_pretty(&json_value)
+            .map_err(|e| PyFeagiError::from(FeagiDataError::SerializationError(e.to_string())))
+            .map_err(Into::into)
+    }
+    
+    /// Import capabilities from JSON string (devices must be registered first!)
+    /// 
+    /// Parses JSON and updates pipeline stages and friendly names for already-registered devices.
+    /// Devices must be registered first using the appropriate register functions (e.g., sensor_simple_vision_register).
+    /// 
+    /// # Arguments
+    /// * `json_str` - JSON string in new capabilities format
+    /// 
+    /// # Raises
+    /// * `FeagiError` - If JSON is malformed or references unregistered devices
+    pub fn import_capabilities_json(&mut self, json_str: &str, py: Python<'_>) -> PyResult<()> {
+        py.allow_threads(|| {
+            self.inner.import_device_registrations_from_config_json(json_str)
+                .map_err(PyFeagiError::from)?;
+            Ok(())
+        })
     }
 
     /// Encode all cached sensor data to bytes
