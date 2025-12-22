@@ -131,10 +131,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
    // Data Pipeline Stage Properties
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
     
-    // TEMPORARILY DISABLED: Individual stage property wrappers need refactoring after json_config merge
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageFrameSegmentatorStageProperties);
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
-    // add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImagePixelValueCountThresholdStageProperties);
+    // TODO: Add standalone constructor functions for backward compatibility
+    // This requires manually building the Python module hierarchy
+    // For now, users can call PipelineStageProperties.new_image_frame_segmentator()
     
     add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
     

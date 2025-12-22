@@ -29,6 +29,40 @@ impl PyPipelineStageProperties {
     pub fn variant_name(&self) -> PyResult<String> {
         Ok(self.inner.variant_name().to_string())
     }
+    
+    // Constructor methods for enum variants
+    #[staticmethod]
+    pub fn new_image_frame_segmentator(
+        input_props: crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties,
+        output_props: crate::feagi_connector_core::data_types::descriptors::PySegmentedImageFrameProperties,
+        gaze: crate::feagi_connector_core::data_types::PyGazeProperties,
+    ) -> PyResult<Self> {
+        Ok(Self {
+            inner: PipelineStageProperties::ImageFrameSegmentator {
+                input_image_properties: input_props.inner,
+                output_image_properties: output_props.inner,
+                segmentation_gaze: gaze.inner,
+            }
+        })
+    }
+    
+    #[staticmethod]
+    pub fn new_image_quick_diff(
+        per_pixel_min: u8,
+        per_pixel_max: u8,
+        activity_min: crate::feagi_connector_core::data_types::PyPercentage,
+        activity_max: crate::feagi_connector_core::data_types::PyPercentage,
+        input_props: crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties,
+    ) -> PyResult<Self> {
+        use std::ops::RangeInclusive;
+        Ok(Self {
+            inner: PipelineStageProperties::ImageQuickDiff {
+                per_pixel_allowed_range: RangeInclusive::new(per_pixel_min, per_pixel_max),
+                acceptable_amount_of_activity_in_image: RangeInclusive::new(activity_min.inner, activity_max.inner),
+                image_properties: input_props.inner,
+            }
+        })
+    }
 }
 
 impl From<PipelineStageProperties> for PyPipelineStageProperties {
@@ -74,5 +108,4 @@ impl PyPipelineStageProperties {
             .collect()
     }
 }
-
 

@@ -25,10 +25,6 @@ impl PyFeagiByteContainer {
     fn as_any<'py>(slf: Bound<'py, Self>) -> Py<PyAny> {
         slf.unbind().into_any()
     }
-}
-
-#[pymethods]
-impl PyFeagiByteContainer {
 
     //region Constructors
 
@@ -93,6 +89,38 @@ impl PyFeagiByteContainer {
         let voxels: CorticalMappedXYZPNeuronVoxels = feagi_serializable.try_into().map_err(PyFeagiError::from)?; // TODO support other types too!
         let py_voxels = PyCorticalMappedXYZPNeuronVoxels::python_etc_child_constructor(py, voxels)?;
         Ok(py_voxels.into_any())
+    }
+    
+    //endregion
+
+    //region Adding Struct Data
+
+    /// Add a serializable structure to the container.
+    /// 
+    /// This overwrites any existing data in the container and wraps the structure
+    /// in a FeagiByteContainer with version 2 header.
+    /// 
+    /// Args:
+    ///     struct_obj: A PyFeagiSerializable object (e.g., CorticalMappedXYZPNeuronVoxels)
+    ///     increment_value: Optional increment counter value (defaults to 0)
+    /// 
+    /// Returns:
+    ///     None on success
+    pub fn add_struct(&mut self, struct_obj: &Bound<PyAny>, increment_value: Option<u16>) -> PyResult<()> {
+        // Try to downcast to PyCorticalMappedXYZPNeuronVoxels
+        if let Ok(py_voxels) = struct_obj.downcast::<PyCorticalMappedXYZPNeuronVoxels>() {
+            // Get a reference to the inner structure
+            let voxels_ref: &dyn FeagiSerializable = &py_voxels.borrow().inner;
+            self.inner.overwrite_byte_data_with_multiple_struct_data(
+                vec![voxels_ref],
+                increment_value.unwrap_or(0),
+            ).map_err(PyFeagiError::from)?;
+            Ok(())
+        } else {
+            Err(PyErr::new::<PyValueError, _>(
+                "Unsupported structure type. Currently only CorticalMappedXYZPNeuronVoxels is supported."
+            ))
+        }
     }
     
     //endregion
