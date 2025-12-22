@@ -1,10 +1,10 @@
 use std::ops::RangeInclusive;
-use feagi_connector_core::data_pipeline::PipelineStageProperties;
+use feagi_sensorimotor::data_pipeline::PipelineStageProperties;
 use pyo3::{pyclass, pymethods, PyResult, PyRef, PyRefMut};
 use pyo3::prelude::*;
-use feagi_connector_core::data_pipeline::stage_properties::ImagePixelValueCountThresholdStageProperties;
-use feagi_connector_core::data_types::descriptors::ImageFrameProperties;
-use feagi_connector_core::data_types::Percentage;
+use feagi_sensorimotor::data_pipeline::stage_properties::ImagePixelValueCountThresholdStageProperties;
+use feagi_sensorimotor::data_types::descriptors::ImageFrameProperties;
+use feagi_sensorimotor::data_types::Percentage;
 use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties;

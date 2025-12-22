@@ -1,6 +1,6 @@
 use pyo3::{pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_connector_core::data_pipeline::PipelineStageProperties;
+use feagi_sensorimotor::data_pipeline::PipelineStageProperties;
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
 
 /// PyO3 wrapper for PipelineStageProperties enum

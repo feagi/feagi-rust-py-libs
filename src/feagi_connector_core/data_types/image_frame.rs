@@ -1,7 +1,7 @@
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
-use feagi_connector_core::data_types::ImageFrame;
+use feagi_sensorimotor::data_types::ImageFrame;
 use pyo3::types::PyBytes;
 use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::{create_pyclass, __base_py_class_shared};

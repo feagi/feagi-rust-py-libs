@@ -1,5 +1,5 @@
-use feagi_connector_core::data_types::descriptors::MiscDataDimensions;
-use feagi_connector_core::data_types::MiscData;
+use feagi_sensorimotor::data_types::descriptors::MiscDataDimensions;
+use feagi_sensorimotor::data_types::MiscData;
 use numpy::{PyArray3, PyReadonlyArray3};
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;

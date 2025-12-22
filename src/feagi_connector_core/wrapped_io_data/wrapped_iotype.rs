@@ -1,5 +1,5 @@
-use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, MiscDataDimensions, SegmentedImageFrameProperties};
-use feagi_connector_core::wrapped_io_data::WrappedIOType;
+use feagi_sensorimotor::data_types::descriptors::{ImageFrameProperties, MiscDataDimensions, SegmentedImageFrameProperties};
+use feagi_sensorimotor::wrapped_io_data::WrappedIOType;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;

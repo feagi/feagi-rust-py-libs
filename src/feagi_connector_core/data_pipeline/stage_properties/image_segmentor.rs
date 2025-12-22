@@ -1,9 +1,9 @@
-use feagi_connector_core::data_pipeline::PipelineStageProperties;
+use feagi_sensorimotor::data_pipeline::PipelineStageProperties;
 use pyo3::{pymethods, PyResult, PyRef, PyRefMut};
 use pyo3::prelude::*;
-use feagi_connector_core::data_pipeline::stage_properties::ImageFrameSegmentatorStageProperties;
-use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
-use feagi_connector_core::data_types::GazeProperties;
+use feagi_sensorimotor::data_pipeline::stage_properties::ImageFrameSegmentatorStageProperties;
+use feagi_sensorimotor::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
+use feagi_sensorimotor::data_types::GazeProperties;
 use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};

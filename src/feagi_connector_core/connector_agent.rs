@@ -8,12 +8,12 @@ use feagi_data_structures::{motor_cortical_units, sensor_cortical_units, FeagiDa
 use feagi_data_structures::genomic::cortical_area::descriptors::*;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::FrameChangeHandling;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::PercentageNeuronPositioning;
-use feagi_connector_core::caching::{MotorDeviceCache, SensorDeviceCache};
-use feagi_connector_core::ConnectorAgent;
-use feagi_connector_core::data_pipeline::{PipelineStageProperties, PipelineStagePropertyIndex};
-use feagi_connector_core::data_types::*;
-use feagi_connector_core::data_types::descriptors::*;
-use feagi_connector_core::wrapped_io_data::WrappedIOData;
+use feagi_sensorimotor::caching::{MotorDeviceCache, SensorDeviceCache};
+use feagi_sensorimotor::ConnectorAgent;
+use feagi_sensorimotor::data_pipeline::{PipelineStageProperties, PipelineStagePropertyIndex};
+use feagi_sensorimotor::data_types::*;
+use feagi_sensorimotor::data_types::descriptors::*;
+use feagi_sensorimotor::wrapped_io_data::WrappedIOData;
 use crate::feagi_connector_core::data_types::descriptors::PyMiscDataDimensions;
 use crate::{create_pyclass_no_clone, __base_py_class_shared};
 use crate::py_error::PyFeagiError;
