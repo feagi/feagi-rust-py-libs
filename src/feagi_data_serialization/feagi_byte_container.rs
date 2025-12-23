@@ -1,4 +1,4 @@
-use feagi_data_serialization::{FeagiByteContainer, FeagiByteStructureType, FeagiSerializable};
+use feagi_serialization::{FeagiByteContainer, FeagiByteStructureType, FeagiSerializable};
 use feagi_data_structures::neuron_voxels::xyzp::CorticalMappedXYZPNeuronVoxels;
 use feagi_data_structures::{FeagiDataError, FeagiJSON};
 use pyo3::{pyclass, PyObject};

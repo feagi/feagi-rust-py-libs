@@ -21,7 +21,7 @@ use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::*;
 use crate::feagi_connector_core::wrapped_io_data::{py_any_to_wrapped_io_data, wrapped_io_data_to_py_object};
-use crate::feagi_data_serialization::PyFeagiByteContainer;
+use crate::feagi_serialization::PyFeagiByteContainer;
 use crate::feagi_data_structures::genomic::cortical_area::*;
 
 type Pybool = bool; // ALL HAIL THE LOAD BEARING BOOLEAN
@@ -974,7 +974,7 @@ impl PyConnectorAgent {
 /// Returns the FeagiByteContainer after encoding. Call sensors_encode_cached_data_to_bytes()
 /// first to encode the data.
 pub fn sensor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
-    use crate::feagi_data_serialization::PyFeagiByteContainer;
+    use crate::feagi_serialization::PyFeagiByteContainer;
 
     let sensor_cache = self.get_sensor_cache();
     let byte_container = sensor_cache.get_feagi_byte_container();
@@ -990,7 +990,7 @@ pub fn sensor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
 /// Returns the FeagiByteContainer after encoding. Call motors_encode_cached_data_to_bytes()
 /// first to encode the data.
 pub fn motor_get_byte_container(&self) -> PyResult<PyFeagiByteContainer> {
-    use crate::feagi_data_serialization::PyFeagiByteContainer;
+    use crate::feagi_serialization::PyFeagiByteContainer;
 
     let motor_cache = self.get_motor_cache();
     let byte_container = motor_cache.get_feagi_byte_container();

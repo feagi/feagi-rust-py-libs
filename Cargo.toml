@@ -20,8 +20,8 @@ crate-type = ["cdylib"]
 #feagi-io = { path = "../feagi-core/crates/feagi-io" }
 #feagi-evo = { path = "../feagi-core/crates/feagi-evo" }
 feagi-sensorimotor = { path = "../feagi-core/crates/feagi-sensorimotor" }
-feagi-data-serialization = { path = "../feagi-core/crates/feagi-data-serialization" }
-feagi-data-structures = { path = "../feagi-core/crates/feagi-data-structures" }
+feagi-serialization = { path = "../feagi-core/crates/feagi-serialization" }
+feagi-structures = { path = "../feagi-core/crates/feagi-structures" }
 numpy = "0.27.1"
 ndarray = "0.17"
 paste = "1.0.15"
@@ -31,7 +31,7 @@ tracing = "0.1.43"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 
 [build-dependencies]
-feagi-data-structures = { path = "../feagi-core/crates/feagi-data-structures" }
+feagi-structures = { path = "../feagi-core/crates/feagi-structures" }
 
 [dependencies.pyo3]
 version = "0.27.2"

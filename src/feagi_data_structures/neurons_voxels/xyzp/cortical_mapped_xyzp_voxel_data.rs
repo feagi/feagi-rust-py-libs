@@ -2,9 +2,9 @@ use pyo3::{pyclass, pymethods, PyResult, Py};
 use pyo3::prelude::*;
 use numpy::PyArray1;
 use feagi_data_structures::neuron_voxels::xyzp::{CorticalMappedXYZPNeuronVoxels};
-use feagi_data_serialization::FeagiSerializable;
+use feagi_serialization::FeagiSerializable;
 use crate::create_trait_child_pyclass;
-use crate::feagi_data_serialization::{PyFeagiSerializable, PyFeagiByteStructureType};
+use crate::feagi_serialization::{PyFeagiSerializable, PyFeagiByteStructureType};
 use crate::feagi_data_structures::genomic::cortical_area::PyCorticalID;
 use super::neuron_voxel_xyzp_arrays::{PyNeuronVoxelXYZPArrays, tuple_nd_array_to_tuple_np_array};
 
@@ -168,7 +168,7 @@ impl PyCorticalMappedXYZPNeuronVoxels {
     /// # Send binary_data over ZMQ
     /// ```
     pub fn serialize_to_bytes(&self) -> PyResult<Vec<u8>> {
-        use feagi_data_serialization::FeagiSerializable;
+        use feagi_serialization::FeagiSerializable;
         let byte_count = self.inner.get_number_of_bytes_needed();
         let mut buffer = vec![0u8; byte_count];
         self.inner.try_serialize_struct_to_byte_slice(&mut buffer)

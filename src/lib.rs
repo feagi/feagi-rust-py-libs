@@ -5,7 +5,7 @@
 mod py_error;
 mod useful_macros;
 mod feagi_data_structures;
-mod feagi_data_serialization;
+mod feagi_serialization;
 mod feagi_connector_core;
 //mod feagi_agent;
 //mod feagi_evo;
@@ -89,9 +89,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     
     //region Feagi Data Serialization
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiByteStructureType);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiSerializable);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiByteContainer);
     
     //endregion
     

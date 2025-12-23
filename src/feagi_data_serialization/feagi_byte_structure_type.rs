@@ -1,7 +1,7 @@
 use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
-use feagi_data_serialization::FeagiByteStructureType;
+use feagi_serialization::FeagiByteStructureType;
 use crate::{wrap_flat_enum, __base_py_class_shared};
 
 wrap_flat_enum!(PyFeagiByteStructureType, FeagiByteStructureType, "FeagiByteStructureType");
