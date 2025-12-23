@@ -125,6 +125,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyCornerPoints);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMiscDataDimensions);
     
+    // Data Types Processing
+    add_python_class!(py, m, "connector_core.data_types.processing", feagi_connector_core::data_types::processing::PyImageFrameProcessor);
+    
     //Wrapped IO Data
     add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 

@@ -1,7 +1,9 @@
 use pyo3::{pymethods, PyResult};
 use pyo3::prelude::*;
+use pyo3::exceptions::PyValueError;
 use feagi_sensorimotor::data_pipeline::PipelineStageProperties;
 use crate::feagi_connector_core::wrapped_io_data::PyWrappedIOType;
+use crate::feagi_connector_core::data_types::processing::PyImageFrameProcessor;
 
 /// PyO3 wrapper for PipelineStageProperties enum
 /// 
@@ -28,6 +30,22 @@ impl PyPipelineStageProperties {
     
     pub fn variant_name(&self) -> PyResult<String> {
         Ok(self.inner.variant_name().to_string())
+    }
+
+    /// Returns the transformer definition for `ImageFrameProcessor` stages.
+    ///
+    /// This is used by the Python SDK to update brightness/contrast dynamically by
+    /// reading the existing processor config, mutating it, and writing it back.
+    pub fn get_transformer_definition(&self) -> PyResult<PyImageFrameProcessor> {
+        match &self.inner {
+            PipelineStageProperties::ImageFrameProcessor { transformer_definition } => {
+                Ok(transformer_definition.clone().into())
+            }
+            other => Err(PyValueError::new_err(format!(
+                "Stage properties are not ImageFrameProcessor (got {})",
+                other.variant_name()
+            ))),
+        }
     }
     
     // Constructor methods for enum variants
@@ -60,6 +78,17 @@ impl PyPipelineStageProperties {
                 per_pixel_allowed_range: RangeInclusive::new(per_pixel_min, per_pixel_max),
                 acceptable_amount_of_activity_in_image: RangeInclusive::new(activity_min.inner, activity_max.inner),
                 image_properties: input_props.inner,
+            }
+        })
+    }
+    
+    #[staticmethod]
+    pub fn new_image_frame_processor(
+        transformer_definition: crate::feagi_connector_core::data_types::processing::PyImageFrameProcessor,
+    ) -> PyResult<Self> {
+        Ok(Self {
+            inner: PipelineStageProperties::ImageFrameProcessor {
+                transformer_definition: transformer_definition.into(),
             }
         })
     }

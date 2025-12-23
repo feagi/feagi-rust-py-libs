@@ -1,13 +1,9 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyValueError};
-use pyo3::prelude::*;
-use feagi_data_structures::FeagiDataError;
-use feagi_sensorimotor::processor::ImageFrameProcessor;
-use crate::feagi_connector_core::data::descriptors::PyImageFrameProperties;
-use crate::{project_display, py_object_cast_generic, py_type_casts};
+use feagi_sensorimotor::data_types::processing::ImageFrameProcessor;
+use crate::feagi_connector_core::data_types::descriptors::PyImageFrameProperties;
 
-#[pyclass(str)]
-#[pyo3(name = "ImageFrameProcessor")]
+#[pyclass(name = "ImageFrameProcessor")]
 #[derive(Clone)]
 pub struct PyImageFrameProcessor {
     inner: ImageFrameProcessor
@@ -36,12 +32,14 @@ impl PyImageFrameProcessor {
     //region Set Settings
 
     pub fn set_brightness_offset(&mut self, brightness_offset: i32) -> PyResult<()> {
-        self.inner.set_brightness_offset(brightness_offset);
+        self.inner.set_brightness_offset(brightness_offset)
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
         Ok(())
     }
 
     pub fn set_contrast_change(&mut self, contrast_change: f32) -> PyResult<()> {
-        self.inner.set_contrast_change(contrast_change);
+        self.inner.set_contrast_change(contrast_change)
+            .map_err(|e| PyValueError::new_err(e.to_string()))?;
         Ok(())
     }
 
@@ -51,6 +49,14 @@ impl PyImageFrameProcessor {
 
 }
 
-py_type_casts!(PyImageFrameProcessor, ImageFrameProcessor);
-py_object_cast_generic!(PyImageFrameProcessor, ImageFrameProcessor, "Unable to retrieve ImageFrameProcessor data from given!");
-project_display!(PyImageFrameProcessor);
+impl From<ImageFrameProcessor> for PyImageFrameProcessor {
+    fn from(inner: ImageFrameProcessor) -> Self {
+        PyImageFrameProcessor { inner }
+    }
+}
+
+impl From<PyImageFrameProcessor> for ImageFrameProcessor {
+    fn from(val: PyImageFrameProcessor) -> Self {
+        val.inner
+    }
+}
