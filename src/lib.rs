@@ -5,7 +5,8 @@
 mod py_error;
 mod useful_macros;
 mod feagi_data_structures;
-mod feagi_serialization;
+pub mod feagi_data_serialization;
+pub use feagi_data_serialization as feagi_serialization;
 mod feagi_connector_core;
 //mod feagi_agent;
 //mod feagi_evo;

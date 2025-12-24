@@ -947,14 +947,19 @@ impl PyConnectorAgent {
             let mut motor_cache = self.get_motor_cache();
             let mut byte_container = motor_cache.get_feagi_byte_container_mut();;
             byte_container.try_write_data_by_ownership_to_container_and_verify(byte_data).map_err(PyFeagiError::from)?;
+            return Ok(());
         }
         else if let Ok(bytes) = Bound::cast::<PyBytes>(obj) {
             let byte_data = bytes.extract::<&[u8]>()?;
             let mut motor_cache = self.get_motor_cache();
             let mut byte_container = motor_cache.get_feagi_byte_container_mut();;
             byte_container.try_write_data_by_copy_and_verify(byte_data).map_err(PyFeagiError::from)?;
+            return Ok(());
         }
-        Err(FeagiDataError::BadParameters("Expected preferably a ByteArray or Bytes!".into())).map_err(PyFeagiError::from)?
+        Err(PyFeagiError::from(FeagiDataError::BadParameters(
+            "Expected preferably a ByteArray or Bytes!".into(),
+        ))
+        .into())
     }
 
     pub fn motors_decode_cached_byte_data_to_motor(&mut self) -> PyResult<()> {

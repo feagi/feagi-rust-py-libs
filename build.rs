@@ -1,6 +1,8 @@
 mod rust_build_scripts;
 use std::fs;
 
+// NOTE: This crate uses a Cargo alias so existing code can refer to the
+// `feagi-structures` package as `feagi_data_structures`.
 use feagi_data_structures::motor_cortical_units;
 
 fn main() {
