@@ -95,4 +95,21 @@ impl PyMotorCorticalUnit {
         );
         Ok(ids.into_iter().map(Into::into).collect())
     }
+
+    /// Get the default per-channel dimensions for Object Segmentation (`oseg`).
+    ///
+    /// This returns the *per-channel* dimensions (channel_dimensions_default) from the
+    /// canonical `MotorCorticalUnit::ObjectSegmentation` template.
+    ///
+    /// Returns:
+    ///     (width, height, depth) as (u32, u32, u32)
+    #[staticmethod]
+    pub fn object_segmentation_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
+        let topology = MotorCorticalUnit::ObjectSegmentation.get_unit_default_topology();
+        let props = topology
+            .get(&0)
+            .ok_or_else(|| PyValueError::new_err("ObjectSegmentation missing area index 0"))?;
+        let dims = props.channel_dimensions_default;
+        Ok((dims[0], dims[1], dims[2]))
+    }
 }
