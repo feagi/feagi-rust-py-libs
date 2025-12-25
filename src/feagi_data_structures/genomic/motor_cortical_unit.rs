@@ -21,6 +21,7 @@ macro_rules! define_motor_cortical_units_enum {
                     cortical_type_parameters: {
                         $($param_name:ident: $param_type:ty),* $(,)?
                     },
+                    $(allowed_frame_change_handling: [$($allowed_frame:ident),* $(,)?],)?
                     cortical_area_properties: {
                         $($area_index:tt => ($cortical_area_type_expr:expr, relative_position: [$rel_x:expr, $rel_y:expr, $rel_z:expr], channel_dimensions_default: [$dim_default_x:expr, $dim_default_y:expr, $dim_default_z:expr], channel_dimensions_min: [$dim_min_x:expr, $dim_min_y:expr, $dim_min_z:expr], channel_dimensions_max: [$dim_max_x:expr, $dim_max_y:expr, $dim_max_z:expr])),* $(,)?
                     }
@@ -109,6 +110,46 @@ impl PyMotorCorticalUnit {
         let props = topology
             .get(&0)
             .ok_or_else(|| PyValueError::new_err("ObjectSegmentation missing area index 0"))?;
+        let dims = props.channel_dimensions_default;
+        Ok((dims[0], dims[1], dims[2]))
+    }
+
+    /// Generate the output cortical IDs for Simple Vision Output (`oimg`) for a given group.
+    ///
+    /// This uses the Rust `MotorCorticalUnit` template as the single source of truth.
+    ///
+    /// Args:
+    ///     frame_change_handling: Absolute/Incremental handling.
+    ///     group: Cortical group index (u8).
+    ///
+    /// Returns:
+    ///     List of CorticalID objects (typically length 1 for `oimg`).
+    #[staticmethod]
+    pub fn simple_vision_output_cortical_ids(
+        frame_change_handling: PyFrameChangeHandling,
+        group: u8,
+    ) -> PyResult<Vec<PyCorticalID>> {
+        let group: CorticalGroupIndex = group.into();
+        let ids = MotorCorticalUnit::get_cortical_ids_array_for_simple_vision_output(
+            frame_change_handling.inner,
+            group,
+        );
+        Ok(ids.into_iter().map(Into::into).collect())
+    }
+
+    /// Get the default per-channel dimensions for Simple Vision Output (`oimg`).
+    ///
+    /// This returns the *per-channel* dimensions (channel_dimensions_default) from the
+    /// canonical `MotorCorticalUnit::SimpleVisionOutput` template.
+    ///
+    /// Returns:
+    ///     (width, height, depth) as (u32, u32, u32)
+    #[staticmethod]
+    pub fn simple_vision_output_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
+        let topology = MotorCorticalUnit::SimpleVisionOutput.get_unit_default_topology();
+        let props = topology
+            .get(&0)
+            .ok_or_else(|| PyValueError::new_err("SimpleVisionOutput missing area index 0"))?;
         let dims = props.channel_dimensions_default;
         Ok((dims[0], dims[1], dims[2]))
     }

@@ -8,7 +8,7 @@ mod feagi_data_structures;
 pub mod feagi_data_serialization;
 pub use feagi_data_serialization as feagi_serialization;
 mod feagi_connector_core;
-//mod feagi_agent;
+mod feagi_agent_sdk;
 //mod feagi_evo;
 
 use pyo3::prelude::*;
@@ -150,7 +150,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region FEAGI Agent SDK
     
     // Register the agent SDK module
-    //feagi_agent::register_module(py, m)?;
+    feagi_agent_sdk::register_module(py, m)?;
     
     //endregion
     

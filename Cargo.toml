@@ -16,7 +16,7 @@ name = "feagi_rust_py_libs"
 crate-type = ["cdylib"]
 
 [dependencies]
-#feagi-agent = { path = "../feagi-core/crates/feagi-agent" }
+feagi-agent = { path = "../feagi-core/crates/feagi-agent" }
 #feagi-io = { path = "../feagi-core/crates/feagi-io" }
 #feagi-evo = { path = "../feagi-core/crates/feagi-evo" }
 feagi-sensorimotor = { path = "../feagi-core/crates/feagi-sensorimotor" }

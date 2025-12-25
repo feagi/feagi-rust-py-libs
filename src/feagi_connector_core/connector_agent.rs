@@ -481,6 +481,7 @@ macro_rules! motor_unit_functions {
                     cortical_type_parameters: {
                         $($param_name:ident: $param_type:ty),* $(,)?
                     },
+                    $(allowed_frame_change_handling: [$($allowed_frame:ident),* $(,)?],)?
                     cortical_area_properties: {
                         $($area_index:tt => ($cortical_area_type_expr:expr, relative_position: [$rel_x:expr, $rel_y:expr, $rel_z:expr], channel_dimensions_default: [$dim_default_x:expr, $dim_default_y:expr, $dim_default_z:expr], channel_dimensions_min: [$dim_min_x:expr, $dim_min_y:expr, $dim_min_z:expr], channel_dimensions_max: [$dim_max_x:expr, $dim_max_y:expr, $dim_max_z:expr])),* $(,)?
                     }
@@ -827,6 +828,17 @@ macro_rules! motor_unit_functions {
             }
         }
         motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, MiscData);
+    };
+
+    // Arm for WrappedIOType::ImageFrame
+    (@generate_functions
+        $motor_unit:ident,
+        $snake_case_name:expr,
+        ImageFrame
+    ) => {
+        // ImageFrame for motor output (oimg) - typically doesn't need Python connector registration
+        // The motor device cache handles it internally via the Rust decoder.
+        // Stub to satisfy macro - no-op.
     };
 
 }
