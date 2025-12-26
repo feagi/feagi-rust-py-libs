@@ -3,7 +3,7 @@
  */
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyAny};
+use pyo3::types::{PyAny, PyBytes, PyList};
 use super::py_agent_config::PyAgentConfig;
 use std::sync::{Arc, Mutex};
 
@@ -59,6 +59,22 @@ impl PyAgentClient {
         
         // Send data (ZMQ sockets are not Sync, so we can't release GIL)
         client.send_sensory_data(pairs)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+    }
+
+    /// Send pre-serialized sensory bytes to FEAGI (FeagiByteContainer bytes).
+    ///
+    /// Real-time semantics: the underlying Rust client drops on backpressure instead of blocking.
+    fn send_sensory_bytes(&self, _py: Python, payload: Bound<'_, PyAny>) -> PyResult<()> {
+        let py_bytes = payload.downcast::<PyBytes>()?;
+        let bytes = py_bytes.as_bytes().to_vec();
+
+        let client = self.inner.lock().map_err(|e| {
+            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
+        })?;
+
+        client
+            .send_sensory_bytes(bytes)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
     

@@ -875,7 +875,11 @@ pub fn init_rust_logging() {
             .with_target(false)
             .with_thread_ids(false)
             .with_file(false)
-            .init();
+            .try_init()
+            // Avoid panicking if another module already installed a global subscriber.
+            // This can happen if both connector_core and agent_sdk call init_rust_logging()
+            // within the same Python process.
+            .ok();
     });
 }
 
