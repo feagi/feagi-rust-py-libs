@@ -3,6 +3,7 @@
  mod misc_data;
  mod percentages;
  mod gaze_properties;
+mod text_token;
 
  pub mod descriptors;
  pub mod processing;
@@ -11,6 +12,7 @@
  pub use segmented_image_frame::PySegmentedImageFrame;
  pub use misc_data::PyMiscData;
  pub use gaze_properties::PyGazeProperties;
+pub use text_token::{PyGpt2Tokenizer, PyTextTokenCodec};
  pub use crate::feagi_connector_core::data_types::percentages::{
      PyPercentage, PySignedPercentage,
      PyPercentage2D, PySignedPercentage2D,

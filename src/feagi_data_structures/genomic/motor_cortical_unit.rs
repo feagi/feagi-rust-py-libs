@@ -153,4 +153,41 @@ impl PyMotorCorticalUnit {
         let dims = props.channel_dimensions_default;
         Ok((dims[0], dims[1], dims[2]))
     }
+
+    /// Generate the output cortical IDs for Text English Output (`oten`) for a given group.
+    ///
+    /// This uses the Rust `MotorCorticalUnit` template as the single source of truth.
+    ///
+    /// Args:
+    ///     frame_change_handling: Absolute/Incremental handling.
+    ///     group: Cortical group index (u8).
+    ///
+    /// Returns:
+    ///     List of CorticalID objects (typically length 1 for `oten`).
+    #[staticmethod]
+    pub fn text_english_output_cortical_ids(
+        frame_change_handling: PyFrameChangeHandling,
+        group: u8,
+    ) -> PyResult<Vec<PyCorticalID>> {
+        let group: CorticalGroupIndex = group.into();
+        let ids = MotorCorticalUnit::get_cortical_ids_array_for_text_english_output(
+            frame_change_handling.inner,
+            group,
+        );
+        Ok(ids.into_iter().map(Into::into).collect())
+    }
+
+    /// Get the default per-channel dimensions for Text English Output (`oten`).
+    ///
+    /// Returns:
+    ///     (width, height, depth) as (u32, u32, u32)
+    #[staticmethod]
+    pub fn text_english_output_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
+        let topology = MotorCorticalUnit::TextEnglishOutput.get_unit_default_topology();
+        let props = topology
+            .get(&0)
+            .ok_or_else(|| PyValueError::new_err("TextEnglishOutput missing area index 0"))?;
+        let dims = props.channel_dimensions_default;
+        Ok((dims[0], dims[1], dims[2]))
+    }
 }

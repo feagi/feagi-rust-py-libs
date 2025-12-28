@@ -29,6 +29,7 @@ serde_json = "1.0.145"
 zmq = "0.10.0"
 tracing = "0.1.43"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tokenizers = "0.15.2"
 
 [build-dependencies]
 feagi_data_structures = { package = "feagi-structures", path = "../feagi-core/crates/feagi-structures" }
