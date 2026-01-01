@@ -17,7 +17,7 @@ impl PyMiscData {
     }
     
     #[staticmethod]
-    pub fn new_from_array(input: PyReadonlyArray3<f32>, py: Python) -> PyResult<PyMiscData> {
+    pub fn new_from_array(input: PyReadonlyArray3<f32>, _py: Python) -> PyResult<PyMiscData> {
         let array = input.as_array().to_owned();
         match MiscData::new_with_data(array.into()) { // TODO is this into a good idea?
             Ok(inner) => Ok(PyMiscData { inner }),

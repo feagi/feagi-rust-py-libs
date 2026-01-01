@@ -133,6 +133,7 @@ impl PyAgentConfig {
         &self.inner
     }
     
+    #[allow(dead_code)]
     pub fn into_inner(self) -> feagi_agent::AgentConfig {
         self.inner
     }

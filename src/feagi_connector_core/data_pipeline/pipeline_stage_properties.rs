@@ -115,7 +115,7 @@ impl PyPipelineStageProperties {
     
     /// Convert a vector of Python PyPipelineStageProperties to Rust PipelineStageProperties
     pub fn from_vec_py_to_vec(py_stages: Vec<Py<PyPipelineStageProperties>>) -> pyo3::PyResult<Vec<PipelineStageProperties>> {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             py_stages.into_iter()
                 .map(|py_stage| {
                     let stage = py_stage.borrow(py);

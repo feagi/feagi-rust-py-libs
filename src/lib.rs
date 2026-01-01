@@ -27,7 +27,7 @@ fn register_submodule_in_sys_modules(
     full_module_path: &str,
     module: &Bound<'_, PyModule>,
 ) -> PyResult<()> {
-    let sys_modules: Bound<'_, PyDict> = py.import("sys")?.getattr("modules")?.downcast_into()?;
+    let sys_modules: Bound<'_, PyDict> = py.import("sys")?.getattr("modules")?.cast_into()?;
     sys_modules.set_item(full_module_path, module)?;
     Ok(())
 }
@@ -54,7 +54,7 @@ macro_rules! add_python_class {
                 else {
                     // child module already exists. Switch to it
                     let child_module = current_module.getattr(&path_step)?;
-                    current_module = child_module.downcast_into::<PyModule>()?;
+                    current_module = child_module.cast_into::<PyModule>()?;
                 }
             }
 

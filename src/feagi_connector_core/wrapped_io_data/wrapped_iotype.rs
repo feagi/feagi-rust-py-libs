@@ -2,7 +2,6 @@ use feagi_sensorimotor::data_types::descriptors::{ImageFrameProperties, MiscData
 use feagi_sensorimotor::wrapped_io_data::WrappedIOType;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_data_structures::FeagiDataError;
 use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties, PyMiscDataDimensions};
 use crate::{wrap_flat_enum, __base_py_class_shared};
 

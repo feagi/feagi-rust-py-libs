@@ -1,9 +1,10 @@
 use feagi_data_structures::FeagiDataError;
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
-use pyo3::{PyErr, PyResult};
+use pyo3::PyErr;
 use std::fmt;
 
 /// Type alias for Results using our custom error type
+#[allow(dead_code)]
 pub type PyFeagiResult<T> = Result<T, PyFeagiError>;
 
 /// Custom error type for this crate that wraps FeagiDataError

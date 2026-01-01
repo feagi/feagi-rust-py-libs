@@ -10,7 +10,7 @@ use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::F
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::PercentageNeuronPositioning;
 use feagi_sensorimotor::caching::{MotorDeviceCache, SensorDeviceCache};
 use feagi_sensorimotor::ConnectorAgent;
-use feagi_sensorimotor::data_pipeline::{PipelineStageProperties, PipelineStagePropertyIndex};
+use feagi_sensorimotor::data_pipeline::PipelineStagePropertyIndex;
 use feagi_sensorimotor::data_types::*;
 use feagi_sensorimotor::data_types::descriptors::*;
 use feagi_sensorimotor::wrapped_io_data::WrappedIOData;
@@ -20,8 +20,7 @@ use crate::py_error::PyFeagiError;
 use crate::feagi_connector_core::data_types::descriptors::*;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::*;
-use crate::feagi_connector_core::wrapped_io_data::{py_any_to_wrapped_io_data, wrapped_io_data_to_py_object};
-use crate::feagi_serialization::PyFeagiByteContainer;
+use crate::feagi_connector_core::wrapped_io_data::py_any_to_wrapped_io_data;
 use crate::feagi_data_structures::genomic::cortical_area::*;
 
 type Pybool = bool; // ALL HAIL THE LOAD BEARING BOOLEAN
@@ -91,7 +90,7 @@ macro_rules! sensor_unit_functions {
 
                 pub fn [<sensor_ $snake_case_name _read_postprocessed_cache_value>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
@@ -155,7 +154,7 @@ macro_rules! sensor_unit_functions {
 
                 pub fn [<sensor_ $snake_case_name _update_all_stage_properties>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
@@ -192,7 +191,7 @@ macro_rules! sensor_unit_functions {
 
                 pub fn [<sensor_ $snake_case_name _replace_all_stages>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
@@ -209,7 +208,7 @@ macro_rules! sensor_unit_functions {
 
                 pub fn [<sensor_ $snake_case_name _removing_all_stages>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32
                 ) -> PyResult<()>
@@ -240,7 +239,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     ) -> PyResult<()>
@@ -269,7 +268,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -304,7 +303,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -339,7 +338,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -374,7 +373,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: &pyo3::Bound<PyFrameChangeHandling>,
@@ -411,7 +410,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -445,7 +444,7 @@ macro_rules! sensor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<sensor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -514,7 +513,7 @@ macro_rules! motor_unit_functions {
 
                 pub fn [<motor_ $snake_case_name _read_preprocessed_cache_value>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
@@ -528,7 +527,7 @@ macro_rules! motor_unit_functions {
 
                 pub fn [<motor_ $snake_case_name _read_postprocessed_cache_value>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
@@ -591,7 +590,7 @@ macro_rules! motor_unit_functions {
 
                 pub fn [<motor_ $snake_case_name _update_all_stage_properties>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
@@ -626,7 +625,7 @@ macro_rules! motor_unit_functions {
 
                 pub fn [<motor_ $snake_case_name _replace_all_stages>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
@@ -642,7 +641,7 @@ macro_rules! motor_unit_functions {
 
                 pub fn [<motor_ $snake_case_name _removing_all_stages>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     channel_index: u32
                 ) -> PyResult<()>
@@ -669,7 +668,7 @@ macro_rules! motor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<motor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -706,7 +705,7 @@ macro_rules! motor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<motor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -741,7 +740,7 @@ macro_rules! motor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<motor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -776,7 +775,7 @@ macro_rules! motor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<motor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
@@ -810,7 +809,7 @@ macro_rules! motor_unit_functions {
             impl PyConnectorAgent {
                 pub fn [<motor_ $snake_case_name _register>](
                     &mut self,
-                    py: Python<'_>,
+                    _py: Python<'_>,
                     group: u8,
                     number_channels: u32,
                     frame_change_handling: &pyo3::Bound<PyFrameChangeHandling>,
@@ -847,11 +846,11 @@ macro_rules! motor_unit_functions {
 create_pyclass_no_clone!(PyConnectorAgent, ConnectorAgent, "ConnectorAgent");
 
 impl PyConnectorAgent {
-    fn get_sensor_cache(&self) -> MutexGuard<SensorDeviceCache> {
+    fn get_sensor_cache(&self) -> MutexGuard<'_, SensorDeviceCache> {
         self.inner.get_sensor_cache()
     }
 
-    fn get_motor_cache(&self) -> MutexGuard<MotorDeviceCache> {
+    fn get_motor_cache(&self) -> MutexGuard<'_, MotorDeviceCache> {
         self.inner.get_motor_cache()
 
     }
@@ -919,7 +918,7 @@ impl PyConnectorAgent {
     /// # Raises
     /// * `FeagiError` - If JSON is malformed or references unregistered devices
     pub fn import_capabilities_json(&mut self, json_str: &str, py: Python<'_>) -> PyResult<()> {
-        py.allow_threads(|| {
+        py.detach(|| {
             self.inner.import_device_registrations_from_config_json(json_str)
                 .map_err(PyFeagiError::from)?;
             Ok(())
@@ -951,25 +950,25 @@ impl PyConnectorAgent {
     }
 
     pub fn sensors_read_bytes(&mut self) -> PyResult<Vec<u8>> {
-        let mut sensor_cache = self.get_sensor_cache();
-        let byte_container = sensor_cache.get_feagi_byte_container();;
+        let sensor_cache = self.get_sensor_cache();
+        let byte_container = sensor_cache.get_feagi_byte_container();
         let bytes = byte_container.get_byte_ref().to_vec();
         Ok(bytes)
     }
 
     /// Can take in a BytesArray (faster) or Bytes. Loads into rust memory and ensures the structure is sound.
-    pub fn motors_load_in_bytes_and_verify(&mut self, py: Python<'_>, obj: &Bound<PyAny>) -> PyResult<()> {
+    pub fn motors_load_in_bytes_and_verify(&mut self, _py: Python<'_>, obj: &Bound<PyAny>) -> PyResult<()> {
         if let Ok(bytes) = Bound::cast::<PyByteArray>(obj) {
             let byte_data = bytes.to_vec();
             let mut motor_cache = self.get_motor_cache();
-            let mut byte_container = motor_cache.get_feagi_byte_container_mut();;
+            let byte_container = motor_cache.get_feagi_byte_container_mut();
             byte_container.try_write_data_by_ownership_to_container_and_verify(byte_data).map_err(PyFeagiError::from)?;
             return Ok(());
         }
         else if let Ok(bytes) = Bound::cast::<PyBytes>(obj) {
             let byte_data = bytes.extract::<&[u8]>()?;
             let mut motor_cache = self.get_motor_cache();
-            let mut byte_container = motor_cache.get_feagi_byte_container_mut();;
+            let byte_container = motor_cache.get_feagi_byte_container_mut();
             byte_container.try_write_data_by_copy_and_verify(byte_data).map_err(PyFeagiError::from)?;
             return Ok(());
         }

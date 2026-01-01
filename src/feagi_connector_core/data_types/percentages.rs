@@ -60,17 +60,17 @@ impl PyPercentage {
     //region Update
 
     pub fn inplace_update_from_0_1(&mut self, value: f32) -> PyResult<()> {
-        self.inner.inplace_update_from_0_1(value).map_err(|err| PyValueError::new_err(err.to_string()));
+        self.inner.inplace_update_from_0_1(value).map_err(|err| PyValueError::new_err(err.to_string()))?;
         Ok(())
     }
 
     pub fn inplace_update_u8_0_255(&mut self, value: u8) -> PyResult<()> {
-        self.inner.inplace_update_u8_0_255(value).map_err(|err| PyValueError::new_err(err.to_string()));
+        self.inner.inplace_update_u8_0_255(value).map_err(|err| PyValueError::new_err(err.to_string()))?;
         Ok(())
     }
 
     pub fn inplace_update_0_100(&mut self, value: f32) -> PyResult<()> {
-        self.inner.inplace_update_0_100(value).map_err(|err| PyValueError::new_err(err.to_string()));
+        self.inner.inplace_update_0_100(value).map_err(|err| PyValueError::new_err(err.to_string()))?;
         Ok(())
     }
 
@@ -78,7 +78,7 @@ impl PyPercentage {
         if lower_range >= upper_range {
             return Err(PyValueError::new_err("Lower range cannot be greater than upper range!"));
         }
-        self.inner.inplace_update_linear_interp(value, &(lower_range..upper_range));
+        self.inner.inplace_update_linear_interp(value, &(lower_range..upper_range)).map_err(|err| PyValueError::new_err(err.to_string()))?;
         Ok(())
     }
 
@@ -91,7 +91,7 @@ impl PyPercentage {
     }
 
     pub fn get_as_u8(&self) -> u8 {
-        (self.inner.get_as_u8())
+        self.inner.get_as_u8()
     }
 
     pub fn get_as_0_100(&self) -> f32 {

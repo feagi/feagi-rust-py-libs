@@ -12,6 +12,7 @@ create_pyclass!(PyImageFrame, ImageFrame, "ImageFrame");
 impl PyImageFrame {
     
     #[staticmethod]
+    #[allow(non_snake_case)]
     pub fn INTERNAL_MEMORY_LAYOUT() -> PyMemoryOrderLayout { ImageFrame::INTERNAL_MEMORY_LAYOUT.into() }
     
     //region Common Constructors
@@ -35,7 +36,7 @@ impl PyImageFrame {
     }
 
     #[staticmethod]
-    pub fn new_from_array(input: PyReadonlyArray3<u8>, color_space: PyColorSpace, source_memory_order: PyMemoryOrderLayout, py: Python) -> PyResult<PyImageFrame> {
+    pub fn new_from_array(input: PyReadonlyArray3<u8>, color_space: PyColorSpace, source_memory_order: PyMemoryOrderLayout, _py: Python) -> PyResult<PyImageFrame> {
         let array = input.as_array().to_owned();
         match ImageFrame::from_array(array, &color_space.into(), &source_memory_order.into()) {
             Ok(inner) => Ok(PyImageFrame { inner }),
@@ -44,7 +45,7 @@ impl PyImageFrame {
     }
 
     #[staticmethod]
-    pub fn new_from_png_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
+    pub fn new_from_png_bytes<'py>(_py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
         let result = ImageFrame::new_from_png_bytes(&bytes_vec, &color_space.into());
         match result {
@@ -54,7 +55,7 @@ impl PyImageFrame {
     }
 
     #[staticmethod]
-    pub fn new_from_bmp_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
+    pub fn new_from_bmp_bytes<'py>(_py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
         let result = ImageFrame::new_from_bmp_bytes(&bytes_vec, &color_space.into());
         match result {
@@ -64,7 +65,7 @@ impl PyImageFrame {
     }
 
     #[staticmethod]
-    pub fn new_from_jpeg_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
+    pub fn new_from_jpeg_bytes<'py>(_py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
         let result = ImageFrame::new_from_jpeg_bytes(&bytes_vec, &color_space.into());
         match result {
@@ -74,7 +75,7 @@ impl PyImageFrame {
     }
 
     #[staticmethod]
-    pub fn new_from_tiff_bytes<'py>(py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
+    pub fn new_from_tiff_bytes<'py>(_py: Python<'py>, bytes: Bound<'py, PyBytes>, color_space: PyColorSpace) -> PyResult<Self> {
         let bytes_vec = bytes.as_bytes().to_vec();
         let result = ImageFrame::new_from_tiff_bytes(&bytes_vec, &color_space.into());
         match result {

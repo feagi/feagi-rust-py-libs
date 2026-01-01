@@ -1,4 +1,3 @@
-use feagi_sensorimotor::data_types::{ImageFrame, MiscData, Percentage, Percentage2D, Percentage3D, Percentage4D, SegmentedImageFrame, SignedPercentage, SignedPercentage2D, SignedPercentage3D, SignedPercentage4D};
 use feagi_sensorimotor::wrapped_io_data::WrappedIOData;
 use pyo3::{IntoPyObjectExt, PyResult};
 use pyo3::prelude::*;
@@ -8,6 +7,7 @@ use crate::feagi_connector_core::data_types::{PyImageFrame, PyMiscData, PySegmen
 
 
 // Conversion functions for backward compatibility
+#[allow(dead_code)]
 pub fn wrapped_io_data_to_py_object(py: Python, wrapped_iodata: WrappedIOData) -> PyResult<Py<PyAny>> {
     match wrapped_iodata {
         WrappedIOData::Boolean(boolean) => {
