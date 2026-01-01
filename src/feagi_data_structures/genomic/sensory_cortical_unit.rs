@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::sensor_cortical_units;
 use feagi_data_structures::genomic::SensoryCorticalUnit;
-use feagi_data_structures::genomic::cortical_area::descriptors::CorticalGroupIndex;
+use feagi_data_structures::genomic::cortical_area::descriptors::CorticalUnitIndex;
 
 use crate::feagi_data_structures::genomic::cortical_area::{PyCorticalID, PyFrameChangeHandling};
 
@@ -88,7 +88,7 @@ impl PySensoryCorticalUnit {
         frame_change_handling: PyFrameChangeHandling,
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
-        let group: CorticalGroupIndex = group.into();
+        let group: CorticalUnitIndex = group.into();
         let ids = SensoryCorticalUnit::get_cortical_ids_array_for_text_english_input(
             frame_change_handling.inner,
             group,
@@ -103,8 +103,9 @@ impl PySensoryCorticalUnit {
     #[staticmethod]
     pub fn text_english_input_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
         let topology = SensoryCorticalUnit::TextEnglishInput.get_unit_default_topology();
+        use feagi_data_structures::genomic::cortical_area::descriptors::CorticalSubUnitIndex;
         let props = topology
-            .get(&0)
+            .get(&CorticalSubUnitIndex::from(0))
             .ok_or_else(|| PyValueError::new_err("TextEnglishInput missing area index 0"))?;
         let dims = props.channel_dimensions_default;
         Ok((dims[0], dims[1], dims[2]))

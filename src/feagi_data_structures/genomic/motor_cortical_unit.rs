@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 use feagi_data_structures::motor_cortical_units;
 use feagi_data_structures::genomic::MotorCorticalUnit;
-use feagi_data_structures::genomic::cortical_area::descriptors::CorticalGroupIndex;
+use feagi_data_structures::genomic::cortical_area::descriptors::CorticalUnitIndex;
 
 use crate::feagi_data_structures::genomic::cortical_area::{PyCorticalID, PyFrameChangeHandling};
 
@@ -89,7 +89,7 @@ impl PyMotorCorticalUnit {
         frame_change_handling: PyFrameChangeHandling,
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
-        let group: CorticalGroupIndex = group.into();
+        let group: CorticalUnitIndex = group.into();
         let ids = MotorCorticalUnit::get_cortical_ids_array_for_object_segmentation(
             frame_change_handling.inner,
             group,
@@ -107,8 +107,9 @@ impl PyMotorCorticalUnit {
     #[staticmethod]
     pub fn object_segmentation_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
         let topology = MotorCorticalUnit::ObjectSegmentation.get_unit_default_topology();
+        use feagi_data_structures::genomic::cortical_area::descriptors::CorticalSubUnitIndex;
         let props = topology
-            .get(&0)
+            .get(&CorticalSubUnitIndex::from(0))
             .ok_or_else(|| PyValueError::new_err("ObjectSegmentation missing area index 0"))?;
         let dims = props.channel_dimensions_default;
         Ok((dims[0], dims[1], dims[2]))
@@ -129,7 +130,7 @@ impl PyMotorCorticalUnit {
         frame_change_handling: PyFrameChangeHandling,
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
-        let group: CorticalGroupIndex = group.into();
+        let group: CorticalUnitIndex = group.into();
         let ids = MotorCorticalUnit::get_cortical_ids_array_for_simple_vision_output(
             frame_change_handling.inner,
             group,
@@ -147,8 +148,9 @@ impl PyMotorCorticalUnit {
     #[staticmethod]
     pub fn simple_vision_output_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
         let topology = MotorCorticalUnit::SimpleVisionOutput.get_unit_default_topology();
+        use feagi_data_structures::genomic::cortical_area::descriptors::CorticalSubUnitIndex;
         let props = topology
-            .get(&0)
+            .get(&CorticalSubUnitIndex::from(0))
             .ok_or_else(|| PyValueError::new_err("SimpleVisionOutput missing area index 0"))?;
         let dims = props.channel_dimensions_default;
         Ok((dims[0], dims[1], dims[2]))
@@ -169,7 +171,7 @@ impl PyMotorCorticalUnit {
         frame_change_handling: PyFrameChangeHandling,
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
-        let group: CorticalGroupIndex = group.into();
+        let group: CorticalUnitIndex = group.into();
         let ids = MotorCorticalUnit::get_cortical_ids_array_for_text_english_output(
             frame_change_handling.inner,
             group,
@@ -184,8 +186,9 @@ impl PyMotorCorticalUnit {
     #[staticmethod]
     pub fn text_english_output_default_channel_dimensions() -> PyResult<(u32, u32, u32)> {
         let topology = MotorCorticalUnit::TextEnglishOutput.get_unit_default_topology();
+        use feagi_data_structures::genomic::cortical_area::descriptors::CorticalSubUnitIndex;
         let props = topology
-            .get(&0)
+            .get(&CorticalSubUnitIndex::from(0))
             .ok_or_else(|| PyValueError::new_err("TextEnglishOutput missing area index 0"))?;
         let dims = props.channel_dimensions_default;
         Ok((dims[0], dims[1], dims[2]))

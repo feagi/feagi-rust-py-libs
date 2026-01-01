@@ -4,15 +4,11 @@ use std::fs;
 
 // TODO this file is unfinished PYI generation. Work on it later
 
-pub fn generate_pyi(template_path: &str, output_path: &str) {
-// Read the template file
-    let template_content = fs::read_to_string(template_path)
-    .expect("Failed to read feagi_data_processing.pyi.template");
-
+#[allow(dead_code)]
+pub fn generate_pyi(_template_path: &str, _output_path: &str) {
     // Read the template file
-    let template_content = fs::read_to_string(template_path)
+    let _template_content = fs::read_to_string(_template_path)
         .expect("Failed to read feagi_data_processing.pyi.template");
-
 
     // Insert the SensorCorticalType into the template
     //let final_content = insert_sensor_cortical_type(template_content, sensor_class_def);
@@ -24,6 +20,7 @@ pub fn generate_pyi(template_path: &str, output_path: &str) {
     println!("Generated feagi_data_processing.pyi with SensorCorticalType");
 }
 
+#[allow(dead_code)]
 fn insert_sensor_cortical_type(template: String, sensor_class_def: String) -> String {
     // Find the insertion point - after CoreCorticalType but before CorticalGroupingIndex
     let insertion_marker = "    class CoreCorticalType:\n        \"\"\"Enum representing core cortical area types.\"\"\"\n        Death: 'CoreCorticalType'\n        Power: 'CoreCorticalType'\n    \n";

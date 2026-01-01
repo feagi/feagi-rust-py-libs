@@ -81,7 +81,7 @@ macro_rules! sensor_unit_functions {
                 ) -> PyResult<()> {
 
 
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let data: WrappedIOData = py_any_to_wrapped_io_data(py, data).map_err(PyFeagiError::from)?;
 
@@ -96,7 +96,7 @@ macro_rules! sensor_unit_functions {
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
 
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let expected_data = self.get_sensor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
@@ -111,7 +111,7 @@ macro_rules! sensor_unit_functions {
                     pipeline_stage_property_index: u32
                 ) -> PyResult<Py<PyPipelineStageProperties>>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
@@ -127,7 +127,7 @@ macro_rules! sensor_unit_functions {
                     channel_index: u32,
                 ) -> PyResult<Vec<pyo3::Py<PyPipelineStageProperties>>>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let boxed_stages = self.get_sensor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
@@ -144,7 +144,7 @@ macro_rules! sensor_unit_functions {
                     updating_property: Py<PyPipelineStageProperties> // TODO move to bound
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
@@ -161,7 +161,7 @@ macro_rules! sensor_unit_functions {
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
@@ -180,7 +180,7 @@ macro_rules! sensor_unit_functions {
                     updating_property: Py<PyPipelineStageProperties> // TODO move to bound
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
@@ -198,7 +198,7 @@ macro_rules! sensor_unit_functions {
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
@@ -214,7 +214,7 @@ macro_rules! sensor_unit_functions {
                     channel_index: u32
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     self.get_sensor_cache().[<$snake_case_name _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -245,7 +245,7 @@ macro_rules! sensor_unit_functions {
                     number_channels: u32,
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
 
                     self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels).map_err(PyFeagiError::from)?;
@@ -277,7 +277,7 @@ macro_rules! sensor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -312,7 +312,7 @@ macro_rules! sensor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -347,7 +347,7 @@ macro_rules! sensor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -383,7 +383,7 @@ macro_rules! sensor_unit_functions {
                     initial_gaze: &pyo3::Bound<PyGazeProperties>,
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::from_bound(frame_change_handling);
                     let input_image_properties: ImageFrameProperties = PyImageFrameProperties::copy_out_from_bound(input_image_properties);
@@ -418,7 +418,7 @@ macro_rules! sensor_unit_functions {
                     misc_data_dimensions: PyMiscDataDimensions,
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let misc_data_dimensions: MiscDataDimensions = misc_data_dimensions.into();
@@ -452,7 +452,7 @@ macro_rules! sensor_unit_functions {
                     image_properties: PyImageFrameProperties
                     ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let image_properties: ImageFrameProperties = image_properties.into();
@@ -519,7 +519,7 @@ macro_rules! motor_unit_functions {
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
 
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let expected_data = self.get_motor_cache().[<$snake_case_name _read_preprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
@@ -533,7 +533,7 @@ macro_rules! motor_unit_functions {
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
 
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let expected_data = self.get_motor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
@@ -548,7 +548,7 @@ macro_rules! motor_unit_functions {
                     pipeline_stage_property_index: u32
                 ) -> PyResult<Py<PyPipelineStageProperties>>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
@@ -564,7 +564,7 @@ macro_rules! motor_unit_functions {
                     channel_index: u32,
                 ) -> PyResult<Vec<pyo3::Py<PyPipelineStageProperties>>>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
                     let boxed_stages = self.get_motor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
@@ -580,7 +580,7 @@ macro_rules! motor_unit_functions {
                     updating_property: Py<PyPipelineStageProperties>
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
@@ -597,7 +597,7 @@ macro_rules! motor_unit_functions {
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
@@ -615,7 +615,7 @@ macro_rules! motor_unit_functions {
                     updating_property: Py<PyPipelineStageProperties>
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
@@ -632,7 +632,7 @@ macro_rules! motor_unit_functions {
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
@@ -647,7 +647,7 @@ macro_rules! motor_unit_functions {
                     channel_index: u32
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     self.get_motor_cache().[<$snake_case_name _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(())
@@ -678,7 +678,7 @@ macro_rules! motor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let eccentricity_z_neuron_resolution: NeuronDepth = eccentricity_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -714,7 +714,7 @@ macro_rules! motor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -749,7 +749,7 @@ macro_rules! motor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -784,7 +784,7 @@ macro_rules! motor_unit_functions {
                     percentage_neuron_positioning: PyPercentageNeuronPositioning
                 ) -> PyResult<()>
                 {
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
@@ -818,7 +818,7 @@ macro_rules! motor_unit_functions {
                     ) -> PyResult<()>
                 {
 
-                    let group: CorticalGroupIndex = group.into();
+                    let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
                     let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::from_bound(frame_change_handling);
                     let misc_data_dimensions: MiscDataDimensions = PyMiscDataDimensions::copy_out_from_bound(misc_data_dimensions);
