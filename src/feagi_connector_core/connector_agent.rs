@@ -9,7 +9,7 @@ use feagi_data_structures::genomic::cortical_area::descriptors::*;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::FrameChangeHandling;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::PercentageNeuronPositioning;
 use feagi_sensorimotor::caching::{MotorDeviceCache, SensorDeviceCache};
-use feagi_sensorimotor::ConnectorAgent;
+use feagi_agent::sdk::ConnectorAgent;
 use feagi_sensorimotor::data_pipeline::PipelineStagePropertyIndex;
 use feagi_sensorimotor::data_types::*;
 use feagi_sensorimotor::data_types::descriptors::*;
