@@ -30,9 +30,11 @@ zmq = "0.10.0"
 tracing = "0.1.43"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 tokenizers = "0.15.2"
+heck = "0.5"
 
 [build-dependencies]
 feagi_data_structures = { package = "feagi-structures", path = "../feagi-core/crates/feagi-structures" }
+heck = "0.5"
 
 [dependencies.pyo3]
 version = "0.27.2"

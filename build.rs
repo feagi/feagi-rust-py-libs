@@ -1,5 +1,6 @@
 mod rust_build_scripts;
 use std::fs;
+use heck::ToSnakeCase;
 
 // NOTE: This crate uses a Cargo alias so existing code can refer to the
 // `feagi-structures` package as `feagi_data_structures`.
@@ -93,7 +94,6 @@ macro_rules! collect_motor_variants {
                 #[doc = $doc:expr]
                 $cortical_type_key_name:ident => {
                     friendly_name: $friendly_name:expr,
-                    snake_case_name: $snake_case_name:expr,
                     accepted_wrapped_io_data_type: $accepted_wrapped_io_data_type:ident,
                     cortical_id_unit_reference: $cortical_id_unit_reference:expr,
                     number_cortical_areas: $number_cortical_areas:expr,
@@ -111,10 +111,10 @@ macro_rules! collect_motor_variants {
         vec![
             $(
                 MotorVariant {
-                    name: stringify!($variant).to_string(),
+                    name: stringify!($cortical_type_key_name).to_string(),
                     doc: Some(($doc).to_string()),
                     friendly_name: $friendly_name.to_string(),
-                    snake_case_name: $snake_case_name.to_string(),
+                    snake_case_name: stringify!($cortical_type_key_name).to_snake_case(),
                     accepted_wrapped_io_data_type: stringify!($accepted_wrapped_io_data_type).to_string()
                 }
             ),*

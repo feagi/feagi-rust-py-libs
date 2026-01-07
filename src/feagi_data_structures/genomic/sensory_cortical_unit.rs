@@ -14,7 +14,6 @@ macro_rules! define_sensor_cortical_units_enum {
                 $(#[doc = $doc:expr])?
                 $variant_name:ident => {
                     friendly_name: $friendly_name:expr,
-                    snake_case_name: $snake_case_name:expr,
                     accepted_wrapped_io_data_type: $accepted_wrapped_io_data_type:expr,
                     cortical_id_unit_reference: $cortical_id_unit_reference:expr,
                     number_cortical_areas: $number_cortical_areas:expr,
@@ -88,7 +87,7 @@ impl PySensoryCorticalUnit {
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
-        let ids = SensoryCorticalUnit::get_cortical_ids_array_for_text_english_input(
+        let ids = SensoryCorticalUnit::get_cortical_ids_array_for_text_english_input_with_parameters(
             frame_change_handling.inner,
             group,
         );

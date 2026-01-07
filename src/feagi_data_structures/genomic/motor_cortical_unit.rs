@@ -13,7 +13,6 @@ macro_rules! define_motor_cortical_units_enum {
                 $(#[doc = $doc:expr])?
                 $variant_name:ident => {
                     friendly_name: $friendly_name:expr,
-                    snake_case_name: $snake_case_name:expr,
                     accepted_wrapped_io_data_type: $accepted_wrapped_io_data_type:expr,
                     cortical_id_unit_reference: $cortical_id_unit_reference:expr,
                     number_cortical_areas: $number_cortical_areas:expr,
@@ -89,7 +88,7 @@ impl PyMotorCorticalUnit {
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
-        let ids = MotorCorticalUnit::get_cortical_ids_array_for_object_segmentation(
+        let ids = MotorCorticalUnit::get_cortical_ids_array_for_object_segmentation_with_parameters(
             frame_change_handling.inner,
             group,
         );
@@ -130,7 +129,7 @@ impl PyMotorCorticalUnit {
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
-        let ids = MotorCorticalUnit::get_cortical_ids_array_for_simple_vision_output(
+        let ids = MotorCorticalUnit::get_cortical_ids_array_for_simple_vision_output_with_parameters(
             frame_change_handling.inner,
             group,
         );
@@ -171,7 +170,7 @@ impl PyMotorCorticalUnit {
         group: u8,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
-        let ids = MotorCorticalUnit::get_cortical_ids_array_for_text_english_output(
+        let ids = MotorCorticalUnit::get_cortical_ids_array_for_text_english_output_with_parameters(
             frame_change_handling.inner,
             group,
         );

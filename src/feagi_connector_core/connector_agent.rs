@@ -6,8 +6,8 @@ use pyo3::types::{PyByteArray, PyBytes};
 use pyo3::prelude::*;
 use feagi_data_structures::{motor_cortical_units, sensor_cortical_units, FeagiDataError};
 use feagi_data_structures::genomic::cortical_area::descriptors::*;
-use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::FrameChangeHandling;
-use feagi_data_structures::genomic::cortical_area::io_cortical_area_data_type::PercentageNeuronPositioning;
+use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::FrameChangeHandling;
+use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::PercentageNeuronPositioning;
 use feagi_sensorimotor::caching::{MotorDeviceCache, SensorDeviceCache};
 use feagi_sensorimotor::ConnectorAgent;
 use feagi_sensorimotor::data_pipeline::PipelineStagePropertyIndex;
@@ -32,7 +32,6 @@ macro_rules! sensor_unit_functions {
                 $(#[doc = $doc:expr])?
                 $cortical_type_key_name:ident => {
                     friendly_name: $friendly_name:expr,
-                    snake_case_name: $snake_case_name:expr,
                     accepted_wrapped_io_data_type: $accepted_wrapped_io_data_type:ident,
                     cortical_id_unit_reference: $cortical_id_unit_reference:expr,
                     number_cortical_areas: $number_cortical_areas:expr,
@@ -51,7 +50,6 @@ macro_rules! sensor_unit_functions {
         $(
             sensor_unit_functions!(@generate_functions
             $cortical_type_key_name,
-            $snake_case_name,
             $accepted_wrapped_io_data_type
             );
         )*
@@ -63,7 +61,7 @@ macro_rules! sensor_unit_functions {
     // "it's time for me to live up to my family name and face full life consequences"
     (@generate_similar_functions
         $cortical_type_key_name:ident,
-        $snake_case_name:expr,
+        
         $wrapped_data_type:ident
     ) => {
         ::paste::paste! {
@@ -71,7 +69,7 @@ macro_rules! sensor_unit_functions {
             #[pymethods]
             impl PyConnectorAgent {
 
-                pub fn [<sensor_ $snake_case_name _write>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _write>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -84,11 +82,11 @@ macro_rules! sensor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let data: WrappedIOData = py_any_to_wrapped_io_data(py, data).map_err(PyFeagiError::from)?;
 
-                    self.get_sensor_cache().[<$snake_case_name _write>](group, channel_index, data).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$cortical_type_key_name:snake _write>](group, channel_index, data).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<sensor_ $snake_case_name _read_postprocessed_cache_value>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _read_postprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -98,11 +96,11 @@ macro_rules! sensor_unit_functions {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
-                    let expected_data = self.get_sensor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
+                    let expected_data = self.get_sensor_cache().[<$cortical_type_key_name:snake _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(expected_data.into())
                 }
 
-                pub fn [<sensor_ $snake_case_name _get_single_stage_properties>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -114,12 +112,12 @@ macro_rules! sensor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
-                    let boxed_stage = self.get_sensor_cache().[<$snake_case_name _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
+                    let boxed_stage = self.get_sensor_cache().[<$cortical_type_key_name:snake _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
                     let py_stage = PyPipelineStageProperties::from_box_to_parent_typed(py, boxed_stage)?;
                     Ok(py_stage)
                 }
 
-                pub fn [<sensor_ $snake_case_name _get_all_stage_properties>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -129,12 +127,12 @@ macro_rules! sensor_unit_functions {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
-                    let boxed_stages = self.get_sensor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
+                    let boxed_stages = self.get_sensor_cache().[<$cortical_type_key_name:snake _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
                     PyPipelineStageProperties::from_vec_box_to_vec_parent_typed(py, boxed_stages)
                 }
 
 
-                pub fn [<sensor_ $snake_case_name _update_single_stage_properties>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _update_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -148,11 +146,11 @@ macro_rules! sensor_unit_functions {
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
-                    self.get_sensor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$cortical_type_key_name:snake _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<sensor_ $snake_case_name _update_all_stage_properties>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _update_all_stage_properties>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -164,13 +162,13 @@ macro_rules! sensor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
-                    self.get_sensor_cache().[<$snake_case_name _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$cortical_type_key_name:snake _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
 
                     Ok(())
                 }
 
 
-                pub fn [<sensor_ $snake_case_name _replace_single_stage>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _replace_single_stage>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -184,12 +182,12 @@ macro_rules! sensor_unit_functions {
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
-                    self.get_sensor_cache().[<$snake_case_name _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$cortical_type_key_name:snake _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
 
-                pub fn [<sensor_ $snake_case_name _replace_all_stages>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _replace_all_stages>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -201,12 +199,12 @@ macro_rules! sensor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
-                    self.get_sensor_cache().[<$snake_case_name _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$cortical_type_key_name:snake _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
 
-                pub fn [<sensor_ $snake_case_name _removing_all_stages>](
+                pub fn [<sensor_ $cortical_type_key_name:snake _removing_all_stages>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -215,7 +213,7 @@ macro_rules! sensor_unit_functions {
                 {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
-                    self.get_sensor_cache().[<$snake_case_name _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$cortical_type_key_name:snake _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
@@ -228,7 +226,6 @@ macro_rules! sensor_unit_functions {
     // Arm for WrappedIOType::Boolean
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
         Boolean
     ) => {
 
@@ -237,7 +234,7 @@ macro_rules! sensor_unit_functions {
 
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -247,26 +244,26 @@ macro_rules! sensor_unit_functions {
                     let group: CorticalUnitIndex = group.into();
                     let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
 
         }
         // NOTE: Used the type Pybool at the to work. Fucking Cursed.
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, bool);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, bool);
     };
 
     // Arm for WrappedIOType::Percentage
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
+        
         Percentage
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -282,26 +279,26 @@ macro_rules! sensor_unit_functions {
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
              }
 
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, Percentage);
     };
 
     // Arm for WrappedIOType::Percentage_3D
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
+        
         Percentage_3D
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -317,26 +314,25 @@ macro_rules! sensor_unit_functions {
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
              }
 
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, Percentage3D);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, Percentage3D);
     };
 
     // Arm for WrappedIOType::SignedPercentage_4D
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
         SignedPercentage_4D
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -352,26 +348,25 @@ macro_rules! sensor_unit_functions {
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
              }
 
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SignedPercentage4D);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, SignedPercentage4D);
     };
 
     // Arm for WrappedIOType::SegmentedImageFrame
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
         SegmentedImageFrame
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -389,26 +384,26 @@ macro_rules! sensor_unit_functions {
                     let segmented_image_properties: SegmentedImageFrameProperties = PySegmentedImageFrameProperties::copy_out_from_bound(segmented_image_properties);
                     let initial_gaze: GazeProperties = PyGazeProperties::copy_out_from_bound(initial_gaze);
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, input_image_properties, segmented_image_properties, initial_gaze).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, input_image_properties, segmented_image_properties, initial_gaze).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
         }
 
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, SegmentedImageFrame);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, SegmentedImageFrame);
     };
 
     // Arm for WrappedIOType::MiscData
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
+        
         MiscData
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -422,27 +417,27 @@ macro_rules! sensor_unit_functions {
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let misc_data_dimensions: MiscDataDimensions = misc_data_dimensions.into();
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, misc_data_dimensions).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, misc_data_dimensions).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
              }
 
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, MiscData);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, MiscData);
     };
 
 
     // Arm for WrappedIOType::ImageFrame
     (@generate_functions
         $sensory_unit:ident,
-        $snake_case_name:expr,
+        
         ImageFrame
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<sensor_ $snake_case_name _register>](
+                pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -456,14 +451,14 @@ macro_rules! sensor_unit_functions {
                     let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
                     let image_properties: ImageFrameProperties = image_properties.into();
 
-                    self.get_sensor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, image_properties).map_err(PyFeagiError::from)?;
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, image_properties).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
              }
 
         }
 
-        sensor_unit_functions!(@generate_similar_functions $sensory_unit, $snake_case_name, ImageFrame);
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, ImageFrame);
     };
 }
 
@@ -474,7 +469,6 @@ macro_rules! motor_unit_functions {
                 $(#[doc = $doc:expr])?
                 $cortical_type_key_name:ident => {
                     friendly_name: $friendly_name:expr,
-                    snake_case_name: $snake_case_name:expr,
                     accepted_wrapped_io_data_type: $accepted_wrapped_io_data_type:ident,
                     cortical_id_unit_reference: $cortical_id_unit_reference:expr,
                     number_cortical_areas: $number_cortical_areas:expr,
@@ -493,7 +487,6 @@ macro_rules! motor_unit_functions {
         $(
             motor_unit_functions!(@generate_functions
             $cortical_type_key_name,
-            $snake_case_name,
             $accepted_wrapped_io_data_type
             );
         )*
@@ -503,7 +496,7 @@ macro_rules! motor_unit_functions {
     // Helper macro to generate stage and other similar functions
     (@generate_similar_functions
         $cortical_type_key_name:ident,
-        $snake_case_name:expr,
+        
         $wrapped_data_type:ident
     ) => {
         ::paste::paste! {
@@ -511,7 +504,7 @@ macro_rules! motor_unit_functions {
             #[pymethods]
             impl PyConnectorAgent {
 
-                pub fn [<motor_ $snake_case_name _read_preprocessed_cache_value>](
+                pub fn [<motor_ $cortical_type_key_name:snake _read_preprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -521,11 +514,11 @@ macro_rules! motor_unit_functions {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
-                    let expected_data = self.get_motor_cache().[<$snake_case_name _read_preprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
+                    let expected_data = self.get_motor_cache().[<$cortical_type_key_name:snake _read_preprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(expected_data.into())
                 }
 
-                pub fn [<motor_ $snake_case_name _read_postprocessed_cache_value>](
+                pub fn [<motor_ $cortical_type_key_name:snake _read_postprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -535,11 +528,11 @@ macro_rules! motor_unit_functions {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
-                    let expected_data = self.get_motor_cache().[<$snake_case_name _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
+                    let expected_data = self.get_motor_cache().[<$cortical_type_key_name:snake _read_postprocessed_cache_value>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(expected_data.into())
                 }
 
-                pub fn [<motor_ $snake_case_name _get_single_stage_properties>](
+                pub fn [<motor_ $cortical_type_key_name:snake _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -551,12 +544,12 @@ macro_rules! motor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
 
-                    let boxed_stage = self.get_motor_cache().[<$snake_case_name _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
+                    let boxed_stage = self.get_motor_cache().[<$cortical_type_key_name:snake _get_single_stage_properties>](group, channel_index, pipeline_stage_property_index).map_err(PyFeagiError::from)?;
                     let py_stage = PyPipelineStageProperties::from_box_to_parent_typed(py, boxed_stage)?;
                     Ok(py_stage)
                 }
 
-                pub fn [<motor_ $snake_case_name _get_all_stage_properties>](
+                pub fn [<motor_ $cortical_type_key_name:snake _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -566,11 +559,11 @@ macro_rules! motor_unit_functions {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
 
-                    let boxed_stages = self.get_motor_cache().[<$snake_case_name _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
+                    let boxed_stages = self.get_motor_cache().[<$cortical_type_key_name:snake _get_all_stage_properties>](group, channel_index).map_err(PyFeagiError::from)?;
                     PyPipelineStageProperties::from_vec_box_to_vec_parent_typed(py, boxed_stages)
                 }
 
-                pub fn [<motor_ $snake_case_name _update_single_stage_properties>](
+                pub fn [<motor_ $cortical_type_key_name:snake _update_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -584,11 +577,11 @@ macro_rules! motor_unit_functions {
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
-                    self.get_motor_cache().[<$snake_case_name _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$cortical_type_key_name:snake _update_single_stage_properties>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<motor_ $snake_case_name _update_all_stage_properties>](
+                pub fn [<motor_ $cortical_type_key_name:snake _update_all_stage_properties>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -600,12 +593,12 @@ macro_rules! motor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
-                    self.get_motor_cache().[<$snake_case_name _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$cortical_type_key_name:snake _update_all_stage_properties>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
 
                     Ok(())
                 }
 
-                pub fn [<motor_ $snake_case_name _replace_single_stage>](
+                pub fn [<motor_ $cortical_type_key_name:snake _replace_single_stage>](
                     &mut self,
                     py: Python<'_>,
                     group: u8,
@@ -619,11 +612,11 @@ macro_rules! motor_unit_functions {
                     let pipeline_stage_property_index: PipelineStagePropertyIndex = pipeline_stage_property_index.into();
                     let updating_property = PyPipelineStageProperties::from_py_to_box(py, &updating_property)?;
 
-                    self.get_motor_cache().[<$snake_case_name _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$cortical_type_key_name:snake _replace_single_stage>](group, channel_index, pipeline_stage_property_index, updating_property).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<motor_ $snake_case_name _replace_all_stages>](
+                pub fn [<motor_ $cortical_type_key_name:snake _replace_all_stages>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -635,11 +628,11 @@ macro_rules! motor_unit_functions {
                     let channel_index: CorticalChannelIndex = channel_index.into();
                     let updated_pipeline_stage_properties = PyPipelineStageProperties::from_vec_py_to_vec(updated_pipeline_stage_properties)?;
 
-                    self.get_motor_cache().[<$snake_case_name _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$cortical_type_key_name:snake _replace_all_stages>](group, channel_index, updated_pipeline_stage_properties).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
-                pub fn [<motor_ $snake_case_name _removing_all_stages>](
+                pub fn [<motor_ $cortical_type_key_name:snake _removing_all_stages>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -648,7 +641,7 @@ macro_rules! motor_unit_functions {
                 {
                     let group: CorticalUnitIndex = group.into();
                     let channel_index: CorticalChannelIndex = channel_index.into();
-                    self.get_motor_cache().[<$snake_case_name _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$cortical_type_key_name:snake _removing_all_stages>](group, channel_index).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
 
@@ -660,13 +653,13 @@ macro_rules! motor_unit_functions {
     // Arm for WrappedIOType::GazeProperties
     (@generate_functions
         $motor_unit:ident,
-        $snake_case_name:expr,
+        
         GazeProperties
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<motor_ $snake_case_name _register>](
+                pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -684,26 +677,26 @@ macro_rules! motor_unit_functions {
                     let modulation_z_neuron_resolution: NeuronDepth = modulation_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, eccentricity_z_neuron_resolution, modulation_z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, eccentricity_z_neuron_resolution, modulation_z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
         }
 
-        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, GazeProperties);
+        motor_unit_functions!(@generate_similar_functions $motor_unit, GazeProperties);
 
     };
 
     // Arm for WrappedIOType::Percentage
     (@generate_functions
         $motor_unit:ident,
-        $snake_case_name:expr,
+        
         Percentage
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<motor_ $snake_case_name _register>](
+                pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -719,26 +712,26 @@ macro_rules! motor_unit_functions {
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
         }
 
-        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, Percentage);
+        motor_unit_functions!(@generate_similar_functions $motor_unit, Percentage);
 
     };
 
     // Arm for WrappedIOType::Percentage3D
     (@generate_functions
         $motor_unit:ident,
-        $snake_case_name:expr,
+        
         Percentage_3D
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<motor_ $snake_case_name _register>](
+                pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -754,26 +747,26 @@ macro_rules! motor_unit_functions {
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
         }
 
-        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, Percentage3D);
+        motor_unit_functions!(@generate_similar_functions $motor_unit, Percentage3D);
 
     };
 
     // Arm for WrappedIOType::SignedPercentage
     (@generate_functions
         $motor_unit:ident,
-        $snake_case_name:expr,
+        
         SignedPercentage
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<motor_ $snake_case_name _register>](
+                pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -789,25 +782,25 @@ macro_rules! motor_unit_functions {
                     let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
 
-                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
         }
 
-        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, SignedPercentage);
+        motor_unit_functions!(@generate_similar_functions $motor_unit, SignedPercentage);
     };
 
     // Arm for WrappedIOType::MiscData
     (@generate_functions
         $motor_unit:ident,
-        $snake_case_name:expr,
+        
         MiscData
     ) => {
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
-                pub fn [<motor_ $snake_case_name _register>](
+                pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
                     group: u8,
@@ -822,18 +815,18 @@ macro_rules! motor_unit_functions {
                     let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::from_bound(frame_change_handling);
                     let misc_data_dimensions: MiscDataDimensions = PyMiscDataDimensions::copy_out_from_bound(misc_data_dimensions);
 
-                    self.get_motor_cache().[<$snake_case_name _register>](group, number_channels, frame_change_handling, misc_data_dimensions).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, misc_data_dimensions).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }
         }
-        motor_unit_functions!(@generate_similar_functions $motor_unit, $snake_case_name, MiscData);
+        motor_unit_functions!(@generate_similar_functions $motor_unit, MiscData);
     };
 
     // Arm for WrappedIOType::ImageFrame
     (@generate_functions
         $motor_unit:ident,
-        $snake_case_name:expr,
+        
         ImageFrame
     ) => {
         // ImageFrame for motor output (oimg) - typically doesn't need Python connector registration
@@ -919,7 +912,9 @@ impl PyConnectorAgent {
     /// * `FeagiError` - If JSON is malformed or references unregistered devices
     pub fn import_capabilities_json(&mut self, json_str: &str, py: Python<'_>) -> PyResult<()> {
         py.detach(|| {
-            self.inner.import_device_registrations_from_config_json(json_str)
+            let json_value: serde_json::Value = serde_json::from_str(json_str)
+                .map_err(|e| PyFeagiError::from(feagi_data_structures::FeagiDataError::DeserializationError(e.to_string())))?;
+            self.inner.import_device_registrations_as_config_json(json_value)
                 .map_err(PyFeagiError::from)?;
             Ok(())
         })

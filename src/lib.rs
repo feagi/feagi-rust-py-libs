@@ -78,7 +78,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalAreaType);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyFrameChangeHandling);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaDataFlag);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaConfigurationFlag);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyPercentageNeuronPositioning);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalUnit);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensoryCorticalUnit);
