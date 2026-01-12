@@ -687,6 +687,51 @@ macro_rules! motor_unit_functions {
 
     };
 
+    // Arm for WrappedIOType::ImageFilteringSettings
+    (@generate_functions
+        $motor_unit:ident,
+        
+        ImageFilteringSettings
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $motor_unit:snake _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    z_neuron_resolution: u32,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning
+                ) -> PyResult<()>
+                {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let z_neuron_resolution: NeuronDepth =
+                        z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let percentage_neuron_positioning: PercentageNeuronPositioning =
+                        percentage_neuron_positioning.into();
+
+                    self.get_motor_cache()
+                        .[<$motor_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            z_neuron_resolution,
+                            percentage_neuron_positioning,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+            }
+        }
+
+        motor_unit_functions!(@generate_similar_functions $motor_unit, ImageFilteringSettings);
+    };
+
     // Arm for WrappedIOType::Percentage
     (@generate_functions
         $motor_unit:ident,

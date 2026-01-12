@@ -843,10 +843,11 @@ dependencies = [
 
 [[package]]
 name = "feagi-agent"
-version = "0.0.1-beta.1"
+version = "0.0.1-beta.2"
 dependencies = [
  "anyhow",
  "async-trait",
+ "base64 0.22.1",
  "feagi-io",
  "feagi-observability",
  "feagi-sensorimotor",
@@ -866,7 +867,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-brain-development"
-version = "0.0.1-beta.1"
+version = "0.0.1-beta.2"
 dependencies = [
  "ahash",
  "chrono",
@@ -892,7 +893,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-evolutionary"
-version = "0.0.1-beta.1"
+version = "0.0.1-beta.2"
 dependencies = [
  "chrono",
  "feagi-npu-neural",
@@ -911,7 +912,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-io"
-version = "0.0.1-beta.1"
+version = "0.0.1-beta.2"
 dependencies = [
  "ahash",
  "anyhow",
@@ -1032,7 +1033,7 @@ dependencies = [
 
 [[package]]
 name = "feagi-services"
-version = "0.0.1-beta.1"
+version = "0.0.1-beta.2"
 dependencies = [
  "async-trait",
  "chrono",

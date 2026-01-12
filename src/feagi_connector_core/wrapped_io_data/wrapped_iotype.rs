@@ -98,6 +98,11 @@ impl PyWrappedIOType {
         PyWrappedIOType { inner: WrappedIOType::GazeProperties }
     }
 
+    #[staticmethod]
+    pub fn ImageFilteringSettings() -> Self {
+        PyWrappedIOType { inner: WrappedIOType::ImageFilteringSettings }
+    }
+
     pub fn is_same_variant(&self, other: &PyWrappedIOType) -> bool {
         WrappedIOType::is_same_variant(&self.inner, &other.inner)
     }
