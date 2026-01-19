@@ -127,9 +127,12 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
-          sccache: true
+          sccache: false
         env:
-          # Force static CRT linking to avoid conflicts between tokenizers and zmq
+          # Use vendored OpenSSL to eliminate system dependencies
+          OPENSSL_STATIC: "1"
+          OPENSSL_VENDORED: "1"
+          # Force static CRT for all dependencies to avoid runtime conflicts
           RUSTFLAGS: "-C target-feature=+crt-static"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
