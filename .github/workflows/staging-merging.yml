@@ -44,15 +44,6 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: auto
-          before-script-linux: |
-            # Install build dependencies for vendored OpenSSL
-            if command -v yum &> /dev/null; then
-              yum install -y perl-IPC-Cmd
-            fi
-        env:
-          # Use vendored OpenSSL to avoid cross-compilation issues
-          OPENSSL_STATIC: "1"
-          OPENSSL_VENDORED: "1"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -89,13 +80,6 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: musllinux_1_2
-          before-script-linux: |
-            # Install build dependencies for musllinux
-            apk add perl
-        env:
-          # Use vendored OpenSSL to avoid cross-compilation issues
-          OPENSSL_STATIC: "1"
-          OPENSSL_VENDORED: "1"
         continue-on-error: true
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -128,12 +112,6 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
           sccache: false
-        env:
-          # Use vendored OpenSSL to eliminate system dependencies
-          OPENSSL_STATIC: "1"
-          OPENSSL_VENDORED: "1"
-          # Force static CRT for all dependencies to avoid runtime conflicts
-          RUSTFLAGS: "-C target-feature=+crt-static"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:

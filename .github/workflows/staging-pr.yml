@@ -48,15 +48,6 @@ jobs:
         with:
           target: x86_64
           args: --release --out dist --find-interpreter
-          before-script-linux: |
-            # Install build dependencies for vendored OpenSSL
-            if command -v yum &> /dev/null; then
-              yum install -y perl-IPC-Cmd
-            fi
-        env:
-          # Use vendored OpenSSL to avoid cross-compilation issues
-          OPENSSL_STATIC: "1"
-          OPENSSL_VENDORED: "1"
       
       - name: Install and test wheel
         run: |
