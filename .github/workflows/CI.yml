@@ -48,6 +48,13 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
+          before-script-linux: |
+            if command -v yum &> /dev/null; then
+              yum install -y perl-IPC-Cmd
+            fi
+        env:
+          OPENSSL_STATIC: "1"
+          OPENSSL_VENDORED: "1"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -79,6 +86,11 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: musllinux_1_2
+          before-script-linux: |
+            apk add perl
+        env:
+          OPENSSL_STATIC: "1"
+          OPENSSL_VENDORED: "1"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
