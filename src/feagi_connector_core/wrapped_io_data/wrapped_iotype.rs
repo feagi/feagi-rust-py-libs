@@ -1,8 +1,7 @@
-use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, MiscDataDimensions, SegmentedImageFrameProperties};
-use feagi_connector_core::wrapped_io_data::WrappedIOType;
+use feagi_sensorimotor::data_types::descriptors::{ImageFrameProperties, MiscDataDimensions, SegmentedImageFrameProperties};
+use feagi_sensorimotor::wrapped_io_data::WrappedIOType;
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_data_structures::FeagiDataError;
 use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties, PyMiscDataDimensions};
 use crate::{wrap_flat_enum, __base_py_class_shared};
 
@@ -97,6 +96,11 @@ impl PyWrappedIOType {
     #[staticmethod]
     pub fn GazeProperties() ->Self {
         PyWrappedIOType { inner: WrappedIOType::GazeProperties }
+    }
+
+    #[staticmethod]
+    pub fn ImageFilteringSettings() -> Self {
+        PyWrappedIOType { inner: WrappedIOType::ImageFilteringSettings }
     }
 
     pub fn is_same_variant(&self, other: &PyWrappedIOType) -> bool {

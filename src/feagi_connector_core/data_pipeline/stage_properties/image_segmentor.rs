@@ -1,9 +1,9 @@
-use feagi_connector_core::data_pipeline::PipelineStageProperties;
+use feagi_sensorimotor::data_pipeline::PipelineStageProperties;
 use pyo3::{pymethods, PyResult, PyRef, PyRefMut};
 use pyo3::prelude::*;
-use feagi_connector_core::data_pipeline::stage_properties::ImageFrameSegmentatorStageProperties;
-use feagi_connector_core::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
-use feagi_connector_core::data_types::GazeProperties;
+use feagi_sensorimotor::data_pipeline::stage_properties::ImageFrameSegmentatorStageProperties;
+use feagi_sensorimotor::data_types::descriptors::{ImageFrameProperties, SegmentedImageFrameProperties};
+use feagi_sensorimotor::data_types::GazeProperties;
 use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_connector_core::data_types::descriptors::{PyImageFrameProperties, PySegmentedImageFrameProperties};
@@ -47,15 +47,11 @@ impl PyImageFrameSegmentatorStageProperties {
         Ok(parent.output_image_properties.into())
     }
 
-     */
-
-    #[getter]
+     */    #[getter]
     pub fn get_segmentation_gaze(slf: PyRef<Self>) -> PyResult<PyGazeProperties> {
         let parent = Self::get_ref(&slf).map_err(PyFeagiError::from)?;
         Ok(parent.segmentation_gaze.into())
-    }
-
-    #[setter]
+    }    #[setter]
     pub fn set_segmentation_gaze(mut slf: PyRefMut<Self>, gaze: PyGazeProperties) -> PyResult<()> {
         let parent = Self::get_ref_mut(&mut slf).map_err(PyFeagiError::from)?;
         parent.segmentation_gaze = gaze.into();

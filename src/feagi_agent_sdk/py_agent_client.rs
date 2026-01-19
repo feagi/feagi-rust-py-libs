@@ -3,20 +3,20 @@
  */
 
 use pyo3::prelude::*;
-use pyo3::types::{PyList, PyAny};
+use pyo3::types::{PyAny, PyBytes, PyList};
 use super::py_agent_config::PyAgentConfig;
 use std::sync::{Arc, Mutex};
 
 #[pyclass(name = "PyAgentClient")]
 pub struct PyAgentClient {
-    inner: Arc<Mutex<feagi_agent_sdk::AgentClient>>,
+    inner: Arc<Mutex<feagi_agent::AgentClient>>,
 }
 
 #[pymethods]
 impl PyAgentClient {
     #[new]
     fn new(config: &PyAgentConfig) -> PyResult<Self> {
-        let client = feagi_agent_sdk::AgentClient::new(config.inner().clone())
+        let client = feagi_agent::AgentClient::new(config.inner().clone())
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
         
         Ok(PyAgentClient {
@@ -36,12 +36,12 @@ impl PyAgentClient {
     }
     
     /// Send sensory data as list of (neuron_id, potential) tuples
-    fn send_sensory_data(&self, py: Python, neuron_pairs: Bound<'_, PyAny>) -> PyResult<()> {
-        let list = neuron_pairs.downcast::<PyList>()?;
+    fn send_sensory_data(&self, _py: Python, neuron_pairs: Bound<'_, PyAny>) -> PyResult<()> {
+        let list = neuron_pairs.cast::<PyList>()?;
         let mut pairs: Vec<(i32, f64)> = Vec::new();
         
         for item in list {
-            let tuple = item.downcast::<pyo3::types::PyTuple>()?;
+            let tuple = item.cast::<pyo3::types::PyTuple>()?;
             if tuple.len() != 2 {
                 return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                     "Each item must be a (neuron_id, potential) tuple"
@@ -61,10 +61,26 @@ impl PyAgentClient {
         client.send_sensory_data(pairs)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
     }
+
+    /// Send pre-serialized sensory bytes to FEAGI (FeagiByteContainer bytes).
+    ///
+    /// Real-time semantics: the underlying Rust client drops on backpressure instead of blocking.
+    fn send_sensory_bytes(&self, _py: Python, payload: Bound<'_, PyAny>) -> PyResult<()> {
+        let py_bytes = payload.cast::<PyBytes>()?;
+        let bytes = py_bytes.as_bytes().to_vec();
+
+        let client = self.inner.lock().map_err(|e| {
+            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
+        })?;
+
+        client
+            .send_sensory_bytes(bytes)
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
+    }
     
     /// Receive motor data (non-blocking, returns None if no data)
     /// Returns motor data as JSON string in format: {"motor": {"0": value, "1": value, ...}}
-    fn receive_motor_data(&self, py: Python) -> PyResult<Option<String>> {
+    fn receive_motor_data(&self, _py: Python) -> PyResult<Option<String>> {
         let client = self.inner.lock()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
                 format!("Lock poisoned: {}", e)

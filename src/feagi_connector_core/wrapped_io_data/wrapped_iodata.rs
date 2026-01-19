@@ -1,13 +1,13 @@
-use feagi_connector_core::data_types::{ImageFrame, MiscData, Percentage, Percentage2D, Percentage3D, Percentage4D, SegmentedImageFrame, SignedPercentage, SignedPercentage2D, SignedPercentage3D, SignedPercentage4D};
-use feagi_connector_core::wrapped_io_data::WrappedIOData;
+use feagi_sensorimotor::wrapped_io_data::WrappedIOData;
 use pyo3::{IntoPyObjectExt, PyResult};
 use pyo3::prelude::*;
 use feagi_data_structures::FeagiDataError;
 use pyo3::types::PyBool;
-use crate::feagi_connector_core::data_types::{PyImageFrame, PyMiscData, PySegmentedImageFrame, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D, PyGazeProperties};
+use crate::feagi_connector_core::data_types::{PyGazeProperties, PyImageFilteringSettings, PyImageFrame, PyMiscData, PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PySegmentedImageFrame, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D};
 
 
 // Conversion functions for backward compatibility
+#[allow(dead_code)]
 pub fn wrapped_io_data_to_py_object(py: Python, wrapped_iodata: WrappedIOData) -> PyResult<Py<PyAny>> {
     match wrapped_iodata {
         WrappedIOData::Boolean(boolean) => {
@@ -60,6 +60,10 @@ pub fn wrapped_io_data_to_py_object(py: Python, wrapped_iodata: WrappedIOData) -
         WrappedIOData::GazeProperties(gaze_properties) => {
             let py_gaze_properties = PyGazeProperties::from(gaze_properties);
             py_gaze_properties.into_py_any(py)
+        },
+        WrappedIOData::ImageFilteringSettings(settings) => {
+            let py_settings = PyImageFilteringSettings::from(settings);
+            py_settings.into_py_any(py)
         }
     }
 }
@@ -78,6 +82,9 @@ pub fn py_any_to_wrapped_io_data<'py>(_py: Python<'_>, py_wrapped: &Bound<'py, P
     } else if let Ok(reference) = py_wrapped.cast::<PyGazeProperties>() {
         let gaze_properties = &reference.borrow().inner;
         return Ok(WrappedIOData::GazeProperties(gaze_properties.clone()))
+    } else if let Ok(reference) = py_wrapped.cast::<PyImageFilteringSettings>() {
+        let settings = &reference.borrow().inner;
+        return Ok(WrappedIOData::ImageFilteringSettings(settings.clone()))
     } else if let Ok(reference) = py_wrapped.cast::<PyMiscData>() {
         let misc_data = &reference.borrow().inner;
         return Ok(WrappedIOData::MiscData(misc_data.clone()))

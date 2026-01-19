@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::{pymethods, PyResult};
-use feagi_connector_core::data_types::GazeProperties;
+use feagi_sensorimotor::data_types::GazeProperties;
 use crate::{create_pyclass, __base_py_class_shared};
 use crate::feagi_connector_core::data_types::{PyPercentage, PyPercentage2D};
 

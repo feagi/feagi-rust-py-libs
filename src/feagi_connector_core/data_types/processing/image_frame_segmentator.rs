@@ -1,8 +1,6 @@
-use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::processing::{ImageFrameSegmentator};
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::exceptions::{PyValueError};
-use pyo3::prelude::*;
 use crate::feagi_connector_core::data::descriptors::{PyGazeProperties, PyImageFrameProperties, PySegmentedImageFrameProperties};
 use crate::{project_display, py_object_cast_generic, py_type_casts};
 

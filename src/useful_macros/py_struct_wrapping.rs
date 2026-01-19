@@ -121,6 +121,7 @@ macro_rules! __base_py_class_shared {
 
         impl $py_wrapped_name {
             /// Create Python wrapped instance of the given Rust structure
+            #[allow(dead_code)]
             pub(crate) fn new_from_rust(rust_struct: $rust_name) -> Self {
                 $py_wrapped_name {inner: rust_struct}
             }

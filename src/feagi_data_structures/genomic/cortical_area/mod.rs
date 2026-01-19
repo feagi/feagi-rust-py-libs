@@ -6,4 +6,4 @@ pub mod descriptors;
 
 pub use cortical_id::PyCorticalID;
 pub use cortical_type::{PyCoreCorticalType, PyCorticalAreaType, PyCustomCorticalType, PyMemoryCorticalType};
-pub use io_cortical_area_data_flag::{PyPercentageNeuronPositioning, PyIOCorticalAreaDataFlag, PyFrameChangeHandling};
+pub use io_cortical_area_data_flag::{PyPercentageNeuronPositioning, PyIOCorticalAreaConfigurationFlag, PyFrameChangeHandling};

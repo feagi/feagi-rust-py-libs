@@ -14,9 +14,9 @@ pub use py_agent_type::PyAgentType as AgentType;
 
 use pyo3::prelude::*;
 
-/// Register the feagi_agent_sdk_py module with Python
+/// Register the feagi_agent_py module with Python
 pub fn register_module(py: Python, parent_module: &PyModule) -> PyResult<()> {
-    let submodule = PyModule::new(py, "feagi_agent_sdk_py")?;
+    let submodule = PyModule::new(py, "feagi_agent_py")?;
     
     // Register types
     submodule.add_class::<PyAgentClient>()?;

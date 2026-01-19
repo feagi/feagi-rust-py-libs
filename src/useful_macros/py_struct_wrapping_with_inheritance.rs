@@ -1,4 +1,3 @@
-use feagi_data_structures::FeagiDataError;
 
 /// These implementations do not need the parent to store a shared state in a box (child st
 //region No Box (Child stores data)
@@ -74,15 +73,16 @@ macro_rules! create_trait_child_pyclass {
             }
 
             /// You MUST use for all other constructors except for "new"
-            pub fn python_etc_child_constructor<'py>(py: Python<'py>, child_rust_struct: $representing_rust_struct) -> PyResult<Py<Self>> {
-                Python::with_gil(|py| {
+            pub fn python_etc_child_constructor<'py>(_py: Python<'py>, child_rust_struct: $representing_rust_struct) -> PyResult<Py<Self>> {
+                Python::attach(|py| {
                     Py::new(py, ($py_class_name_in_rust { inner: child_rust_struct}, $parent_pyclass_in_rust::new_blank_parent()) ) // TODO this is outdated
                 })
             }
 
             /// Use this if you want to export this py-wrapped struct to python with proper inheritance
-            fn export_as_python_child<'py>(self, py: Python<'py>) -> PyResult<Py<Self>> {
-                Python::with_gil(|py| {
+            #[allow(dead_code)]
+            fn export_as_python_child<'py>(self, _py: Python<'py>) -> PyResult<Py<Self>> {
+                Python::attach(|py| {
                     Py::new(py, (self, $parent_pyclass_in_rust::new_blank_parent()) ) // TODO this is outdated
                 })
             }

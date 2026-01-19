@@ -5,9 +5,10 @@
 mod py_error;
 mod useful_macros;
 mod feagi_data_structures;
-mod feagi_data_serialization;
+pub mod feagi_data_serialization;
+pub use feagi_data_serialization as feagi_serialization;
 mod feagi_connector_core;
-//mod feagi_agent_sdk;
+mod feagi_agent_sdk;
 //mod feagi_evo;
 
 use pyo3::prelude::*;
@@ -26,7 +27,7 @@ fn register_submodule_in_sys_modules(
     full_module_path: &str,
     module: &Bound<'_, PyModule>,
 ) -> PyResult<()> {
-    let sys_modules: Bound<'_, PyDict> = py.import("sys")?.getattr("modules")?.downcast_into()?;
+    let sys_modules: Bound<'_, PyDict> = py.import("sys")?.getattr("modules")?.cast_into()?;
     sys_modules.set_item(full_module_path, module)?;
     Ok(())
 }
@@ -53,7 +54,7 @@ macro_rules! add_python_class {
                 else {
                     // child module already exists. Switch to it
                     let child_module = current_module.getattr(&path_step)?;
-                    current_module = child_module.downcast_into::<PyModule>()?;
+                    current_module = child_module.cast_into::<PyModule>()?;
                 }
             }
 
@@ -77,7 +78,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalAreaType);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCoreCorticalType);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyFrameChangeHandling);
-    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaDataFlag);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaConfigurationFlag);
     add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyPercentageNeuronPositioning);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalUnit);
     add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensoryCorticalUnit);
@@ -89,9 +90,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     
     //region Feagi Data Serialization
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteStructureType);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiSerializable);
-    add_python_class!(py, m, "data_serialization", feagi_data_serialization::PyFeagiByteContainer);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiByteStructureType);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiSerializable);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiByteContainer);
     
     //endregion
     
@@ -111,6 +112,8 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage4D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage4D);
     add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGazeProperties);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyTextTokenCodec);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGpt2Tokenizer);
 
     // Data Descriptors
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYPoint);
@@ -125,14 +128,19 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyCornerPoints);
     add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMiscDataDimensions);
     
+    // Data Types Processing
+    add_python_class!(py, m, "connector_core.data_types.processing", feagi_connector_core::data_types::processing::PyImageFrameProcessor);
+    
     //Wrapped IO Data
     add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 
    // Data Pipeline Stage Properties
     add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageFrameSegmentatorStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImageQuickDiffStageProperties);
-    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::stage_properties::PyImagePixelValueCountThresholdStageProperties);
+    
+    // TODO: Add standalone constructor functions for backward compatibility
+    // This requires manually building the Python module hierarchy
+    // For now, users can call PipelineStageProperties.new_image_frame_segmentator()
+    
     add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
     
     // Register init_rust_logging function
@@ -144,7 +152,7 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     //region FEAGI Agent SDK
     
     // Register the agent SDK module
-    //feagi_agent_sdk::register_module(py, m)?;
+    feagi_agent_sdk::register_module(py, m)?;
     
     //endregion
     

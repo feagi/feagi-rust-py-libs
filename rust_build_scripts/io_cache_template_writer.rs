@@ -1,12 +1,13 @@
 use crate::{check_for_segment, get_motor_variants, read_source_file, replace_code_segment, save_source_file};
 
 
+#[allow(dead_code)]
 pub fn update_connector_agent_source_file(file_path: &str) {
     let checking_flag: &str = "//BUILDRS_ON";
     let motor_start_comment: &str = "//BUILDRS_MOTOR_DEVICE_START";
     let motor_end_comment: &str = "//BUILDRS_MOTOR_DEVICE_END";
-    let sensor_start_comment: &str = "//BUILDRS_SENSOR_DEVICE_START";
-    let sensor_end_comment: &str = "//BUILDRS_SENSOR_DEVICE_END";
+    let _sensor_start_comment: &str = "//BUILDRS_SENSOR_DEVICE_START";
+    let _sensor_end_comment: &str = "//BUILDRS_SENSOR_DEVICE_END";
 
     let source_file_string = read_source_file(file_path);
     check_for_segment(&source_file_string, checking_flag); // Errors out here if not enabled!
@@ -20,6 +21,7 @@ pub fn update_connector_agent_source_file(file_path: &str) {
     save_source_file(source_file_string, file_path);
 }
 
+#[allow(dead_code)]
 fn generate_motor_registration_functions() -> String {
     let variants = get_motor_variants();
     let mut functions = String::new();
@@ -67,6 +69,7 @@ fn generate_sensor_registration_functions() -> String {
 
 //region Motor
 
+#[allow(dead_code)]
 fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: &str) -> String {
     format!(
         r#"
@@ -77,7 +80,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         channel: PyObject,
     ) -> PyResult<Py{accepted_wrapped_io_data_type}>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let unwrapped: {accepted_wrapped_io_data_type} = self.inner.get_motor_cache().{snake_case_name}_read_preprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
@@ -91,7 +94,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         channel: PyObject,
     ) -> PyResult<Py{accepted_wrapped_io_data_type}>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let unwrapped: {accepted_wrapped_io_data_type} = self.inner.get_motor_cache().{snake_case_name}_read_postprocessed_cached_value(group, channel).map_err(PyFeagiError::from)?;
@@ -107,7 +110,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         stage_index: PyObject,
     ) -> PyResult<PyPipelineStageProperties>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
 
@@ -122,7 +125,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         channel: PyObject,
     ) -> PyResult<Vec<PyPipelineStageProperties>>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.get_motor_cache().{snake_case_name}_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
@@ -143,7 +146,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         updating_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, updating_property).map_err(PyFeagiError::from)?;
@@ -160,7 +163,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         updated_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(updated_pipeline_stage_properties.len());
         for py_stage in updated_pipeline_stage_properties {{
@@ -181,7 +184,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         replacing_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let replacing_property: Box<dyn PipelineStageProperties + Sync + Send> = replacing_property.into().map_err(PyFeagiError::from)?;
@@ -198,7 +201,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         new_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(new_pipeline_stage_properties.len());
         for py_stage in new_pipeline_stage_properties {{
@@ -219,7 +222,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         callback: PyObject,
     ) -> PyResult<PyFeagiSignalIndex>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         // Note: Callback handling would need special implementation for Python callbacks
@@ -237,6 +240,7 @@ fn motor_shared_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
     )
 }
 
+#[allow(dead_code)]
 fn motor_unique_functions(snake_case_name: &str, accepted_wrapped_io_data_type: &str) -> String {
     // This function generates registration functions based on the coder type.
 
@@ -252,7 +256,7 @@ fn motor_unique_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         percentage_neuron_positioning: PyObject
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let frame_change_handling: FrameChangeHandling = PyFrameChangeHandling::try_get_from_py_object(py, frame_change_handling).map_err(PyFeagiError::from)?;
         let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
@@ -264,7 +268,7 @@ fn motor_unique_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
 "#,
     );
 
-    let misc_data_functions = format!(
+    let _misc_data_functions = format!(
         r#"
     pub fn motor_{snake_case_name}_try_register(
         &mut self,
@@ -274,7 +278,7 @@ fn motor_unique_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
         misc_dimensions: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let misc_dimensions: MiscDataDimensions = PyMiscDataDimensions::try_get_from_py_object(py, misc_dimensions).map_err(PyFeagiError::from)?;
 
@@ -303,6 +307,7 @@ fn motor_unique_functions(snake_case_name: &str, accepted_wrapped_io_data_type: 
 
 //endregion
 
+#[allow(dead_code)]
 fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &str, accepted_wrapped_io_data_type: &str) -> String {
     // This function generates registration functions based on the coder type.
 
@@ -316,7 +321,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         z_neuron_depth: PyObject
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let z_neuron_depth: NeuronDepth = PyNeuronDepth::try_get_from_py_object(py, z_neuron_depth).map_err(PyFeagiError::from)?;
 
@@ -332,7 +337,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         data: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let data: {accepted_wrapped_io_data_type} = Py{accepted_wrapped_io_data_type}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
 
@@ -347,7 +352,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         channel: PyObject,
     ) -> PyResult<Py{accepted_wrapped_io_data_type}>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let unwrapped: {accepted_wrapped_io_data_type} = self.inner.sensor_{snake_case_name}_try_read_postprocessed_cache_value(group, channel).map_err(PyFeagiError::from)?;
@@ -363,7 +368,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         stage_index: PyObject,
     ) -> PyResult<PyPipelineStageProperties>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
 
@@ -378,7 +383,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         channel: PyObject,
     ) -> PyResult<Vec<PyPipelineStageProperties>>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.sensor_{snake_case_name}_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
@@ -399,7 +404,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         updating_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, updating_property).map_err(PyFeagiError::from)?;
@@ -416,7 +421,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         updated_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(updated_pipeline_stage_properties.len());
         for py_stage in updated_pipeline_stage_properties {{
@@ -437,7 +442,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         replacing_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let replacing_property: Box<dyn PipelineStageProperties + Sync + Send> = replacing_property.into().map_err(PyFeagiError::from)?;
@@ -454,7 +459,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         new_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(new_pipeline_stage_properties.len());
         for py_stage in new_pipeline_stage_properties {{
@@ -480,7 +485,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         misc_dimensions: PyMiscDataDimensions,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let misc_dimensions: MiscDataDimensions = misc_dimensions.into();
 
@@ -496,7 +501,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         data: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let data: {accepted_wrapped_io_data_type} = Py{accepted_wrapped_io_data_type}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
 
@@ -511,7 +516,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         channel: PyObject,
     ) -> PyResult<Py{accepted_wrapped_io_data_type}>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let unwrapped: {accepted_wrapped_io_data_type} = self.inner.sensor_{snake_case_name}_try_read_postprocessed_cache_value(group, channel).map_err(PyFeagiError::from)?;
@@ -527,7 +532,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         stage_index: PyObject,
     ) -> PyResult<PyPipelineStageProperties>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
 
@@ -542,7 +547,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         channel: PyObject,
     ) -> PyResult<Vec<PyPipelineStageProperties>>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.sensor_{snake_case_name}_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
@@ -563,7 +568,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         updating_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, updating_property).map_err(PyFeagiError::from)?;
@@ -580,7 +585,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         updated_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(updated_pipeline_stage_properties.len());
         for py_stage in updated_pipeline_stage_properties {{
@@ -601,7 +606,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         replacing_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let replacing_property: Box<dyn PipelineStageProperties + Sync + Send> = replacing_property.into().map_err(PyFeagiError::from)?;
@@ -618,7 +623,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         new_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(new_pipeline_stage_properties.len());
         for py_stage in new_pipeline_stage_properties {{
@@ -643,7 +648,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         image_properties: PyImageFrameProperties,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let number_of_channels: CorticalChannelCount = PyCorticalChannelCount::try_get_from_py_object(py, number_of_channels).map_err(PyFeagiError::from)?;
         let image_properties: ImageFrameProperties = image_properties.into();
 
@@ -659,7 +664,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         data: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let data: {accepted_wrapped_io_data_type} = Py{accepted_wrapped_io_data_type}::try_get_from_py_object(py, data).map_err(PyFeagiError::from)?;
 
@@ -674,7 +679,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         channel: PyObject,
     ) -> PyResult<Py{accepted_wrapped_io_data_type}>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let unwrapped: {accepted_wrapped_io_data_type} = self.inner.sensor_{snake_case_name}_try_read_postprocessed_cache_value(group, channel).map_err(PyFeagiError::from)?;
@@ -690,7 +695,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         stage_index: PyObject,
     ) -> PyResult<PyPipelineStageProperties>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
 
@@ -705,7 +710,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         channel: PyObject,
     ) -> PyResult<Vec<PyPipelineStageProperties>>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
 
         let boxed_stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = self.inner.sensor_{snake_case_name}_try_get_all_stage_properties(group, channel).map_err(PyFeagiError::from)?;
@@ -726,7 +731,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         updating_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let updating_property: Box<dyn PipelineStageProperties + Sync + Send> = extract_pipeline_stage_properties_from_py(py, updating_property).map_err(PyFeagiError::from)?;
@@ -743,7 +748,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         updated_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(updated_pipeline_stage_properties.len());
         for py_stage in updated_pipeline_stage_properties {{
@@ -764,7 +769,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         replacing_property: PyObject,
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let stage_index: PipelineStagePropertyIndex = PyPipelineStagePropertyIndex::try_get_from_py_object(py, stage_index).map_err(PyFeagiError::from)?;
         let replacing_property: Box<dyn PipelineStageProperties + Sync + Send> = replacing_property.into().map_err(PyFeagiError::from)?;
@@ -781,7 +786,7 @@ fn generate_sensor_functions_for_coder_type(snake_case_name: &str, coder_type: &
         new_pipeline_stage_properties: Vec<PyObject>
     ) -> PyResult<()>
     {{
-        let group: CorticalGroupIndex = PyCorticalGroupIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
+        let group: CorticalUnitIndex = PyCorticalUnitIndex::try_get_from_py_object(py, group).map_err(PyFeagiError::from)?;
         let channel: CorticalChannelIndex = PyCorticalChannelIndex::try_get_from_py_object(py, channel).map_err(PyFeagiError::from)?;
         let mut stages: Vec<Box<dyn PipelineStageProperties + Sync + Send>> = Vec::with_capacity(new_pipeline_stage_properties.len());
         for py_stage in new_pipeline_stage_properties {{

@@ -7,7 +7,7 @@ use pyo3::prelude::*;
 #[pyclass(name = "AgentType")]
 #[derive(Clone, Debug)]
 pub struct PyAgentType {
-    inner: feagi_agent_sdk::AgentType,
+    inner: feagi_agent::AgentType,
 }
 
 #[pymethods]
@@ -15,9 +15,9 @@ impl PyAgentType {
     #[new]
     fn new(agent_type: &str) -> PyResult<Self> {
         let inner = match agent_type.to_lowercase().as_str() {
-            "sensory" => feagi_agent_sdk::AgentType::Sensory,
-            "motor" => feagi_agent_sdk::AgentType::Motor,
-            "both" => feagi_agent_sdk::AgentType::Both,
+            "sensory" => feagi_agent::AgentType::Sensory,
+            "motor" => feagi_agent::AgentType::Motor,
+            "both" => feagi_agent::AgentType::Both,
             _ => return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                 format!("Invalid agent type: {}. Must be 'sensory', 'motor', or 'both'", agent_type)
             )),
@@ -37,19 +37,19 @@ impl PyAgentType {
     /// Create a Sensory agent type
     #[staticmethod]
     fn sensory() -> Self {
-        PyAgentType { inner: feagi_agent_sdk::AgentType::Sensory }
+        PyAgentType { inner: feagi_agent::AgentType::Sensory }
     }
     
     /// Create a Motor agent type
     #[staticmethod]
     fn motor() -> Self {
-        PyAgentType { inner: feagi_agent_sdk::AgentType::Motor }
+        PyAgentType { inner: feagi_agent::AgentType::Motor }
     }
     
     /// Create a Both (bidirectional) agent type
     #[staticmethod]
     fn both() -> Self {
-        PyAgentType { inner: feagi_agent_sdk::AgentType::Both }
+        PyAgentType { inner: feagi_agent::AgentType::Both }
     }
     
     fn __repr__(&self) -> String {
@@ -62,14 +62,14 @@ impl PyAgentType {
 }
 
 impl PyAgentType {
-    pub fn inner(&self) -> feagi_agent_sdk::AgentType {
+    pub fn inner(&self) -> feagi_agent::AgentType {
         self.inner.clone()
     }
 }
 
 // Allow creating from Rust AgentType
-impl From<feagi_agent_sdk::AgentType> for PyAgentType {
-    fn from(inner: feagi_agent_sdk::AgentType) -> Self {
+impl From<feagi_agent::AgentType> for PyAgentType {
+    fn from(inner: feagi_agent::AgentType) -> Self {
         PyAgentType { inner }
     }
 }

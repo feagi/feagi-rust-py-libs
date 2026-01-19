@@ -32,13 +32,17 @@ fn init_rust_logging() {
             .with_target(false)
             .with_thread_ids(false)
             .with_file(false)
-            .init();
+            .try_init()
+            // Avoid panicking if another module already installed a global subscriber.
+            // This can happen if both connector_core and agent_sdk call init_rust_logging()
+            // within the same Python process.
+            .ok();
     });
 }
 
-/// Register the feagi_agent_sdk module with Python
+/// Register the feagi_agent module with Python
 pub fn register_module(py: Python, parent_module: &Bound<'_, PyModule>) -> PyResult<()> {
-    let submodule = PyModule::new(py, "feagi_agent_sdk")?;
+    let submodule = PyModule::new(py, "feagi_agent")?;
     
     // Register types
     submodule.add_class::<PyAgentClient>()?;

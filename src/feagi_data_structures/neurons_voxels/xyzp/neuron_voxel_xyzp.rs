@@ -2,7 +2,6 @@ use std::fmt::Debug;
 
 use pyo3::{pyclass, pymethods};
 use pyo3::prelude::*;
-use feagi_data_structures::FeagiDataError;
 use feagi_data_structures::neuron_voxels::xyzp::NeuronVoxelXYZP;
 use crate::{create_pyclass, __base_py_class_shared};
 

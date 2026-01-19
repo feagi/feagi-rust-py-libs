@@ -1,8 +1,8 @@
-use feagi_connector_core::data_pipeline::PipelineStageProperties;
+use feagi_sensorimotor::data_pipeline::PipelineStageProperties;
 use pyo3::{pyclass, pymethods, PyResult, PyRef, PyRefMut};
 use pyo3::prelude::*;
-use feagi_connector_core::data_pipeline::stage_properties::ImageFrameProcessorStageProperties;
-use feagi_connector_core::data_types::ImageFrameProcessor;
+use feagi_sensorimotor::data_pipeline::stage_properties::ImageFrameProcessorStageProperties;
+use feagi_sensorimotor::data_types::ImageFrameProcessor;
 use crate::create_trait_child_with_box_pyclass;
 use crate::feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties;
 use crate::feagi_data_structures::processing::PyImageFrameProcessor;

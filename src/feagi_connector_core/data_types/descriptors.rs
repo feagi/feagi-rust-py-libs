@@ -1,6 +1,6 @@
 use pyo3::{pyclass, pymethods, PyResult};
 use pyo3::prelude::*;
-use feagi_connector_core::data_types::descriptors::*;
+use feagi_sensorimotor::data_types::descriptors::*;
 use crate::{create_pyclass, __base_py_class_shared};
 use crate::feagi_connector_core::data_types::{PyImageFrame, PySegmentedImageFrame};
 use crate::py_error::PyFeagiError;
