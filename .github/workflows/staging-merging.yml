@@ -44,6 +44,14 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: auto
+          before-script-linux: |
+            # Install OpenSSL development packages
+            if command -v yum &> /dev/null; then
+              yum install -y openssl-devel perl-IPC-Cmd
+            elif command -v apt-get &> /dev/null; then
+              apt-get update
+              apt-get install -y libssl-dev pkg-config
+            fi
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -80,6 +88,9 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: musllinux_1_2
+          before-script-linux: |
+            # Install OpenSSL for musllinux
+            apk add openssl-dev pkgconfig perl
         continue-on-error: true
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -112,6 +123,9 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
           sccache: true
+        env:
+          # Force static CRT linking to avoid conflicts between tokenizers and zmq
+          RUSTFLAGS: "-C target-feature=+crt-static"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
