@@ -28,7 +28,9 @@ venv/
 *.egg-info/
 .installed.cfg
 *.egg
-.cargo
+# Allow .cargo/config.toml for build settings, but ignore local cache
+.cargo/*
+!.cargo/config.toml
 
 # Installer logs
 pip-log.txt
