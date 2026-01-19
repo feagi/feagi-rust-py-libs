@@ -47,9 +47,7 @@ impl PyImageFrameSegmentatorStageProperties {
         Ok(parent.output_image_properties.into())
     }
 
-     */
-
-    #[getter]
+     */    #[getter]
     pub fn get_segmentation_gaze(slf: PyRef<Self>) -> PyResult<PyGazeProperties> {
         let parent = Self::get_ref(&slf).map_err(PyFeagiError::from)?;
         Ok(parent.segmentation_gaze.into())
