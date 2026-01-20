@@ -223,8 +223,6 @@ jobs:
     strategy:
       matrix:
         platform:
-          - runner: macos-13
-            target: x86_64
           - runner: macos-14
             target: aarch64
     steps:
@@ -411,7 +409,7 @@ jobs:
             - ✅ Linux wheels (x86_64, x86, aarch64)
             - ⚠️  MuslLinux wheels (x86_64, x86, aarch64) - best effort
             - ✅ Windows wheels (x64, x86)
-            - ✅ macOS wheels (x86_64, aarch64)
+            - ✅ macOS wheels (aarch64/Apple Silicon)
             - ✅ Source distribution included
             - ✅ Published to ${{ steps.release_type.outputs.repository == 'testpypi' && 'TestPyPI' || 'PyPI' }}
             - ✅ Artifacts signed and attested
