@@ -1,6 +1,6 @@
 # Release Workflow - Publish to PyPI
 
-name: Release
+name: Publish to PyPI - Rust Py Libs
 
 on:
   release:
