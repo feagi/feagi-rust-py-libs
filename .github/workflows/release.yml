@@ -49,6 +49,9 @@ jobs:
           echo "✅ Configured vendored OpenSSL for aarch64"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          # Set C++11 standard for aarch64 cross-compilation (required by zmq-sys)
+          CXXFLAGS: ${{ matrix.platform.target == 'aarch64' && '-std=c++11' || '' }}
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
@@ -128,6 +131,9 @@ jobs:
           echo "✅ Configured vendored OpenSSL for aarch64"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          # Set C++11 standard for aarch64 cross-compilation (required by zmq-sys)
+          CXXFLAGS: ${{ matrix.platform.target == 'aarch64' && '-std=c++11' || '' }}
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
