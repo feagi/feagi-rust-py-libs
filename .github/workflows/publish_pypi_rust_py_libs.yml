@@ -93,9 +93,10 @@ jobs:
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
           echo "📝 Updating Cargo.toml version to: $VERSION"
-          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          # Only replace the FIRST occurrence (package version, not dependencies)
+          sed -i "0,/^version = /s|^version = .*|version = \"$VERSION\"|" Cargo.toml
           echo "Updated version:"
-          grep "^version = " Cargo.toml
+          grep "^version = " Cargo.toml | head -1
       
       - uses: actions/setup-python@v5
         with:
@@ -185,9 +186,10 @@ jobs:
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
           echo "📝 Updating Cargo.toml version to: $VERSION"
-          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          # Only replace the FIRST occurrence (package version, not dependencies)
+          sed -i "0,/^version = /s|^version = .*|version = \"$VERSION\"|" Cargo.toml
           echo "Updated version:"
-          grep "^version = " Cargo.toml
+          grep "^version = " Cargo.toml | head -1
       
       - uses: actions/setup-python@v5
         with:
@@ -277,9 +279,10 @@ jobs:
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
           echo "📝 Updating Cargo.toml version to: $VERSION"
-          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          # Only replace the FIRST occurrence (package version, not dependencies)
+          sed -i "0,/^version = /s|^version = .*|version = \"$VERSION\"|" Cargo.toml
           echo "Updated version:"
-          grep "^version = " Cargo.toml
+          grep "^version = " Cargo.toml | head -1
       
       - uses: actions/setup-python@v5
         with:
@@ -322,10 +325,11 @@ jobs:
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
           echo "📝 Updating Cargo.toml version to: $VERSION"
-          sed -i.bak "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          # Only replace the FIRST occurrence (package version, not dependencies)
+          sed -i.bak "0,/^version = /s|^version = .*|version = \"$VERSION\"|" Cargo.toml
           rm -f Cargo.toml.bak
           echo "Updated version:"
-          grep "^version = " Cargo.toml
+          grep "^version = " Cargo.toml | head -1
       
       - uses: actions/setup-python@v5
         with:
@@ -362,9 +366,10 @@ jobs:
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
           echo "📝 Updating Cargo.toml version to: $VERSION"
-          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          # Only replace the FIRST occurrence (package version, not dependencies)
+          sed -i "0,/^version = /s|^version = .*|version = \"$VERSION\"|" Cargo.toml
           echo "Updated version:"
-          grep "^version = " Cargo.toml
+          grep "^version = " Cargo.toml | head -1
       
       - name: Build sdist
         uses: PyO3/maturin-action@v1
