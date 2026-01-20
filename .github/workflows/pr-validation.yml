@@ -1,0 +1,126 @@
+# PR Validation Workflow
+# Runs on all pull requests to validate builds, tests, and version bumps
+
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: 
+      - staging
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-version-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+
+      - name: Checkout base branch for version comparison
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Run Rust tests
+        run: cargo test --verbose
+
+      - name: Build wheels (Linux x86_64)
+        uses: PyO3/maturin-action@v1
+        with:
+          target: x86_64
+          args: --release --out dist --find-interpreter
+          sccache: true
+          before-script-linux: |
+            # Install system OpenSSL for x86_64
+            # Note: manylinux containers already run as root, but some need explicit sudo
+            if command -v yum >/dev/null 2>&1; then
+              yum install -y openssl-devel pkgconfig
+            elif command -v dnf >/dev/null 2>&1; then
+              dnf install -y openssl-devel pkgconfig
+            elif command -v microdnf >/dev/null 2>&1; then
+              microdnf install -y openssl-devel pkgconfig
+            elif command -v apt-get >/dev/null 2>&1; then
+              sudo apt-get update -y
+              sudo apt-get install -y libssl-dev pkg-config
+            elif command -v apk >/dev/null 2>&1; then
+              apk add --no-cache openssl-dev pkgconf
+            else
+              echo "No supported package manager found" >&2
+              exit 1
+            fi
+      
+      - name: Install and test wheel
+        run: |
+          pip install dist/*.whl
+          python -c "import feagi_rust_py_libs; print('✅ Package imports successfully')"
+
+      - name: Install packaging module for version comparison
+        run: pip install packaging
+
+      - name: Check version number increase
+        run: |
+          # Get current version from PR branch (only the package version, not dependencies)
+          CURRENT_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "PR branch version: $CURRENT_VERSION"
+
+          # Read base branch version
+          BASE_VERSION=$(grep '^version = ' base/Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          echo "Base branch version: $BASE_VERSION"
+          
+          # Validate versions are not empty
+          if [ -z "$CURRENT_VERSION" ] || [ -z "$BASE_VERSION" ]; then
+            echo "❌ Error: Could not extract versions properly"
+            echo "Current: '$CURRENT_VERSION'"
+            echo "Base: '$BASE_VERSION'"
+            exit 1
+          fi
+          
+          # Compare versions
+          if [ "$CURRENT_VERSION" = "$BASE_VERSION" ]; then
+            echo "❌ Error: Version must be increased from base branch"
+            exit 1
+          fi
+          
+          # Use Python for reliable version comparison
+          export BASE_VER="$BASE_VERSION"
+          export CURRENT_VER="$CURRENT_VERSION"
+          
+          python3 << 'EOF'
+          import os
+          from packaging import version
+          import sys
+          
+          base_ver = os.environ['BASE_VER'].strip()
+          current_ver = os.environ['CURRENT_VER'].strip()
+          
+          print(f'Comparing: {base_ver} vs {current_ver}')
+          
+          try:
+              if version.parse(current_ver) <= version.parse(base_ver):
+                  print(f'❌ Error: Version must be higher than base branch')
+                  print(f'Current: {current_ver} is not greater than Base: {base_ver}')
+                  sys.exit(1)
+              else:
+                  print(f'✅ Version check passed: {base_ver} → {current_ver}')
+          except Exception as e:
+              print(f'❌ Error parsing versions: {e}')
+              print(f'Base version: "{base_ver}"')
+              print(f'Current version: "{current_ver}"')
+              sys.exit(1)
+          EOF

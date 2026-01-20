@@ -1,0 +1,36 @@
+use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
+use pyo3::exceptions::PyValueError;
+use ::feagi_data_serialization::FeagiByteStructureType;
+use crate::feagi_data_serialization::{PyFeagiByteStructure, PyFeagiByteStructureType};
+
+#[pyclass(subclass)]
+#[pyo3(name = "FeagiByteStructureCompatible")]
+pub struct PyFeagiByteStructureCompatible {}
+
+#[pymethods]
+impl PyFeagiByteStructureCompatible {
+
+    #[new]
+    pub fn new() -> Self {
+        PyFeagiByteStructureCompatible {}
+    }
+
+    #[getter]
+    pub fn struct_type(&self) -> PyFeagiByteStructureType {
+        PyFeagiByteStructureType::JSON() // Placeholder; subclasses override
+    }
+
+    pub fn version(&self) -> u8 { 0 } // Placeholder; subclasses override
+
+    #[staticmethod]
+    pub fn new_from_feagi_byte_structure(_byte_structure: PyFeagiByteStructure) -> PyResult<Self> where Self: Sized {
+        Err(PyValueError::new_err("Not properly overridden PyFeagiByteStructureCompatible abstract member!"))
+    }
+
+    pub fn as_new_feagi_byte_structure(&self) -> PyResult<PyFeagiByteStructure> {
+        Err(PyValueError::new_err("Not properly overridden PyFeagiByteStructureCompatible abstract member!"))
+    }
+}
+
+

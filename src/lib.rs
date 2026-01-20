@@ -1,15 +1,18 @@
-mod brain_input;
-mod brain_output;
-mod byte_structures;
-mod cortical_data;
-mod miscellaneous_types;
-mod neuron_data;
+//! Rust PYO3 Compiled Python Module
+//! All docs pertaining to python exposed modules must 
+//! be reflected to the 'feagi_data_processing.pyi.template' file!
 
-use numpy::ndarray::AssignElem;
+mod py_error;
+mod useful_macros;
+mod feagi_data_structures;
+pub mod feagi_data_serialization;
+pub use feagi_data_serialization as feagi_serialization;
+mod feagi_connector_core;
+mod feagi_agent_sdk;
+//mod feagi_evo;
+
 use pyo3::prelude::*;
-use pyo3::{wrap_pyfunction, wrap_pymodule};
-use pyo3::types::IntoPyDict;
-
+use pyo3::types::PyDict;
 
 fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) -> bool {
     match parent.getattr(submodule_name) {
@@ -18,94 +21,147 @@ fn check_submodule_exists(parent: &Bound<'_, PyModule>, submodule_name: &str) ->
     }
 }
 
+/// Registers a submodule with sys.modules so Python can properly import it
+fn register_submodule_in_sys_modules(
+    py: Python<'_>,
+    full_module_path: &str,
+    module: &Bound<'_, PyModule>,
+) -> PyResult<()> {
+    let sys_modules: Bound<'_, PyDict> = py.import("sys")?.getattr("modules")?.cast_into()?;
+    sys_modules.set_item(full_module_path, module)?;
+    Ok(())
+}
+
 macro_rules! add_python_class {
     ($python:expr, $root_python_module:expr, $class_path:expr, $class:ty) => {
         {
-            
+            let root_name = $root_python_module.name()?.to_string();
             let path: Vec<String> = $class_path.split('.').map(|s| s.to_string()).collect();
             let mut current_module = $root_python_module.clone();
-            
+            let mut full_path = root_name.clone();
+
             for path_step in path {
+                full_path = format!("{}.{}", full_path, path_step);
+                
                 if !check_submodule_exists(&current_module, &path_step) {
                     // we need to add a submodule
-                    let child_module = PyModule::new_bound($python, &path_step)?;
+                    let child_module = PyModule::new($python, &path_step)?;
                     current_module.add_submodule(&child_module)?;
+                    // Register in sys.modules so Python can find it
+                    register_submodule_in_sys_modules($python, &full_path, &child_module)?;
                     current_module = child_module;
                 }
                 else {
                     // child module already exists. Switch to it
                     let child_module = current_module.getattr(&path_step)?;
-                    current_module = child_module.downcast::<PyModule>()?.clone();
+                    current_module = child_module.cast_into::<PyModule>()?;
                 }
             }
-            
+
             current_module.add_class::<$class>()?;
-        }
-    };
-}
-
-macro_rules! add_python_function {
-    ($python:expr, $root_python_module:expr, $class_path:expr, $function:ty) => {
-        {
-
-            let path: Vec<String> = $class_path.split('.').map(|s| s.to_string()).collect();
-            let mut current_module = $root_python_module.clone();
-
-            for path_step in path {
-                if !check_submodule_exists(&current_module, &path_step) {
-                    // we need to add a submodule
-                    let child_module = PyModule::new_bound($python, &path_step)?;
-                    current_module.add_submodule(&child_module)?;
-                    current_module = child_module;
-                }
-                else {
-                    // child module already exists. Switch to it
-                    let child_module = current_module.getattr(&path_step)?;
-                    current_module = child_module.downcast::<PyModule>()?.clone();
-                }
-            }
-
-            current_module.add_function::<$function>()?;
         }
     };
 }
 
 // TODO the above macros can be consolidated
 
-
 /// Core Module, accessible to users
 #[pymodule]
-fn feagi_data_processing(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+    
+    //region Feagi Data Structures
+
+    // Genomic
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalID);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCustomCorticalType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyMemoryCorticalType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCorticalAreaType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyCoreCorticalType);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyFrameChangeHandling);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyIOCorticalAreaConfigurationFlag);
+    add_python_class!(py, m, "data_structures.genomic.cortical_area", feagi_data_structures::genomic::cortical_area::PyPercentageNeuronPositioning);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PyMotorCorticalUnit);
+    add_python_class!(py, m, "data_structures.genomic", feagi_data_structures::genomic::PySensoryCorticalUnit);
+
+    // Neurons Voxels
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyCorticalMappedXYZPNeuronVoxels);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZPArrays);
+    add_python_class!(py, m, "data_structures.neurons_voxels.xyzp", feagi_data_structures::neurons_voxels::xyzp::PyNeuronVoxelXYZP);
 
     
-    add_python_class!(py, m, "cortical_data", cortical_data::PyCorticalID);
+    //region Feagi Data Serialization
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiByteStructureType);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiSerializable);
+    add_python_class!(py, m, "data_serialization", feagi_serialization::PyFeagiByteContainer);
     
-    add_python_class!(py, m, "neuron_data.neuron_arrays", neuron_data::neuron_arrays::PyNeuronXYZPArrays);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronData);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronDataFullIter);
-    add_python_class!(py, m, "neuron_data.neuron_mappings", neuron_data::neuron_mappings::PyCorticalMappedXYZPNeuronDataEasyIter);
-    add_python_class!(py, m, "neuron_data.neurons", neuron_data::neurons::PyNeuronXYZP);
-
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyChannelFormat);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionTargetResolutions);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionCenterProperties);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyColorSpace);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyCornerPoints);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyFrameProcessingParameters);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PyMemoryOrderLayout);
-    add_python_class!(py, m, "brain_input.vision.descriptors", brain_input::vision::descriptors::PySegmentedVisionFrameSourceCroppingPointGrouping);
+    //endregion
     
-    add_python_class!(py, m, "brain_input.vision", brain_input::vision::image_frame::PyImageFrame);
+    
+    
+    //region Feagi Connector Core
+    // Data Types
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyImageFrame);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySegmentedImageFrame);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyMiscData);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage2D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage2D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage3D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage3D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyPercentage4D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PySignedPercentage4D);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGazeProperties);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyTextTokenCodec);
+    add_python_class!(py, m, "connector_core.data_types", feagi_connector_core::data_types::PyGpt2Tokenizer);
 
-    add_python_class!(py, m, "brain_input.vision", brain_input::vision::image_frame::PyImageFrame);
+    // Data Descriptors
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYPoint);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYResolution);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageXYZDimensions);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PySegmentedXYImageResolutions);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyColorSpace);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyColorChannelLayout);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMemoryOrderLayout);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyImageFrameProperties);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PySegmentedImageFrameProperties);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyCornerPoints);
+    add_python_class!(py, m, "connector_core.data_types.descriptors", feagi_connector_core::data_types::descriptors::PyMiscDataDimensions);
+    
+    // Data Types Processing
+    add_python_class!(py, m, "connector_core.data_types.processing", feagi_connector_core::data_types::processing::PyImageFrameProcessor);
+    
+    //Wrapped IO Data
+    add_python_class!(py, m, "connector_core.wrapped_io_data", feagi_connector_core::wrapped_io_data::PyWrappedIOType);
 
-    add_python_class!(py, m, "byte_structures", byte_structures::PyFeagiByteStructureType);
-    add_python_class!(py, m, "byte_structures", byte_structures::feagi_byte_structure::PyFeagiByteStructure);
-    add_python_class!(py, m, "byte_structures", byte_structures::PyFeagiByteStructureCompatible);
+   // Data Pipeline Stage Properties
+    add_python_class!(py, m, "connector_core.data_pipeline.stage_properties", feagi_connector_core::data_pipeline::pipeline_stage_properties::PyPipelineStageProperties);
+    
+    // TODO: Add standalone constructor functions for backward compatibility
+    // This requires manually building the Python module hierarchy
+    // For now, users can call PipelineStageProperties.new_image_frame_segmentator()
+    
+    add_python_class!(py, m, "connector_core", feagi_connector_core::PyConnectorAgent);
+    
+    // Register init_rust_logging function
+    m.add_function(pyo3::wrap_pyfunction!(feagi_connector_core::init_rust_logging, m)?)?;
 
-    add_python_class!(py, m, "misc", miscellaneous_types::json_structure::PyJsonStructure);
 
-    // add_python_class!(py, m, "brain_input.vision", brain_input::vision::quick_image_diff::PyQuickImageDiff);
+    //endregion
+    
+    //region FEAGI Agent SDK
+    
+    // Register the agent SDK module
+    feagi_agent_sdk::register_module(py, m)?;
+    
+    //endregion
+    
+    //region FEAGI Evo (Genome Validation) - Temporarily disabled pending beta.56 migration
+    
+    // Register the genome validation module
+    // feagi_evo::validator::register_module(py, m)?;
+    
+    //endregion
     
     Ok(())
 }
