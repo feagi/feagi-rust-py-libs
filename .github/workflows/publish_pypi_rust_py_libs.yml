@@ -1,22 +1,81 @@
-# Unified Release Workflow
-# Publishes to TestPyPI (staging) or PyPI (production) based on branch/tag
+# Release Workflow - Publish to PyPI
 
 name: Release
 
 on:
-  push:
-    branches:
-      - staging
-      - main
-    tags:
-      - 'v*'
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 0.0.82 or 0.1.0b1)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run (build only, do not publish)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
+  validate-version:
+    name: Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Determine version and validate
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            VERSION="${TAG#v}"  # Strip 'v' prefix
+            IS_PRERELEASE="${{ github.event.release.prerelease }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            # Check if version contains pre-release identifiers
+            if [[ "$VERSION" =~ (a|b|rc)[0-9]+ ]]; then
+              IS_PRERELEASE="true"
+            else
+              IS_PRERELEASE="false"
+            fi
+          fi
+          
+          # Validate PEP 440 compliance
+          echo "🔍 Validating version format: $VERSION"
+          
+          # PEP 440 regex pattern
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(a[0-9]+|b[0-9]+|rc[0-9]+)?(\.post[0-9]+)?(\.dev[0-9]+)?$ ]]; then
+            echo "❌ ERROR: Version '$VERSION' does not comply with PEP 440"
+            echo ""
+            echo "Valid PEP 440 formats:"
+            echo "  - 0.1.0         (stable release)"
+            echo "  - 0.1.0a1       (alpha 1)"
+            echo "  - 0.1.0b1       (beta 1)"
+            echo "  - 0.1.0rc1      (release candidate 1)"
+            echo ""
+            echo "Invalid formats:"
+            echo "  - 0.1.0-beta1   (wrong separator)"
+            echo "  - v0.1.0        (v prefix not allowed)"
+            exit 1
+          fi
+          
+          echo "✅ Version format is PEP 440 compliant"
+          echo ""
+          echo "📦 Version: $VERSION"
+          echo "📦 Pre-release: $IS_PRERELEASE"
+          
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=${IS_PRERELEASE}" >> "$GITHUB_OUTPUT"
+
   linux:
+    needs: validate-version
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -29,6 +88,15 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Update Cargo.toml version
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          echo "📝 Updating Cargo.toml version to: $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          echo "Updated version:"
+          grep "^version = " Cargo.toml
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -98,6 +166,7 @@ jobs:
           path: dist
 
   musllinux:
+    needs: validate-version
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
@@ -111,6 +180,15 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Update Cargo.toml version
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          echo "📝 Updating Cargo.toml version to: $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          echo "Updated version:"
+          grep "^version = " Cargo.toml
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -182,6 +260,7 @@ jobs:
           path: dist
 
   windows:
+    needs: validate-version
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -192,6 +271,16 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Update Cargo.toml version
+        shell: bash
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          echo "📝 Updating Cargo.toml version to: $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          echo "Updated version:"
+          grep "^version = " Cargo.toml
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -219,6 +308,7 @@ jobs:
           path: dist
 
   macos:
+    needs: validate-version
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -227,6 +317,16 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Update Cargo.toml version
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          echo "📝 Updating Cargo.toml version to: $VERSION"
+          sed -i.bak "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          rm -f Cargo.toml.bak
+          echo "Updated version:"
+          grep "^version = " Cargo.toml
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -253,9 +353,19 @@ jobs:
           path: dist
 
   sdist:
+    needs: validate-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Update Cargo.toml version
+        run: |
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          echo "📝 Updating Cargo.toml version to: $VERSION"
+          sed -i "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+          echo "Updated version:"
+          grep "^version = " Cargo.toml
+      
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
@@ -268,15 +378,18 @@ jobs:
           path: dist
 
   publish:
-    name: Publish Release
+    name: Publish to PyPI
     runs-on: ubuntu-latest
-    needs: [linux, musllinux, windows, macos, sdist]
+    needs: [validate-version, linux, musllinux, windows, macos, sdist]
     # Require core platforms to succeed (musllinux is best-effort)
     if: |
       needs.linux.result == 'success' &&
       needs.windows.result == 'success' &&
       needs.macos.result == 'success' &&
       needs.sdist.result == 'success'
+    environment:
+      name: pypi
+      url: https://pypi.org/project/feagi-rust-py-libs/
     permissions:
       id-token: write
       contents: write
@@ -284,54 +397,60 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Determine release type
-        id: release_type
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "type=production" >> "$GITHUB_OUTPUT"
-            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
-            echo "repository=pypi" >> "$GITHUB_OUTPUT"
-            echo "tag_suffix=" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ github.ref }}" == refs/heads/main ]]; then
-            echo "type=production" >> "$GITHUB_OUTPUT"
-            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
-            echo "repository=pypi" >> "$GITHUB_OUTPUT"
-            echo "tag_suffix=" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ github.ref }}" == refs/heads/staging ]]; then
-            echo "type=prerelease" >> "$GITHUB_OUTPUT"
-            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
-            echo "repository=testpypi" >> "$GITHUB_OUTPUT"
-            echo "tag_suffix=-pre" >> "$GITHUB_OUTPUT"
-          else
-            echo "❌ Unknown ref: ${{ github.ref }}"
-            exit 1
-          fi
-
-      - name: Get version from Cargo.toml
+      - name: Determine version and validate
         id: version
         run: |
-          if [ ! -f "Cargo.toml" ]; then
-            echo "❌ Error: Cargo.toml not found"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            VERSION="${TAG#v}"  # Strip 'v' prefix: v0.1.0 → 0.1.0
+            IS_PRERELEASE="${{ github.event.release.prerelease }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            # Check if version contains pre-release identifiers
+            if [[ "$VERSION" =~ (a|b|rc)[0-9]+ ]]; then
+              IS_PRERELEASE="true"
+            else
+              IS_PRERELEASE="false"
+            fi
+          fi
+          
+          # Validate PEP 440 compliance
+          echo "🔍 Validating version format: $VERSION"
+          
+          # PEP 440 regex pattern
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(a[0-9]+|b[0-9]+|rc[0-9]+)?(\.post[0-9]+)?(\.dev[0-9]+)?$ ]]; then
+            echo "❌ ERROR: Version '$VERSION' does not comply with PEP 440"
+            echo ""
+            echo "Valid PEP 440 formats:"
+            echo "  - 0.1.0         (stable release)"
+            echo "  - 0.1.0a1       (alpha 1)"
+            echo "  - 0.1.0b1       (beta 1)"
+            echo "  - 0.1.0rc1      (release candidate 1)"
+            echo ""
+            echo "Invalid formats:"
+            echo "  - 0.1.0-beta1   (wrong separator)"
+            echo "  - v0.1.0        (v prefix not allowed in version)"
             exit 1
           fi
           
-          VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
-          if [ -z "$VERSION" ]; then
-            echo "❌ Error: Could not extract version from Cargo.toml"
-            exit 1
-          fi
+          echo "✅ Version format is PEP 440 compliant"
           
+          # Get package name from Cargo.toml
           PACKAGE_NAME=$(grep '^name = ' Cargo.toml | head -1 | sed 's/name = "\(.*\)"/\1/' | tr '-' '_')
           if [ -z "$PACKAGE_NAME" ]; then
             echo "❌ Error: Could not extract package name from Cargo.toml"
             exit 1
           fi
           
-          echo "Version: $VERSION"
-          echo "Package name: $PACKAGE_NAME"
+          echo ""
+          echo "📦 Publishing feagi-rust-py-libs"
+          echo "  Version: $VERSION"
+          echo "  Pre-release: $IS_PRERELEASE"
+          echo "  Package: $PACKAGE_NAME"
           
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "package_name=${PACKAGE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=${IS_PRERELEASE}" >> "$GITHUB_OUTPUT"
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -356,67 +475,52 @@ jobs:
         with:
           subject-path: 'dist/*'
 
-      - name: Publish to TestPyPI (staging/prerelease)
-        if: steps.release_type.outputs.repository == 'testpypi'
+      - name: Publish to PyPI
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         uses: PyO3/maturin-action@v1
         with:
           command: upload
           args: --non-interactive --skip-existing dist/*
         env:
-          MATURIN_USERNAME: __token__
-          MATURIN_PASSWORD: ${{ secrets.TEST_PYPI_DATA_PROCESSING }}
-          MATURIN_REPOSITORY_URL: https://test.pypi.org/legacy/
+          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_PASSWORD_TOKEN }}
 
-      - name: Publish to PyPI (production)
-        if: steps.release_type.outputs.repository == 'pypi'
-        uses: PyO3/maturin-action@v1
-        with:
-          command: upload
-          args: --non-interactive --skip-existing dist/*
-        env:
-          MATURIN_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-
-      - name: Create release tag
-        if: steps.release_type.outputs.type == 'prerelease'
+      - name: Summary
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          VERSION="${{ needs.validate-version.outputs.version }}"
+          IS_PRERELEASE="${{ needs.validate-version.outputs.is_prerelease }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          PACKAGE_NAME="feagi_rust_py_libs"
           
-          TAG_NAME="v${{ steps.version.outputs.version }}${{ steps.release_type.outputs.tag_suffix }}"
-          echo "Creating tag: $TAG_NAME"
-          
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.version.outputs.version }}${{ steps.release_type.outputs.tag_suffix }}
-          release_name: ${{ steps.release_type.outputs.type == 'production' && 'Release' || 'Prerelease' }} v${{ steps.version.outputs.version }}
-          body: |
-            🚀 ${{ steps.release_type.outputs.type == 'production' && 'Production Release' || 'Prerelease' }} of ${{ steps.version.outputs.package_name }} v${{ steps.version.outputs.version }}
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "🔍 Dry run completed for $PACKAGE_NAME==$VERSION"
+            echo ""
+            echo "Build successful (NOT published)"
+          else
+            echo "✅ Successfully published $PACKAGE_NAME==$VERSION to PyPI"
+            echo ""
             
-            **Installation:**
-            ```bash
-            ${{ steps.release_type.outputs.repository == 'testpypi' && format('pip install --index-url https://test.pypi.org/simple/ {0}=={1}', steps.version.outputs.package_name, steps.version.outputs.version) || format('pip install {0}=={1}', steps.version.outputs.package_name, steps.version.outputs.version) }}
-            ```
+            # Check if this is a pre-release
+            if [ "$IS_PRERELEASE" = "true" ]; then
+              echo "Pre-release installation (explicit version required):"
+              echo "  pip install $PACKAGE_NAME==$VERSION"
+              echo ""
+              echo "Or install latest pre-release:"
+              echo "  pip install --pre $PACKAGE_NAME"
+            else
+              echo "Installation (stable release):"
+              echo "  pip install $PACKAGE_NAME"
+              echo ""
+              echo "Or specific version:"
+              echo "  pip install $PACKAGE_NAME==$VERSION"
+            fi
             
-            **Build Information:**
-            - ✅ Linux wheels (x86_64, x86, aarch64)
-            - ⚠️  MuslLinux wheels (x86_64, x86, aarch64) - best effort
-            - ✅ Windows wheels (x64, x86)
-            - ✅ macOS wheels (aarch64/Apple Silicon)
-            - ✅ Source distribution included
-            - ✅ Published to ${{ steps.release_type.outputs.repository == 'testpypi' && 'TestPyPI' || 'PyPI' }}
-            - ✅ Artifacts signed and attested
-            
-            **Changes:**
-            - Version: ${{ steps.version.outputs.version }}
-            - Branch: ${{ github.ref_name }}
-            - Commit: ${{ github.sha }}
-          draft: false
-          prerelease: ${{ steps.release_type.outputs.is_prerelease == 'true' }}
+            echo ""
+            echo "📦 Published platforms:"
+            echo "  - ✅ Linux wheels (x86_64, x86, aarch64)"
+            echo "  - ⚠️  MuslLinux wheels (best effort)"
+            echo "  - ✅ Windows wheels (x64, x86)"
+            echo "  - ✅ macOS wheels (aarch64)"
+            echo "  - ✅ Source distribution"
+            echo ""
+            echo "🔗 https://pypi.org/project/$PACKAGE_NAME/$VERSION/"
+          fi
