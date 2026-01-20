@@ -44,6 +44,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: auto
+          before-script-linux: yum install -y openssl-devel pkgconfig
         env:
           OPENSSL_NO_VENDOR: "1"
       - name: Upload wheels
@@ -82,6 +83,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: musllinux_1_2
+          before-script-linux: yum install -y openssl-devel pkgconfig
         env:
           OPENSSL_NO_VENDOR: "1"
         continue-on-error: true
