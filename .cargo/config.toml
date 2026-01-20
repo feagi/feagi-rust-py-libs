@@ -1,0 +1,12 @@
+# Cargo build configuration for feagi-rust-py-libs
+
+# Windows: Force static CRT linking to avoid runtime library conflicts
+# between different dependencies (tokenizers vs zmq)
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.i686-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# Note: Vendored OpenSSL is configured in Cargo.toml as a dependency feature
+# openssl-sys = { version = "0.9", features = ["vendored"] }
