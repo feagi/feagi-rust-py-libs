@@ -16,7 +16,6 @@ jobs:
     # Only run if the PR was actually merged (not just closed)
     if: github.event.pull_request.merged == true
     strategy:
-      fail-fast: false
       matrix:
         platform:
           - runner: ubuntu-22.04
@@ -25,15 +24,6 @@ jobs:
             target: x86
           - runner: ubuntu-22.04
             target: aarch64
-          - runner: ubuntu-22.04
-            target: armv7
-            optional: true
-          - runner: ubuntu-22.04
-            target: s390x
-            optional: true
-          - runner: ubuntu-22.04
-            target: ppc64le
-            optional: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,7 +33,6 @@ jobs:
           python-version: '3.9'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
-        continue-on-error: ${{ matrix.platform.optional || false }}
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
@@ -67,7 +56,6 @@ jobs:
             fi
       - name: Upload wheels
         uses: actions/upload-artifact@v4
-        if: success()
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
@@ -86,8 +74,6 @@ jobs:
             target: x86
           - runner: ubuntu-22.04
             target: aarch64
-          - runner: ubuntu-22.04
-            target: armv7
     steps:
       - uses: actions/checkout@v4
         with:
@@ -207,11 +193,10 @@ jobs:
     name: Create Prerelease
     runs-on: ubuntu-latest
     needs: [linux, musllinux, windows, macos, sdist]
-    # Run if PR merged and critical jobs passed
-    # linux and musllinux may have optional arch builds that can fail
+    # Run if PR merged and critical jobs passed (musllinux is best-effort)
     if: |
       github.event.pull_request.merged == true &&
-      (needs.linux.result == 'success' || needs.linux.result == 'failure') &&
+      needs.linux.result == 'success' &&
       needs.windows.result == 'success' &&
       needs.macos.result == 'success' &&
       needs.sdist.result == 'success'
@@ -333,9 +318,8 @@ jobs:
             - Commit: ${{ github.sha }}
             
             **Build Information:**
-            - ✅ Linux wheels (x86_64, x86, aarch64) - guaranteed
-            - ⚠️  Linux wheels (armv7, s390x, ppc64le) - best effort
-            - ⚠️  MuslLinux wheels (x86_64, x86, aarch64, armv7) - best effort
+            - ✅ Linux wheels (x86_64, x86, aarch64)
+            - ⚠️  MuslLinux wheels (x86_64, x86, aarch64) - best effort
             - ✅ Windows wheels (x64, x86)
             - ✅ macOS wheels (x86_64, aarch64)
             - ✅ Source distribution included
