@@ -44,6 +44,8 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: auto
+        env:
+          OPENSSL_NO_VENDOR: "1"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -80,6 +82,8 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: true
           manylinux: musllinux_1_2
+        env:
+          OPENSSL_NO_VENDOR: "1"
         continue-on-error: true
       - name: Upload wheels
         uses: actions/upload-artifact@v4
