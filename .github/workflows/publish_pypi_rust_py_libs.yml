@@ -318,6 +318,8 @@ jobs:
         platform:
           - runner: macos-14
             target: aarch64
+          - runner: macos-13
+            target: x86_64
     steps:
       - uses: actions/checkout@v4
       
@@ -524,7 +526,7 @@ jobs:
             echo "  - ✅ Linux wheels (x86_64, x86, aarch64)"
             echo "  - ⚠️  MuslLinux wheels (best effort)"
             echo "  - ✅ Windows wheels (x64, x86)"
-            echo "  - ✅ macOS wheels (aarch64)"
+          echo "  - ✅ macOS wheels (aarch64, x86_64)"
             echo "  - ✅ Source distribution"
             echo ""
             echo "🔗 https://pypi.org/project/$PACKAGE_NAME/$VERSION/"
