@@ -5,17 +5,6 @@ name: Publish to PyPI - Rust Py Libs
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to publish (e.g., 0.0.82 or 0.1.0b1)'
-        required: true
-        type: string
-      dry_run:
-        description: 'Dry run (build only, do not publish)'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -33,19 +22,9 @@ jobs:
       - name: Determine version and validate
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="${{ github.event.release.tag_name }}"
-            VERSION="${TAG#v}"  # Strip 'v' prefix
-            IS_PRERELEASE="${{ github.event.release.prerelease }}"
-          else
-            VERSION="${{ github.event.inputs.version }}"
-            # Check if version contains pre-release identifiers
-            if [[ "$VERSION" =~ (a|b|rc)[0-9]+ ]]; then
-              IS_PRERELEASE="true"
-            else
-              IS_PRERELEASE="false"
-            fi
-          fi
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"  # Strip 'v' prefix
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
           
           # Validate PEP 440 compliance
           echo "🔍 Validating version format: $VERSION"
@@ -407,19 +386,9 @@ jobs:
       - name: Determine version and validate
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="${{ github.event.release.tag_name }}"
-            VERSION="${TAG#v}"  # Strip 'v' prefix: v0.1.0 → 0.1.0
-            IS_PRERELEASE="${{ github.event.release.prerelease }}"
-          else
-            VERSION="${{ github.event.inputs.version }}"
-            # Check if version contains pre-release identifiers
-            if [[ "$VERSION" =~ (a|b|rc)[0-9]+ ]]; then
-              IS_PRERELEASE="true"
-            else
-              IS_PRERELEASE="false"
-            fi
-          fi
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"  # Strip 'v' prefix: v0.1.0 → 0.1.0
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
           
           # Validate PEP 440 compliance
           echo "🔍 Validating version format: $VERSION"
@@ -483,7 +452,6 @@ jobs:
           subject-path: 'dist/*'
 
       - name: Publish to PyPI
-        if: ${{ github.event.inputs.dry_run != 'true' }}
         uses: PyO3/maturin-action@v1
         with:
           command: upload
@@ -495,39 +463,32 @@ jobs:
         run: |
           VERSION="${{ needs.validate-version.outputs.version }}"
           IS_PRERELEASE="${{ needs.validate-version.outputs.is_prerelease }}"
-          DRY_RUN="${{ github.event.inputs.dry_run }}"
           PACKAGE_NAME="feagi_rust_py_libs"
           
-          if [ "$DRY_RUN" = "true" ]; then
-            echo "🔍 Dry run completed for $PACKAGE_NAME==$VERSION"
+          echo "✅ Successfully published $PACKAGE_NAME==$VERSION to PyPI"
+          echo ""
+          
+          # Check if this is a pre-release
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            echo "Pre-release installation (explicit version required):"
+            echo "  pip install $PACKAGE_NAME==$VERSION"
             echo ""
-            echo "Build successful (NOT published)"
+            echo "Or install latest pre-release:"
+            echo "  pip install --pre $PACKAGE_NAME"
           else
-            echo "✅ Successfully published $PACKAGE_NAME==$VERSION to PyPI"
+            echo "Installation (stable release):"
+            echo "  pip install $PACKAGE_NAME"
             echo ""
-            
-            # Check if this is a pre-release
-            if [ "$IS_PRERELEASE" = "true" ]; then
-              echo "Pre-release installation (explicit version required):"
-              echo "  pip install $PACKAGE_NAME==$VERSION"
-              echo ""
-              echo "Or install latest pre-release:"
-              echo "  pip install --pre $PACKAGE_NAME"
-            else
-              echo "Installation (stable release):"
-              echo "  pip install $PACKAGE_NAME"
-              echo ""
-              echo "Or specific version:"
-              echo "  pip install $PACKAGE_NAME==$VERSION"
-            fi
-            
-            echo ""
-            echo "📦 Published platforms:"
-            echo "  - ✅ Linux wheels (x86_64, x86, aarch64)"
-            echo "  - ⚠️  MuslLinux wheels (best effort)"
-            echo "  - ✅ Windows wheels (x64, x86)"
-          echo "  - ✅ macOS wheels (aarch64, x86_64)"
-            echo "  - ✅ Source distribution"
-            echo ""
-            echo "🔗 https://pypi.org/project/$PACKAGE_NAME/$VERSION/"
+            echo "Or specific version:"
+            echo "  pip install $PACKAGE_NAME==$VERSION"
           fi
+          
+          echo ""
+          echo "📦 Published platforms:"
+          echo "  - ✅ Linux wheels (x86_64, x86, aarch64)"
+          echo "  - ⚠️  MuslLinux wheels (best effort)"
+          echo "  - ✅ Windows wheels (x64, x86)"
+          echo "  - ✅ macOS wheels (aarch64, x86_64)"
+          echo "  - ✅ Source distribution"
+          echo ""
+          echo "🔗 https://pypi.org/project/$PACKAGE_NAME/$VERSION/"
