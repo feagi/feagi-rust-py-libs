@@ -1003,11 +1003,10 @@ macro_rules! motor_unit_functions {
                 ///
                 /// `frame_change_handling` selects the decode mechanism and the output type:
                 /// - `Absolute` decodes an unsigned position (`Percentage3D`, axes in [0, 1]).
-                ///   `window_ms`/`max_axis_velocity` are ignored.
+                ///   `window_ms` is ignored.
                 /// - `Incremental` decodes a signed motion vector (`SignedPercentage3D`, axes
-                ///   in [-1, 1], 0 = no motion) and REQUIRES `window_ms` and
-                ///   `max_axis_velocity` (the rolling-window length and the per-axis velocity
-                ///   mapped to full scale).
+                ///   in [-1, 1], 0 = no motion) and REQUIRES `window_ms` (controller
+                ///   look-ahead; the decoder emits a raw signed magnitude).
                 #[pyo3(signature = (
                     group,
                     number_channels,
@@ -1017,7 +1016,6 @@ macro_rules! motor_unit_functions {
                     height,
                     depth,
                     window_ms=None,
-                    max_axis_velocity=None,
                 ))]
                 #[allow(clippy::too_many_arguments)]
                 pub fn [<motor_ $motor_unit:snake _register>](
@@ -1031,7 +1029,6 @@ macro_rules! motor_unit_functions {
                     height: u32,
                     depth: u32,
                     window_ms: Option<u32>,
-                    max_axis_velocity: Option<f32>,
                 ) -> PyResult<()>
                 {
                     let group: CorticalUnitIndex = group.into();
@@ -1052,17 +1049,11 @@ macro_rules! motor_unit_functions {
                                     "Incremental SpatialPointer requires window_ms".into(),
                                 ))
                             })?;
-                            let max_axis_velocity = max_axis_velocity.ok_or_else(|| {
-                                PyFeagiError::from(FeagiDataError::BadParameters(
-                                    "Incremental SpatialPointer requires max_axis_velocity".into(),
-                                ))
-                            })?;
                             SpatialPointerProperties::new_incremental(
                                 width,
                                 height,
                                 depth,
                                 window_ms,
-                                max_axis_velocity,
                             )
                             .map_err(PyFeagiError::from)?
                         }
@@ -1118,6 +1109,117 @@ macro_rules! motor_unit_functions {
         }
 
         motor_unit_functions!(@generate_similar_functions $motor_unit, Percentage3D);
+    };
+
+    // Arm for WrappedIOType::AngularPointer3D
+    (@generate_functions
+        $motor_unit:ident,
+        AngularPointer3D
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                /// Registers an AngularPointer motor area (yaw / pitch / roll).
+                ///
+                /// Both Absolute and Incremental emit `SignedPercentage3D` (axes in
+                /// [-1, 1], 0 = center / no motion). Incremental REQUIRES `window_ms`.
+                #[pyo3(signature = (
+                    group,
+                    number_channels,
+                    frame_change_handling,
+                    percentage_neuron_positioning,
+                    width,
+                    height,
+                    depth,
+                    window_ms=None,
+                ))]
+                #[allow(clippy::too_many_arguments)]
+                pub fn [<motor_ $motor_unit:snake _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u8,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning,
+                    width: u32,
+                    height: u32,
+                    depth: u32,
+                    window_ms: Option<u32>,
+                ) -> PyResult<()>
+                {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let percentage_neuron_positioning: PercentageNeuronPositioning =
+                        percentage_neuron_positioning.into();
+
+                    let pointer_properties = match frame_change_handling {
+                        FrameChangeHandling::Absolute => {
+                            AngularPointerProperties::new_absolute(width, height, depth)
+                                .map_err(PyFeagiError::from)?
+                        }
+                        FrameChangeHandling::Incremental => {
+                            let window_ms = window_ms.ok_or_else(|| {
+                                PyFeagiError::from(FeagiDataError::BadParameters(
+                                    "Incremental AngularPointer requires window_ms".into(),
+                                ))
+                            })?;
+                            AngularPointerProperties::new_incremental(
+                                width,
+                                height,
+                                depth,
+                                window_ms,
+                            )
+                            .map_err(PyFeagiError::from)?
+                        }
+                    };
+
+                    self.get_motor_cache()
+                        .[<$motor_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            percentage_neuron_positioning,
+                            pointer_properties,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+
+                pub fn [<motor_ $motor_unit:snake _read_signed_preprocessed_cache_value>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                ) -> PyResult<PySignedPercentage3D> {
+                    let group: CorticalUnitIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let expected_data = self
+                        .get_motor_cache()
+                        .[<$motor_unit:snake _read_preprocessed_cache_value>](group, channel_index)
+                        .map_err(PyFeagiError::from)?;
+                    Ok(expected_data.into())
+                }
+
+                pub fn [<motor_ $motor_unit:snake _read_signed_postprocessed_cache_value>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u8,
+                    channel_index: u32,
+                ) -> PyResult<PySignedPercentage3D> {
+                    let group: CorticalUnitIndex = group.into();
+                    let channel_index: CorticalChannelIndex = channel_index.into();
+                    let expected_data = self
+                        .get_motor_cache()
+                        .[<$motor_unit:snake _read_postprocessed_cache_value>](group, channel_index)
+                        .map_err(PyFeagiError::from)?;
+                    Ok(expected_data.into())
+                }
+            }
+        }
+
+        motor_unit_functions!(@generate_similar_functions $motor_unit, SignedPercentage3D);
     };
 
     // Arm for WrappedIOType::PoseEstimationData
