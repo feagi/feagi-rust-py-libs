@@ -10,3 +10,6 @@ rustflags = ["-C", "target-feature=+crt-static"]
 
 # Note: Vendored OpenSSL is configured in Cargo.toml as a dependency feature
 # openssl-sys = { version = "0.9", features = ["vendored"] }
+#
+# Monorepo local feagi-core: copy patch entries from feagi-rs/.cargo/config.toml.example
+# into this file (adjust paths if needed). Do not commit patches when publishing wheels.
