@@ -77,14 +77,14 @@ impl PyMotorCorticalUnit {
     ///
     /// Args:
     ///     frame_change_handling: Absolute/Incremental handling.
-    ///     group: Cortical group index (u8).
+    ///     group: Cortical group index (u16).
     ///
     /// Returns:
     ///     List of CorticalID objects (typically length 1 for `oseg`).
     #[staticmethod]
     pub fn object_segmentation_cortical_ids(
         frame_change_handling: PyFrameChangeHandling,
-        group: u8,
+        group: u16,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
         let ids = MotorCorticalUnit::get_cortical_ids_array_for_object_segmentation_with_parameters(
@@ -118,14 +118,14 @@ impl PyMotorCorticalUnit {
     ///
     /// Args:
     ///     frame_change_handling: Absolute/Incremental handling.
-    ///     group: Cortical group index (u8).
+    ///     group: Cortical group index (u16).
     ///
     /// Returns:
     ///     List of CorticalID objects (typically length 1 for `oimg`).
     #[staticmethod]
     pub fn simple_vision_output_cortical_ids(
         frame_change_handling: PyFrameChangeHandling,
-        group: u8,
+        group: u16,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
         let ids =
@@ -160,14 +160,14 @@ impl PyMotorCorticalUnit {
     ///
     /// Args:
     ///     frame_change_handling: Absolute/Incremental handling.
-    ///     group: Cortical group index (u8).
+    ///     group: Cortical group index (u16).
     ///
     /// Returns:
     ///     List of CorticalID objects (typically length 1 for `oten`).
     #[staticmethod]
     pub fn text_english_output_cortical_ids(
         frame_change_handling: PyFrameChangeHandling,
-        group: u8,
+        group: u16,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
         let ids = MotorCorticalUnit::get_cortical_ids_array_for_text_english_output_with_parameters(

@@ -22,7 +22,7 @@ pub struct VisionCapabilityCompat {
     pub channels: usize,
     pub cortical_area: Option<String>,
     pub unit: Option<String>,
-    pub group: Option<u8>,
+    pub group: Option<u16>,
 }
 
 #[derive(Clone, Debug)]
@@ -180,7 +180,7 @@ impl PyAgentConfig {
         height: usize,
         channels: usize,
         unit: String,
-        group: u8,
+        group: u16,
     ) -> PyResult<()> {
         self.inner.vision_capability = Some(VisionCapabilityCompat {
             modality,
@@ -217,7 +217,7 @@ impl PyAgentConfig {
         modality: String,
         output_count: usize,
         unit: String,
-        group: u8,
+        group: u16,
     ) -> PyResult<()> {
         self.inner.motor_capability = Some(MotorCapabilityCompat {
             value: serde_json::json!({
@@ -235,7 +235,7 @@ impl PyAgentConfig {
         &mut self,
         modality: String,
         output_count: usize,
-        source_units: Vec<(String, u8)>,
+        source_units: Vec<(String, u16)>,
     ) -> PyResult<()> {
         self.inner.motor_capability = Some(MotorCapabilityCompat {
             value: serde_json::json!({
