@@ -77,7 +77,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _write>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     data: &Bound<'_, PyAny>,
                 ) -> PyResult<()> {
@@ -94,7 +94,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _read_postprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
 
@@ -108,7 +108,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     pipeline_stage_property_index: u32
                 ) -> PyResult<Py<PyPipelineStageProperties>>
@@ -125,7 +125,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<Vec<pyo3::Py<PyPipelineStageProperties>>>
                 {
@@ -140,7 +140,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _update_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     pipeline_stage_property_index: u32,
                     updating_property: Py<PyPipelineStageProperties> // TODO move to bound
@@ -158,7 +158,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _update_all_stage_properties>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
@@ -176,7 +176,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _replace_single_stage>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     pipeline_stage_property_index: u32,
                     updating_property: Py<PyPipelineStageProperties> // TODO move to bound
@@ -195,7 +195,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _replace_all_stages>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
@@ -212,7 +212,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $cortical_type_key_name:snake _removing_all_stages>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32
                 ) -> PyResult<()>
                 {
@@ -242,7 +242,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     ) -> PyResult<()>
                 {
@@ -271,7 +271,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -306,7 +306,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -340,7 +340,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -396,7 +396,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -416,7 +416,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit:snake _write_accelerometer>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     accelerometer: PySignedPercentage3D,
                 ) -> PyResult<()> {
@@ -433,7 +433,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit:snake _write_gyroscope>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     gyroscope: PySignedPercentage3D,
                 ) -> PyResult<()> {
@@ -450,7 +450,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit:snake _write_magnetometer>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     magnetometer: PySignedPercentage3D,
                 ) -> PyResult<()> {
@@ -481,7 +481,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: &pyo3::Bound<PyFrameChangeHandling>,
                     input_image_properties: &pyo3::Bound<PyImageFrameProperties>,
@@ -518,7 +518,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     misc_data_dimensions: PyMiscDataDimensions,
@@ -552,7 +552,7 @@ macro_rules! sensor_unit_functions {
                 pub fn [<sensor_ $sensory_unit _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     image_properties: PyImageFrameProperties
@@ -619,7 +619,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _read_preprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
 
@@ -633,7 +633,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _read_postprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<[<Py $wrapped_data_type>]> {
 
@@ -647,7 +647,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _get_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     pipeline_stage_property_index: u32
                 ) -> PyResult<Py<PyPipelineStageProperties>>
@@ -664,7 +664,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _get_all_stage_properties>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<Vec<pyo3::Py<PyPipelineStageProperties>>>
                 {
@@ -678,7 +678,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _update_single_stage_properties>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     pipeline_stage_property_index: u32,
                     updating_property: Py<PyPipelineStageProperties>
@@ -696,7 +696,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _update_all_stage_properties>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
@@ -713,7 +713,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _replace_single_stage>](
                     &mut self,
                     py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     pipeline_stage_property_index: u32,
                     updating_property: Py<PyPipelineStageProperties>
@@ -731,7 +731,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _replace_all_stages>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                     updated_pipeline_stage_properties: Vec<pyo3::Py<PyPipelineStageProperties>>
                 ) -> PyResult<()>
@@ -747,7 +747,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $cortical_type_key_name:snake _removing_all_stages>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32
                 ) -> PyResult<()>
                 {
@@ -774,7 +774,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     eccentricity_z_neuron_resolution: u32,
@@ -811,7 +811,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -856,7 +856,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -891,7 +891,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -926,7 +926,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     z_neuron_resolution: u32,
@@ -960,7 +960,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: &pyo3::Bound<PyFrameChangeHandling>,
                     misc_data_dimensions: &pyo3::Bound<PyMiscDataDimensions>,
@@ -1021,7 +1021,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     percentage_neuron_positioning: PyPercentageNeuronPositioning,
@@ -1078,7 +1078,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _read_signed_preprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<PySignedPercentage3D> {
                     let group: CorticalUnitIndex = group.into();
@@ -1094,7 +1094,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _read_signed_postprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<PySignedPercentage3D> {
                     let group: CorticalUnitIndex = group.into();
@@ -1137,7 +1137,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     number_channels: u32,
                     frame_change_handling: PyFrameChangeHandling,
                     percentage_neuron_positioning: PyPercentageNeuronPositioning,
@@ -1190,7 +1190,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _read_signed_preprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<PySignedPercentage3D> {
                     let group: CorticalUnitIndex = group.into();
@@ -1205,7 +1205,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _read_signed_postprocessed_cache_value>](
                     &mut self,
                     _py: Python<'_>,
-                    group: u8,
+                    group: u16,
                     channel_index: u32,
                 ) -> PyResult<PySignedPercentage3D> {
                     let group: CorticalUnitIndex = group.into();
@@ -1236,7 +1236,7 @@ macro_rules! motor_unit_functions {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    _group: u8,
+                    _group: u16,
                     _number_channels: u32,
                 ) -> PyResult<()>
                 {
@@ -1530,7 +1530,7 @@ impl PyConnectorAgent {
         &mut self,
         py: Python<'_>,
         motor_unit: Bound<'_, PyAny>,
-        group: u8,
+        group: u16,
         channel: u32,
         callback: Py<PyAny>,
         command_mode: Option<String>,
@@ -1613,7 +1613,7 @@ impl PyConnectorAgent {
     pub fn motor_positional_servo_target_speed_register(
         &mut self,
         _py: Python<'_>,
-        group: u8,
+        group: u16,
         number_channels: u32,
         absolute_z_neuron_resolution: u32,
         incremental_z_neuron_resolution: u32,
@@ -1624,8 +1624,9 @@ impl PyConnectorAgent {
         let group: CorticalUnitIndex = group.into();
         let number_channels: CorticalChannelCount =
             number_channels.try_into().map_err(PyFeagiError::from)?;
-        let absolute_z_neuron_resolution: NeuronDepth =
-            absolute_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+        let absolute_z_neuron_resolution: NeuronDepth = absolute_z_neuron_resolution
+            .try_into()
+            .map_err(PyFeagiError::from)?;
         let incremental_z_neuron_resolution: NeuronDepth = incremental_z_neuron_resolution
             .try_into()
             .map_err(PyFeagiError::from)?;
@@ -1637,7 +1638,9 @@ impl PyConnectorAgent {
             ))
             .into());
         }
-        if !incremental_step_0_1.is_finite() || !(incremental_step_0_1 > 0.0 && incremental_step_0_1 <= 1.0) {
+        if !incremental_step_0_1.is_finite()
+            || !(incremental_step_0_1 > 0.0 && incremental_step_0_1 <= 1.0)
+        {
             return Err(PyFeagiError::from(FeagiDataError::BadParameters(
                 "incremental_step_0_1 must be a finite number in (0, 1].".to_string(),
             ))
@@ -1668,7 +1671,7 @@ impl PyConnectorAgent {
     pub fn motor_positional_servo_write_preprocessed_cache_value(
         &mut self,
         _py: Python<'_>,
-        group: u8,
+        group: u16,
         channel_index: u32,
         value_0_1: f64,
     ) -> PyResult<()> {

@@ -67,10 +67,10 @@ pub fn derive_motor_cortical_ids_from_device_registrations(
                 .get("cortical_unit_index")
                 .and_then(|v| v.as_u64())
                 .ok_or_else(|| "Motor unit definition missing cortical_unit_index".to_string())?;
-            let group_u8: u8 = group_u64
+            let group_u16: u16 = group_u64
                 .try_into()
-                .map_err(|_| "Motor unit cortical_unit_index out of range for u8".to_string())?;
-            let group: CorticalUnitIndex = group_u8.into();
+                .map_err(|_| "Motor unit cortical_unit_index out of range for u16".to_string())?;
+            let group: CorticalUnitIndex = group_u16.into();
 
             let device_count = unit_def
                 .get("device_grouping")
@@ -80,14 +80,14 @@ pub fn derive_motor_cortical_ids_from_device_registrations(
             if device_count == 0 {
                 return Err(format!(
                     "device_grouping is empty for motor unit '{}' group {}",
-                    motor_unit_key, group_u8
+                    motor_unit_key, group_u16
                 ));
             }
 
             let config = extract_io_config(unit_def).map_err(|e| {
                 format!(
                     "Failed to extract io_configuration_flags for motor '{}' group {}: {}",
-                    motor_unit_key, group_u8, e
+                    motor_unit_key, group_u16, e
                 )
             })?;
             let unit_cortical_ids = motor_unit
@@ -146,10 +146,10 @@ pub fn derive_sensory_cortical_ids_from_device_registrations(
                 .get("cortical_unit_index")
                 .and_then(|v| v.as_u64())
                 .ok_or_else(|| "Sensory unit definition missing cortical_unit_index".to_string())?;
-            let group_u8: u8 = group_u64
+            let group_u16: u16 = group_u64
                 .try_into()
-                .map_err(|_| "Sensory unit cortical_unit_index out of range for u8".to_string())?;
-            let group: CorticalUnitIndex = group_u8.into();
+                .map_err(|_| "Sensory unit cortical_unit_index out of range for u16".to_string())?;
+            let group: CorticalUnitIndex = group_u16.into();
 
             let device_count = unit_def
                 .get("device_grouping")
@@ -159,14 +159,14 @@ pub fn derive_sensory_cortical_ids_from_device_registrations(
             if device_count == 0 {
                 return Err(format!(
                     "device_grouping is empty for sensory unit '{}' group {}",
-                    sensory_unit_key, group_u8
+                    sensory_unit_key, group_u16
                 ));
             }
 
             let config = extract_io_config(unit_def).map_err(|e| {
                 format!(
                     "Failed to extract io_configuration_flags for sensor '{}' group {}: {}",
-                    sensory_unit_key, group_u8, e
+                    sensory_unit_key, group_u16, e
                 )
             })?;
             let unit_cortical_ids = sensory_unit

@@ -78,14 +78,14 @@ impl PySensoryCorticalUnit {
     ///
     /// Args:
     ///     frame_change_handling: Absolute/Incremental handling.
-    ///     group: Cortical group index (u8).
+    ///     group: Cortical group index (u16).
     ///
     /// Returns:
     ///     List of CorticalID objects (typically length 1 for `iten`).
     #[staticmethod]
     pub fn text_english_input_cortical_ids(
         frame_change_handling: PyFrameChangeHandling,
-        group: u8,
+        group: u16,
     ) -> PyResult<Vec<PyCorticalID>> {
         let group: CorticalUnitIndex = group.into();
         let ids =
