@@ -16,20 +16,20 @@ rust-version = "1.88"
 name = "feagi_rust_py_libs"
 crate-type = ["cdylib"]
 
-# FEAGI crates — local feagi-core paths (currently 0.0.31) so CorticalUnitIndex (u16)
-# encoding is used by ConnectorAgent.
+# FEAGI crates — resolve from crates.io (currently 0.0.31).
+# Monorepo local feagi-core: copy `.cargo/config.toml.example` to `.cargo/config.toml`.
 [dependencies]
 # Unify to zune-jpeg 0.5.8 (0.5.7 fails on Rust 1.78+ target_feature/unsafe; 0.5.8 requires Rust 1.87)
 zune-jpeg = "0.5.8"
 # Transitive via feagi crates; 0.25.10+ requires rustc 1.88.
 image = ">=0.25.8, <0.25.10"
-feagi-agent = { version = "0.0.31", path = "../feagi-core/crates/feagi-agent", features = ["agent-client-asynchelper-tokio"] }
-feagi-io = { version = "0.0.31", path = "../feagi-core/crates/feagi-io" }
-feagi-sensorimotor = { version = "0.0.31", path = "../feagi-core/crates/feagi-sensorimotor" }
-feagi-serialization = { version = "0.0.31", path = "../feagi-core/crates/feagi-serialization" }
-feagi_data_structures = { package = "feagi-structures", version = "0.0.31", path = "../feagi-core/crates/feagi-structures" }
-feagi-evolutionary = { version = "0.0.31", path = "../feagi-core/crates/feagi-evolutionary" }
-feagi-services = { version = "0.0.31", path = "../feagi-core/crates/feagi-services", features = ["connectome-serialization"] }
+feagi-agent = { version = "^0.0.31", features = ["agent-client-asynchelper-tokio"] }
+feagi-io = { version = "^0.0.31", features = ["feagi-client", "zmq-transport", "websocket-transport-std"] }
+feagi-sensorimotor = { version = "^0.0.31" }
+feagi-serialization = { version = "^0.0.31" }
+feagi_data_structures = { package = "feagi-structures", version = "^0.0.31" }
+feagi-evolutionary = { version = "^0.0.31" }
+feagi-services = { version = "^0.0.31", features = ["connectome-serialization"] }
 numpy = "0.27.1"
 ndarray = "0.17"
 paste = "1.0.15"
@@ -42,7 +42,7 @@ heck = "0.5"
 
 
 [build-dependencies]
-feagi_data_structures = { package = "feagi-structures", version = "0.0.31", path = "../feagi-core/crates/feagi-structures" }
+feagi_data_structures = { package = "feagi-structures", version = "^0.0.31" }
 heck = "0.5"
 
 [dependencies.pyo3]
