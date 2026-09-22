@@ -788,8 +788,23 @@ macro_rules! motor_unit_functions {
                     let eccentricity_z_neuron_resolution: NeuronDepth = eccentricity_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let modulation_z_neuron_resolution: NeuronDepth = modulation_z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
                     let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
+                    // feagi-sensorimotor 0.0.35+ registers gaze with full channel dimensions.
+                    const ECCENTRICITY_CHANNEL_WIDTH: u32 = 2;
+                    const MODULARITY_CHANNEL_WIDTH: u32 = 1;
+                    let eccentricity_dimensions = CorticalChannelDimensions::new(
+                        ECCENTRICITY_CHANNEL_WIDTH,
+                        1,
+                        u32::from(eccentricity_z_neuron_resolution),
+                    )
+                    .map_err(PyFeagiError::from)?;
+                    let modulation_dimensions = CorticalChannelDimensions::new(
+                        MODULARITY_CHANNEL_WIDTH,
+                        1,
+                        u32::from(modulation_z_neuron_resolution),
+                    )
+                    .map_err(PyFeagiError::from)?;
 
-                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, eccentricity_z_neuron_resolution, modulation_z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    self.get_motor_cache().[<$motor_unit:snake _register>](group, number_channels, frame_change_handling, eccentricity_dimensions, modulation_dimensions, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
                     Ok(())
                 }
             }

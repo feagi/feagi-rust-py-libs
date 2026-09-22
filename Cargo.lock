@@ -753,9 +753,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-agent"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10d6edde2572246e773926c0011aaab0130ee13ce6f6855f483f4f86d082a02b"
+checksum = "c4a07205888379459eb2c6c7896cee28d4074f354326ff7b8e0ec332b030ebe7"
 dependencies = [
  "base64 0.22.1",
  "feagi-io",
@@ -771,9 +771,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-brain-development"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2b9cfd985e0ddc131a3f8fe2c17f5af7fbe139f75a0106dca50b03bb4c31cf3"
+checksum = "6252176a10005c661400834fdd6051c2461faf8580d4e300fe4c92ba803ba219"
 dependencies = [
  "ahash",
  "chrono",
@@ -798,9 +798,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-evolutionary"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed7779ebf1bcf604e09fe6603904afe2734a0fab3f2b72cf945a7bf57ae42c98"
+checksum = "4143c026c86fd2fe729500431c169a748f4e66dfdfb4c59d27fc419e579da850"
 dependencies = [
  "chrono",
  "feagi-npu-neural",
@@ -819,9 +819,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-io"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9fc010b0c5e980ed7b59681a2b427adcbba2a136e985c9e1025c98721498394"
+checksum = "588343716d9502e0c52da0de1157d2db16745950bc2a6c7ee35a1f74a9a4abbc"
 dependencies = [
  "base64 0.22.1",
  "feagi-serialization",
@@ -833,9 +833,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-npu-burst-engine"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2ce38fc928141beb00b583c3cc627fffe0590522fa2b81d92fd424c725e1b25"
+checksum = "b46ab6faa6ad9ffafc3f03ff625fa8889330bf6f4d2b37a9fb2ec2cb18e059f3"
 dependencies = [
  "ahash",
  "chrono",
@@ -858,9 +858,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-npu-neural"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd6c59df7b8a6172cd29d7ec7b102fb4a21dd11dbab76a7e91e19000c3ee390d"
+checksum = "76e4eec370ec6c2d4aee46a8a67b4849aa36a4cd3a55809dbae6ccdad7ac52ed"
 dependencies = [
  "ahash",
  "serde",
@@ -870,9 +870,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-npu-runtime"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b5076352ffda0d647062c4814510592e0acb1d19852b0e71ca31542aa33f19c"
+checksum = "16cc99c59bbddf1463f85a4ad7557ca6eb3b9f86a191ad950f2b6a10bac5600e"
 dependencies = [
  "ahash",
  "feagi-npu-neural",
@@ -882,9 +882,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-observability"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18873c35ee8a5ab57c48c456145c388c88a91640c1ca38321c03fc8421bbf502"
+checksum = "97db32209011e870044c8e0634508ca9e2edad20f6b6d1b9d0975007a26a738a"
 dependencies = [
  "anyhow",
  "chrono",
@@ -898,9 +898,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-sensorimotor"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ce66e8369e8ea0d30336bcfb296f62e7896f8b955fa1ff410558d7c854e4490"
+checksum = "b4ab5750fae9a41026fcc3efabd5e372a9f00f854d512d41e2142037c5f377f8"
 dependencies = [
  "feagi-serialization",
  "feagi-structures",
@@ -915,9 +915,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-serialization"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97e5e9b6a4e3bdb1f4af4f7d10d9d664d108b81fa940969437ed45f298eac271"
+checksum = "0182e66a7da7095330f7ae8fc8ca38fc79d7087878cbcffb6b27e9ef0d40574c"
 dependencies = [
  "byteorder",
  "feagi-structures",
@@ -927,9 +927,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-services"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e337598451438ac343ecba98631ed1d264331d6b162916dfe3e96c0839ff1530"
+checksum = "101cf13651a09601a9bd60cdda915efd008cbd320ea3fbc4c59f98d492ba85a0"
 dependencies = [
  "ahash",
  "async-trait",
@@ -955,9 +955,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-state-manager"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d40bc7ef2f5ae81765113546d229059512eeaa3fbbddeedae51d33607fe80cb"
+checksum = "6de989627fcede0351c1f0f74e735cb377ff9594603a9a29448ce9b741c27cfa"
 dependencies = [
  "ahash",
  "atomic-polyfill",
@@ -971,9 +971,9 @@ dependencies = [
 
 [[package]]
 name = "feagi-structures"
-version = "0.0.33"
+version = "0.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ab3d1c9b0e6624a8c9bc63d8af175d53da3dda343cc55f7a309cd6527a22857"
+checksum = "034f69c1229d9e21bf3a65f4973bc63e815c91ca785c775780cb61b19ff8a6ba"
 dependencies = [
  "base64 0.22.1",
  "futures-channel",
@@ -993,7 +993,7 @@ dependencies = [
 
 [[package]]
 name = "feagi_rust_py_libs"
-version = "0.0.113"
+version = "0.0.114"
 dependencies = [
  "base64 0.22.1",
  "feagi-agent",
@@ -1240,9 +1240,9 @@ dependencies = [
 
 [[package]]
 name = "hyper-rustls"
-version = "0.27.9"
+version = "0.27.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33ca68d021ef39cf6463ab54c1d0f5daf03377b70561305bb89a8f83aab66e0f"
+checksum = "dfa8e654703247911e29c23fbeaa261834bd9bb74efba2f9acddc37bfb127f53"
 dependencies = [
  "http",
  "hyper",
@@ -2255,7 +2255,7 @@ dependencies = [
  "bytes",
  "getrandom 0.4.3",
  "lru-slab",
- "rand 0.10.2",
+ "rand 0.10.3",
  "rand_pcg",
  "ring",
  "rustc-hash",
@@ -2326,9 +2326,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7f5fa3a058cd35567ef9bfa5e75732bee0f9e4c55fa90477bef2dfcdbc4be80"
+checksum = "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af"
 dependencies = [
  "chacha20",
  "getrandom 0.4.3",
