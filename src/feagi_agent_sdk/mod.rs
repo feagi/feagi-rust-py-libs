@@ -190,11 +190,11 @@ mod tests {
 
         assert_eq!(
             shared.get(&b'i').map(String::as_str),
-            Some("Miscellaneous Sensor"),
+            Some("Miscellaneous Input"),
         );
         assert_eq!(
             shared.get(&b'o').map(String::as_str),
-            Some("Miscellaneous Motor"),
+            Some("Miscellaneous Output"),
         );
     }
 }

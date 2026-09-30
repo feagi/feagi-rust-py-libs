@@ -9,6 +9,7 @@ use crate::py_error::PyFeagiError;
 use feagi_data_structures::genomic::cortical_area::descriptors::*;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::FrameChangeHandling;
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::PercentageNeuronPositioning;
+use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::PoseSchema;
 use feagi_data_structures::genomic::MotorCorticalUnit;
 use feagi_data_structures::{motor_cortical_units, sensor_cortical_units, FeagiDataError};
 use feagi_sensorimotor::caching::{MotorDeviceCache, SensorDeviceCache};
@@ -572,6 +573,44 @@ macro_rules! sensor_unit_functions {
 
         sensor_unit_functions!(@generate_similar_functions $sensory_unit, ImageFrame);
     };
+
+    // Arm for WrappedIOType::AudioSpectrumFrame
+    (@generate_functions
+        $sensory_unit:ident,
+        AudioSpectrumFrame
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<sensor_ $sensory_unit _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    audio_properties: PyAudioSpectrumProperties,
+                ) -> PyResult<()> {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let audio_properties: AudioSpectrumProperties = audio_properties.into();
+
+                    self.get_sensor_cache()
+                        .[<$sensory_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            audio_properties,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+            }
+        }
+
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, AudioSpectrumFrame);
+    };
 }
 
 macro_rules! motor_unit_functions {
@@ -1001,9 +1040,37 @@ macro_rules! motor_unit_functions {
 
         ImageFrame
     ) => {
-        // ImageFrame for motor output (oimg) - typically doesn't need Python connector registration
-        // The motor device cache handles it internally via the Rust decoder.
-        // Stub to satisfy macro - no-op.
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $motor_unit:snake _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    image_properties: PyImageFrameProperties,
+                ) -> PyResult<()> {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let image_properties: ImageFrameProperties = image_properties.into();
+
+                    self.get_motor_cache()
+                        .[<$motor_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            image_properties,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+            }
+        }
+
+        motor_unit_functions!(@generate_similar_functions $motor_unit, ImageFrame);
     };
 
     // Arm for WrappedIOType::SpatialPointer3D
@@ -1237,30 +1304,83 @@ macro_rules! motor_unit_functions {
         motor_unit_functions!(@generate_similar_functions $motor_unit, SignedPercentage3D);
     };
 
-    // Arm for WrappedIOType::PoseEstimationData
+    // Arm for WrappedIOType::AudioSpectrumFrame
     (@generate_functions
         $motor_unit:ident,
-        PoseEstimationData
+        AudioSpectrumFrame
     ) => {
-        // FEAGI core now exposes PoseEstimationData motor unit metadata through the template.
-        // Python bindings for full pose schema objects are not implemented in this crate yet.
-        // Provide a deterministic runtime error instead of failing compilation.
         ::paste::paste! {
             #[pymethods]
             impl PyConnectorAgent {
                 pub fn [<motor_ $motor_unit:snake _register>](
                     &mut self,
                     _py: Python<'_>,
-                    _group: u16,
-                    _number_channels: u32,
-                ) -> PyResult<()>
-                {
-                    Err(pyo3::exceptions::PyNotImplementedError::new_err(
-                        "PoseEstimationData registration is not yet exposed in feagi_rust_py_libs Python bindings.",
-                    ))
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    audio_properties: PyAudioSpectrumProperties,
+                ) -> PyResult<()> {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let audio_properties: AudioSpectrumProperties = audio_properties.into();
+
+                    self.get_motor_cache()
+                        .[<$motor_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            audio_properties,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
                 }
             }
         }
+
+        motor_unit_functions!(@generate_similar_functions $motor_unit, AudioSpectrumFrame);
+    };
+
+    // Arm for WrappedIOType::PoseEstimationData
+    (@generate_functions
+        $motor_unit:ident,
+        PoseEstimationData
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $motor_unit:snake _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    pose_schema: PyPoseSchema,
+                    pose_properties: PyPoseEstimationProperties,
+                ) -> PyResult<()> {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let pose_schema: PoseSchema = pose_schema.into();
+                    let pose_properties: PoseEstimationProperties = pose_properties.into();
+
+                    self.get_motor_cache()
+                        .[<$motor_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            pose_schema,
+                            pose_properties,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+            }
+        }
+
+        motor_unit_functions!(@generate_similar_functions $motor_unit, PoseEstimationData);
     };
 
 }

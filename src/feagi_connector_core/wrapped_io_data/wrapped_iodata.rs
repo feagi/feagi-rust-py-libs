@@ -1,11 +1,11 @@
 use crate::feagi_connector_core::data_types::{
-    PyGazeProperties, PyImageFilteringSettings, PyImageFrame, PyMiscData, PyPercentage,
-    PyPercentage2D, PyPercentage3D, PyPercentage4D, PyRawIMU, PySegmentedImageFrame,
-    PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D, PySignedPercentage4D,
+    PyAudioSpectrumFrame, PyGazeProperties, PyImageFilteringSettings, PyImageFrame, PyMiscData,
+    PyPercentage, PyPercentage2D, PyPercentage3D, PyPercentage4D, PyPoseEstimationData, PyRawIMU,
+    PySegmentedImageFrame, PySignedPercentage, PySignedPercentage2D, PySignedPercentage3D,
+    PySignedPercentage4D,
 };
 use feagi_data_structures::FeagiDataError;
 use feagi_sensorimotor::wrapped_io_data::WrappedIOData;
-use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
 use pyo3::types::PyBool;
 use pyo3::{IntoPyObjectExt, PyResult};
@@ -73,9 +73,10 @@ pub fn wrapped_io_data_to_py_object(
             let py_settings = PyImageFilteringSettings::from(settings.clone());
             py_settings.into_py_any(py)
         }
-        WrappedIOData::PoseEstimationData(_) => Err(PyTypeError::new_err(
-            "PoseEstimationData is not yet exposed in feagi_rust_py_libs Python bindings.",
-        )),
+        WrappedIOData::PoseEstimationData(pose) => PyPoseEstimationData::from(pose).into_py_any(py),
+        WrappedIOData::AudioSpectrumFrame(frame) => {
+            PyAudioSpectrumFrame::from(frame).into_py_any(py)
+        }
     }
 }
 
@@ -133,6 +134,12 @@ pub fn py_any_to_wrapped_io_data<'py>(
     } else if let Ok(reference) = py_wrapped.cast::<PyBool>() {
         let boolean: bool = reference.is_true(); // lol
         return Ok(WrappedIOData::Boolean(boolean));
+    } else if let Ok(reference) = py_wrapped.cast::<PyAudioSpectrumFrame>() {
+        let frame = &reference.borrow().inner;
+        return Ok(WrappedIOData::AudioSpectrumFrame(frame.clone()));
+    } else if let Ok(reference) = py_wrapped.cast::<PyPoseEstimationData>() {
+        let pose = &reference.borrow().inner;
+        return Ok(WrappedIOData::PoseEstimationData(pose.clone()));
     }
 
     Err(FeagiDataError::BadParameters(
