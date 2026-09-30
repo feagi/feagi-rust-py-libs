@@ -119,6 +119,12 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     add_python_class!(
         py,
         m,
+        "data_structures.genomic.cortical_area",
+        feagi_data_structures::genomic::cortical_area::PyPoseSchema
+    );
+    add_python_class!(
+        py,
+        m,
         "data_structures.genomic",
         feagi_data_structures::genomic::PyMotorCorticalUnit
     );
@@ -190,6 +196,30 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         m,
         "connector_core.data_types",
         feagi_connector_core::data_types::PyMiscData
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types",
+        feagi_connector_core::data_types::PyAudioSpectrumFrame
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types",
+        feagi_connector_core::data_types::PyAudioSpectrumProperties
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types",
+        feagi_connector_core::data_types::PyPoseEstimationData
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types",
+        feagi_connector_core::data_types::PyPoseEstimationProperties
     );
     add_python_class!(
         py,
@@ -338,6 +368,18 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         m,
         "connector_core.data_types.processing",
         feagi_connector_core::data_types::processing::PyImageFrameProcessor
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types.processing",
+        feagi_connector_core::data_types::processing::PyAudioSpectrumAnalyzer
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types.processing",
+        feagi_connector_core::data_types::processing::PyAudioSpectrumSynthesizer
     );
 
     //Wrapped IO Data

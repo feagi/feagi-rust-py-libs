@@ -10,4 +10,5 @@ pub use cortical_type::{
 };
 pub use io_cortical_area_data_flag::{
     PyFrameChangeHandling, PyIOCorticalAreaConfigurationFlag, PyPercentageNeuronPositioning,
+    PyPoseSchema,
 };

@@ -1,7 +1,7 @@
 use crate::py_error::PyFeagiError;
 use crate::{__base_py_class_shared, wrap_flat_enum, wrap_layered_enum};
 use feagi_data_structures::genomic::cortical_area::io_cortical_area_configuration_flag::{
-    FrameChangeHandling, IOCorticalAreaConfigurationFlag, PercentageNeuronPositioning,
+    FrameChangeHandling, IOCorticalAreaConfigurationFlag, PercentageNeuronPositioning, PoseSchema,
 };
 use pyo3::prelude::*;
 use pyo3::{pyclass, pymethods, PyResult};
@@ -155,6 +155,20 @@ impl PyIOCorticalAreaConfigurationFlag {
         }
     }
 
+    /// Create a PoseEstimation data flag (joint XY plane plus joint-id depth).
+    #[staticmethod]
+    pub fn PoseEstimation(
+        frame_change_handling: PyFrameChangeHandling,
+        pose_schema: PyPoseSchema,
+    ) -> Self {
+        PyIOCorticalAreaConfigurationFlag {
+            inner: IOCorticalAreaConfigurationFlag::PoseEstimation(
+                frame_change_handling.inner,
+                pose_schema.inner,
+            ),
+        }
+    }
+
     //endregion
 
     //region Conversion Methods
@@ -189,6 +203,61 @@ impl PyIOCorticalAreaConfigurationFlag {
 }
 
 //endregion
+
+wrap_flat_enum!(PyPoseSchema, PoseSchema, "PoseSchema");
+
+#[pymethods]
+#[allow(non_snake_case)]
+impl PyPoseSchema {
+    #[staticmethod]
+    pub fn HumanBody() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::HumanBody,
+        }
+    }
+    #[staticmethod]
+    pub fn HumanHand() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::HumanHand,
+        }
+    }
+    #[staticmethod]
+    pub fn HumanFace() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::HumanFace,
+        }
+    }
+    #[staticmethod]
+    pub fn Quadruped() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::Quadruped,
+        }
+    }
+    #[staticmethod]
+    pub fn Avian() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::Avian,
+        }
+    }
+    #[staticmethod]
+    pub fn Arthropod() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::Arthropod,
+        }
+    }
+    #[staticmethod]
+    pub fn Object6DoF() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::Object6DoF,
+        }
+    }
+    #[staticmethod]
+    pub fn Custom() -> Self {
+        PyPoseSchema {
+            inner: PoseSchema::Custom,
+        }
+    }
+}
 
 //region PercentageNeuronPositioning
 

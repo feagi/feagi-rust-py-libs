@@ -1,9 +1,12 @@
 use crate::feagi_connector_core::data_types::descriptors::{
     PyImageFrameProperties, PyMiscDataDimensions, PySegmentedImageFrameProperties,
 };
+use crate::feagi_connector_core::data_types::PyAudioSpectrumProperties;
+use crate::feagi_connector_core::data_types::PyPoseEstimationProperties;
 use crate::{__base_py_class_shared, wrap_flat_enum};
 use feagi_sensorimotor::data_types::descriptors::{
-    ImageFrameProperties, MiscDataDimensions, SegmentedImageFrameProperties,
+    ImageFrameProperties, MiscDataDimensions, PoseEstimationProperties,
+    SegmentedImageFrameProperties,
 };
 use feagi_sensorimotor::wrapped_io_data::WrappedIOType;
 use pyo3::prelude::*;
@@ -146,6 +149,27 @@ impl PyWrappedIOType {
     pub fn ImageFilteringSettings() -> Self {
         PyWrappedIOType {
             inner: WrappedIOType::ImageFilteringSettings,
+        }
+    }
+
+    #[staticmethod]
+    pub fn AudioSpectrumFrame(
+        optional_audio_properties: Option<PyAudioSpectrumProperties>,
+    ) -> Self {
+        let audio_properties = optional_audio_properties.map(|p| p.inner);
+        PyWrappedIOType {
+            inner: WrappedIOType::AudioSpectrumFrame(audio_properties),
+        }
+    }
+
+    #[staticmethod]
+    pub fn PoseEstimationData(
+        optional_pose_properties: Option<PyPoseEstimationProperties>,
+    ) -> Self {
+        let pose_properties: Option<PoseEstimationProperties> =
+            optional_pose_properties.map(|properties| properties.inner);
+        PyWrappedIOType {
+            inner: WrappedIOType::PoseEstimationData(pose_properties),
         }
     }
 
