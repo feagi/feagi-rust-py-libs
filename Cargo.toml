@@ -7,7 +7,7 @@ features = ["pyo3/extension-module"]
 
 [package]
 name = "feagi_rust_py_libs"
-version = "0.0.119"
+version = "0.0.120"
 edition = "2021"
 rust-version = "1.88"
 
@@ -16,21 +16,21 @@ rust-version = "1.88"
 name = "feagi_rust_py_libs"
 crate-type = ["cdylib"]
 
-# FEAGI crates — resolve from crates.io (currently 0.0.48).
-# On 0.0.x, ^0.0.48 means >=0.0.48, <0.0.49. Move this with each feagi-core bump.
+# FEAGI crates — resolve from crates.io (currently 0.0.49).
+# On 0.0.x, ^0.0.49 means >=0.0.49, <0.0.50. Move this with each feagi-core bump.
 # Monorepo local feagi-core: copy `.cargo/config.toml.example` to `.cargo/config.toml`.
 [dependencies]
 # Unify to zune-jpeg 0.5.8 (0.5.7 fails on Rust 1.78+ target_feature/unsafe; 0.5.8 requires Rust 1.87)
 zune-jpeg = "0.5.8"
 # Transitive via feagi crates; 0.25.10+ requires rustc 1.88.
 image = ">=0.25.8, <0.25.10"
-feagi-agent = { version = "^0.0.48", features = ["agent-client-asynchelper-tokio"] }
-feagi-io = { version = "^0.0.48", features = ["feagi-client", "zmq-transport", "websocket-transport-std"] }
-feagi-sensorimotor = { version = "^0.0.48" }
-feagi-serialization = { version = "^0.0.48" }
-feagi_data_structures = { package = "feagi-structures", version = "^0.0.48" }
-feagi-evolutionary = { version = "^0.0.48" }
-feagi-services = { version = "^0.0.48", features = ["connectome-serialization"] }
+feagi-agent = { version = "^0.0.49", features = ["agent-client-asynchelper-tokio"] }
+feagi-io = { version = "^0.0.49", features = ["feagi-client", "zmq-transport", "websocket-transport-std"] }
+feagi-sensorimotor = { version = "^0.0.49" }
+feagi-serialization = { version = "^0.0.49" }
+feagi_data_structures = { package = "feagi-structures", version = "^0.0.49" }
+feagi-evolutionary = { version = "^0.0.49" }
+feagi-services = { version = "^0.0.49", features = ["connectome-serialization"] }
 numpy = "0.27.1"
 ndarray = "0.17"
 paste = "1.0.15"
@@ -43,7 +43,7 @@ heck = "0.5"
 
 
 [build-dependencies]
-feagi_data_structures = { package = "feagi-structures", version = "^0.0.48" }
+feagi_data_structures = { package = "feagi-structures", version = "^0.0.49" }
 heck = "0.5"
 
 [dependencies.pyo3]
