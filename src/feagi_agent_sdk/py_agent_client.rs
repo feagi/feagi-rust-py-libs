@@ -626,18 +626,18 @@ impl AgentClientCompat {
 
     /// Tear down the active session.
     ///
-    /// `wait_for_ack` controls whether we synchronously poll for FEAGI's
-    /// deregistration response before tearing down local sockets. The public
-    /// `disconnect()` path uses `true` (preserve the existing observable
-    /// shutdown semantics). `rebuild()` uses `false` because, by the time we
-    /// reconnect, FEAGI typically has already wiped the prior session
-    /// server-side (e.g. genome reload) and will never send the ack — so the
-    /// 10-second poll loop is pure waste.
-    fn disconnect_internal(&mut self, wait_for_ack: bool) -> Result<(), String> {
+    /// Polls for FEAGI's deregistration response (within `connection_timeout_ms`)
+    /// before tearing down local sockets. Both the public `disconnect()` and
+    /// `rebuild()` use it: a new registration is a different socket from the old
+    /// session's, so FEAGI has no ordering between the two. Registering again
+    /// before the old session is deregistered is rejected as `AlreadyRegistered`
+    /// while the old session is still fresh. If no ack arrives within the budget
+    /// (dead link, or FEAGI already dropped the session) teardown proceeds anyway.
+    fn disconnect_internal(&mut self) -> Result<(), String> {
         if !self.registered {
             tracing::info!(
                 target: "feagi-rust-py-libs",
-                "disconnect: short-circuit, not registered (wait_for_ack={wait_for_ack})"
+                "disconnect: short-circuit, not registered"
             );
             return Ok(());
         }
@@ -650,8 +650,8 @@ impl AgentClientCompat {
         let deadline = Instant::now() + Duration::from_millis(timeout_ms.max(1));
         tracing::info!(
             target: "feagi-rust-py-libs",
-            "disconnect: start (wait_for_ack={wait_for_ack}, deregistration ack budget = {} ms)",
-            if wait_for_ack { timeout_ms as i64 } else { 0 }
+            "disconnect: start (deregistration ack budget = {} ms)",
+            timeout_ms
         );
 
         if let Some(control) = self.command_control.as_mut() {
@@ -660,34 +660,27 @@ impl AgentClientCompat {
                 .map_err(|e| e.to_string())?;
             tracing::info!(
                 target: "feagi-rust-py-libs",
-                "disconnect: request_deregistration sent (wait_for_ack={wait_for_ack})"
+                "disconnect: request_deregistration sent"
             );
 
-            if wait_for_ack {
-                let mut acked = false;
-                while Instant::now() < deadline {
-                    let _ = control.poll_for_messages().map_err(|e| e.to_string())?;
-                    if matches!(
-                        control.registration_status(),
-                        AgentRegistrationStatus::NotRegistered
-                    ) {
-                        acked = true;
-                        break;
-                    }
-                    std::thread::sleep(Self::POLL_SLEEP);
+            let mut acked = false;
+            while Instant::now() < deadline {
+                let _ = control.poll_for_messages().map_err(|e| e.to_string())?;
+                if matches!(
+                    control.registration_status(),
+                    AgentRegistrationStatus::NotRegistered
+                ) {
+                    acked = true;
+                    break;
                 }
-                tracing::info!(
-                    target: "feagi-rust-py-libs",
-                    "disconnect: deregistration {} after {} ms",
-                    if acked { "acknowledged" } else { "TIMED OUT (FEAGI never replied)" },
-                    disconnect_started_at.elapsed().as_millis()
-                );
-            } else {
-                tracing::info!(
-                    target: "feagi-rust-py-libs",
-                    "disconnect: skipping ack wait (fast teardown for reconnect path)"
-                );
+                std::thread::sleep(Self::POLL_SLEEP);
             }
+            tracing::info!(
+                target: "feagi-rust-py-libs",
+                "disconnect: deregistration {} after {} ms",
+                if acked { "acknowledged" } else { "TIMED OUT (FEAGI never replied)" },
+                disconnect_started_at.elapsed().as_millis()
+            );
             if let Err(err) = control.request_disconnect() {
                 let msg = err.to_string();
                 if !msg.contains("Cannot disconnect: client is not in Active state") {
@@ -783,13 +776,14 @@ impl AgentClientCompat {
     /// before tearing down sockets" behaviour. Called from
     /// `PyAgentClient.disconnect()` (i.e., explicit Python-side shutdown).
     fn disconnect(&mut self) -> Result<(), String> {
-        self.disconnect_internal(true)
+        self.disconnect_internal()
     }
 }
 
 /// `RebuildableSession` plug-in for the shared `feagi-agent` recovery loop.
 ///
-/// `rebuild` performs a best-effort `disconnect` followed by a fresh
+/// `rebuild` performs a best-effort `disconnect` (waiting for the
+/// deregistration ack within `connection_timeout_ms`) followed by a fresh
 /// `connect`, then replays the most recently cached device registrations
 /// (if any) so the new session has the same device topology as the old
 /// one. This is the same surface every other SDK (Java) will implement so
@@ -802,7 +796,10 @@ impl RebuildableSession for AgentClientCompat {
             "rebuild: start (reason={reason}, has_cached_device_registrations={})",
             self.last_device_registrations_json.is_some()
         );
-        if let Err(err) = self.disconnect_internal(false) {
+        // Wait (bounded by `connection_timeout_ms`) for FEAGI to acknowledge the
+        // deregistration so the old session is gone server-side before the new
+        // registration is sent; on a dead link the wait expires and we proceed.
+        if let Err(err) = self.disconnect_internal() {
             tracing::warn!(
                 target: "feagi-rust-py-libs",
                 "rebuild: best-effort disconnect failed (reason={reason}): {err}"

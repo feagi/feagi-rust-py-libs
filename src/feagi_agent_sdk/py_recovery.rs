@@ -244,7 +244,8 @@ fn events_to_pylist(py: Python<'_>, events: Vec<HealthEvent>) -> PyResult<Py<PyL
 }
 
 /// Python-facing recovery trigger. Construct with the class methods
-/// `health(event)` and `transport_send_failed()` rather than directly.
+/// `health(event)`, `transport_send_failed()` and `not_registered()` rather
+/// than directly.
 #[pyclass(name = "FeagiRecoveryTrigger")]
 #[derive(Clone)]
 pub struct PyRecoveryTrigger {
@@ -264,6 +265,15 @@ impl PyRecoveryTrigger {
     fn transport_send_failed() -> Self {
         Self {
             inner: RecoveryTrigger::TransportSendFailed,
+        }
+    }
+
+    /// Level trigger: pass it on every tick while the client is not
+    /// registered, so a failed reconnect attempt is asked about again.
+    #[staticmethod]
+    fn not_registered() -> Self {
+        Self {
+            inner: RecoveryTrigger::NotRegistered,
         }
     }
 
