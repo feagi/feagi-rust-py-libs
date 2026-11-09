@@ -15,7 +15,7 @@ use std::collections::HashSet;
 /// etc.). Using these values instead of hardcoded defaults ensures that derived
 /// cortical IDs match what FEAGI auto-creates (e.g. incremental SpatialPointer
 /// correctly maps to SignedPercentage3D rather than Percentage3D).
-fn extract_io_config(
+pub(crate) fn extract_io_config(
     unit_def: &serde_json::Value,
 ) -> Result<Map<String, serde_json::Value>, String> {
     unit_def

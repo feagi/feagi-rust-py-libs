@@ -1817,3 +1817,81 @@ class neuron_data:
             def __str__(self) -> str:
                 """String representation of the neuron."""
                 ...
+
+# Connector core module (percentage coder functions; reached as
+# `from feagi_rust_py_libs import connector_core`)
+class connector_core:
+    """Percentage coder functions over feagi-sensorimotor's public coder interface.
+
+    A unit is passed exactly as the agent registration JSON carries it: the registration
+    section key, the unit key (e.g. "PositionalServo") and the unit definition object as a JSON
+    string (its `cortical_unit_index` and `io_configuration_flags`). The coding variant is
+    selected in Rust (`PercentageCodingVariant::from_io_flag`), never in Python. Every failure
+    raises ValueError with the Rust message.
+    """
+
+    @staticmethod
+    def percentage_coding_variant(
+        registration_section: str,
+        unit_key: str,
+        unit_definition_json: str,
+        area_index: int = 0,
+    ) -> str:
+        """Name of the coding variant of one cortical area of a unit.
+
+        Returns one of UnsignedLinear, UnsignedFractional, SignedLinearAlongZ,
+        SignedLinearTwoLobe, SignedFractional.
+        """
+        ...
+
+    @staticmethod
+    def decode_percentage_from_z_indexes(
+        registration_section: str,
+        unit_key: str,
+        unit_definition_json: str,
+        depth: int,
+        z_positive: list[int],
+        z_negative: list[int] | None = None,
+        area_index: int = 0,
+    ) -> float:
+        """Decode one value from its active z indexes (0..1 unsigned, -1..1 signed).
+
+        `z_negative` is the negative lobe of two-lobe variants; it must be empty otherwise.
+        """
+        ...
+
+    @staticmethod
+    def encode_percentage_to_z_indexes(
+        registration_section: str,
+        unit_key: str,
+        unit_definition_json: str,
+        depth: int,
+        value: float,
+        area_index: int = 0,
+    ) -> tuple[list[int], list[int]]:
+        """Encode one value to its active z indexes `(positive, negative)`.
+
+        A round trip through the decoder is within one bin, not exact; use `target_to_z_bin`
+        for the bin that decodes to a wanted value.
+        """
+        ...
+
+    @staticmethod
+    def target_to_z_bin(
+        registration_section: str,
+        unit_key: str,
+        unit_definition_json: str,
+        depth: int,
+        target: float,
+        area_index: int = 0,
+    ) -> int:
+        """The z bin whose decode is nearest to `target` (the inverse of the decoder).
+
+        Raises ValueError for two-lobe variants, where a value needs a lobe as well as a bin.
+        """
+        ...
+
+    @staticmethod
+    def validate_physical_range(physical_range_json: str) -> tuple[float, float, str]:
+        """Validate a device grouping `physical_range` object; returns (value_at_0, value_at_1, unit)."""
+        ...
