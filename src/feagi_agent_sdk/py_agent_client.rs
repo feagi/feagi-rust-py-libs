@@ -2,6 +2,7 @@
  * PyO3 wrapper for AgentClient on top of FEAGI 2.0 client primitives.
  */
 
+use super::heartbeat_worker::{interval_from_config, HeartbeatWorker};
 use super::py_agent_config::{AgentConfigCompat, PyAgentConfig};
 use super::py_agent_type::AgentTypeCompat;
 use feagi_agent::clients::recovery::session::RebuildableSession;
@@ -22,7 +23,8 @@ use feagi_sensorimotor::configuration::jsonable::JSONInputOutputDefinition;
 use feagi_serialization::FeagiByteContainer;
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyBytes, PyList, PyTuple};
-use std::sync::{Arc, Mutex};
+use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
 pub(crate) struct AgentClientCompat {
@@ -32,6 +34,12 @@ pub(crate) struct AgentClientCompat {
     motor_client: Option<Box<dyn FeagiClientSubscriber>>,
     registered: bool,
     last_heartbeat_sent_at: Option<Instant>,
+    /// Number of heartbeats sent over the command/control channel (worker and piggybacked).
+    heartbeats_sent: u64,
+    /// Last error from a background heartbeat turn. The next call that uses the transport
+    /// raises it (so the Python recovery path sees a transport failure); cleared when raised
+    /// and on connect/disconnect. The worker itself never retries beyond its normal cadence.
+    last_heartbeat_error: Option<String>,
     /// AgentID (base64) assigned at registration; used for device_registrations import
     registration_agent_id_b64: Option<String>,
     /// Cached device registrations JSON (most recent successful send) so a
@@ -56,6 +64,8 @@ impl AgentClientCompat {
             motor_client: None,
             registered: false,
             last_heartbeat_sent_at: None,
+            heartbeats_sent: 0,
+            last_heartbeat_error: None,
             registration_agent_id_b64: None,
             last_device_registrations_json: None,
         }
@@ -264,6 +274,7 @@ impl AgentClientCompat {
         self.command_control = Some(control);
         self.registered = true;
         self.last_heartbeat_sent_at = Some(Instant::now());
+        self.last_heartbeat_error = None;
         tracing::info!(
             target: "feagi-rust-py-libs",
             "connect: complete in {} ms (session_id={})",
@@ -278,6 +289,7 @@ impl AgentClientCompat {
     /// Send device registrations (AgentConfiguration) to FEAGI over the command/control channel.
     /// Must be called after connect() when the agent has motors registered.
     fn send_device_configuration(&mut self, device_registrations_json: &str) -> Result<(), String> {
+        self.raise_pending_heartbeat_error()?;
         if !self.registered {
             return Err("Agent is not registered; call connect() first".to_string());
         }
@@ -401,6 +413,7 @@ impl AgentClientCompat {
     }
 
     fn send_sensory_bytes(&mut self, bytes: &[u8]) -> Result<(), String> {
+        self.raise_pending_heartbeat_error()?;
         if !self.registered {
             return Err("Agent is not registered".to_string());
         }
@@ -490,6 +503,7 @@ impl AgentClientCompat {
     }
 
     fn receive_motor_data(&mut self) -> Result<Option<String>, String> {
+        self.raise_pending_heartbeat_error()?;
         if !self.registered {
             return Err("Agent is not registered".to_string());
         }
@@ -557,6 +571,7 @@ impl AgentClientCompat {
     /// the bytes are returned untouched so the Rust motor decoder (`MotorDeviceCache`)
     /// can decode them directly. Returns `None` when no data is currently available.
     fn receive_motor_data_raw(&mut self) -> Result<Option<Vec<u8>>, String> {
+        self.raise_pending_heartbeat_error()?;
         if !self.registered {
             return Err("Agent is not registered".to_string());
         }
@@ -615,13 +630,73 @@ impl AgentClientCompat {
             return Ok(());
         }
 
+        // Consume the acks of earlier heartbeats before sending the next one, so they never
+        // pile up in front of the deregistration ack that `disconnect_internal` waits for.
+        self.drain_control_messages()?;
+
         let control = self
             .command_control
             .as_mut()
             .ok_or_else(|| "Command control channel is not initialized".to_string())?;
         control.send_heartbeat().map_err(|e| e.to_string())?;
         self.last_heartbeat_sent_at = Some(Instant::now());
+        self.heartbeats_sent += 1;
         Ok(())
+    }
+
+    /// Consume every command/control message FEAGI has already sent, without blocking.
+    ///
+    /// FEAGI answers each HeartBeat (and each AgentConfiguration) with a HeartBeat reply, and
+    /// nothing else polls the channel between connect and disconnect. `poll_for_messages`
+    /// applies registration and deregistration state changes itself (the status that
+    /// `disconnect_internal` checks), so draining here cannot hide them; no other code in this
+    /// crate reads the returned messages. Anything other than a HeartBeat is logged and dropped.
+    fn drain_control_messages(&mut self) -> Result<(), String> {
+        let control = self
+            .command_control
+            .as_mut()
+            .ok_or_else(|| "Command control channel is not initialized".to_string())?;
+        loop {
+            let (_, message) = control.poll_for_messages().map_err(|e| e.to_string())?;
+            match message {
+                None => return Ok(()),
+                Some(FeagiMessage::HeartBeat) => {}
+                Some(other) => {
+                    tracing::debug!(
+                        target: "feagi-rust-py-libs",
+                        "drain_control_messages: dropped unexpected message {:?}",
+                        other
+                    );
+                }
+            }
+        }
+    }
+
+    /// One turn of the background heartbeat worker (the worker holds the client lock).
+    ///
+    /// Runs the same rate-limited send as the piggybacked calls. A failure (or a panic inside
+    /// the transport, caught here so it cannot poison the client mutex) is stored in
+    /// `last_heartbeat_error` for the next transport call to raise.
+    pub(crate) fn background_heartbeat_turn(&mut self) {
+        let error = match catch_unwind(AssertUnwindSafe(|| self.maybe_send_heartbeat())) {
+            Ok(Ok(())) => return,
+            Ok(Err(message)) => message,
+            Err(_) => "heartbeat worker panicked while sending".to_string(),
+        };
+        tracing::warn!(
+            target: "feagi-rust-py-libs",
+            "background heartbeat failed: {}",
+            error
+        );
+        self.last_heartbeat_error = Some(error);
+    }
+
+    /// Raise (and clear) the error stored by the background heartbeat worker, if any.
+    fn raise_pending_heartbeat_error(&mut self) -> Result<(), String> {
+        match self.last_heartbeat_error.take() {
+            Some(error) => Err(format!("Background heartbeat failed: {error}")),
+            None => Ok(()),
+        }
     }
 
     /// Tear down the active session.
@@ -764,6 +839,7 @@ impl AgentClientCompat {
 
         self.registered = false;
         self.last_heartbeat_sent_at = None;
+        self.last_heartbeat_error = None;
         tracing::info!(
             target: "feagi-rust-py-libs",
             "disconnect: complete in {} ms",
@@ -850,9 +926,216 @@ impl RebuildableSession for AgentClientCompat {
     }
 }
 
+/// Lifecycle state guarded by `AgentClientHandle::lifecycle`.
+struct Lifecycle {
+    /// The heartbeat worker, present while one is (or was last) running for this client.
+    worker: Option<HeartbeatWorker>,
+    /// How many workers this client has started in its lifetime (one live worker at a time).
+    workers_started: usize,
+}
+
+/// Rust-level client handle: the shared session plus the background heartbeat worker.
+///
+/// `PyAgentClient` is a thin Python wrapper around this type. The worker's lifetime is the
+/// handle's lifetime, not one session: it is started when the client first connects and is
+/// restarted after a disconnect/reconnect, and it keeps covering sessions that
+/// `RebuildableSession::rebuild` re-creates. Every method that tears down or rebuilds the
+/// session stops and joins the worker BEFORE taking the session lock.
+pub struct AgentClientHandle {
+    // Declaration order matters: `lifecycle` drops first, which stops and joins the worker
+    // before the session `Arc` is released.
+    lifecycle: Mutex<Lifecycle>,
+    inner: Arc<Mutex<AgentClientCompat>>,
+    /// Heartbeat interval from the config; `None` means no worker runs (unset or <= 0).
+    heartbeat_interval: Option<Duration>,
+}
+
+impl AgentClientHandle {
+    /// Create a handle for `config`. Nothing is started until `connect`.
+    pub fn new(config: AgentConfigCompat) -> Self {
+        let heartbeat_interval = interval_from_config(config.heartbeat_interval_secs);
+        Self {
+            lifecycle: Mutex::new(Lifecycle {
+                worker: None,
+                workers_started: 0,
+            }),
+            inner: Arc::new(Mutex::new(AgentClientCompat::new(config))),
+            heartbeat_interval,
+        }
+    }
+
+    fn lock_lifecycle(&self) -> Result<MutexGuard<'_, Lifecycle>, String> {
+        self.lifecycle
+            .lock()
+            .map_err(|e| format!("Lock poisoned: {}", e))
+    }
+
+    fn lock_inner(&self) -> Result<MutexGuard<'_, AgentClientCompat>, String> {
+        self.inner
+            .lock()
+            .map_err(|e| format!("Lock poisoned: {}", e))
+    }
+
+    /// Start the heartbeat worker unless one is already running or the config disables it.
+    fn ensure_worker(&self, lifecycle: &mut Lifecycle) -> Result<(), String> {
+        if lifecycle
+            .worker
+            .as_ref()
+            .is_some_and(HeartbeatWorker::is_running)
+        {
+            return Ok(());
+        }
+        // A worker that exited on its own (or was detached) is replaced, never duplicated.
+        lifecycle.worker = None;
+        let Some(interval) = self.heartbeat_interval else {
+            return Ok(());
+        };
+        let worker = HeartbeatWorker::spawn(Arc::downgrade(&self.inner), interval)
+            .map_err(|e| format!("Failed to start heartbeat worker: {}", e))?;
+        lifecycle.worker = Some(worker);
+        lifecycle.workers_started += 1;
+        Ok(())
+    }
+
+    /// Signal the stop flag and join the worker. Callers do this before taking the session lock.
+    fn stop_worker(lifecycle: &mut Lifecycle) {
+        if let Some(mut worker) = lifecycle.worker.take() {
+            worker.stop_and_join();
+        }
+    }
+
+    /// Connect and register, then make sure the heartbeat worker is running.
+    ///
+    /// If the worker cannot start, the fresh session would be pruned for silence, so it is
+    /// torn down again and the error is returned.
+    pub fn connect(&self) -> Result<(), String> {
+        let mut lifecycle = self.lock_lifecycle()?;
+        self.lock_inner()?.connect()?;
+        if let Err(start_error) = self.ensure_worker(&mut lifecycle) {
+            let teardown = self.lock_inner().and_then(|mut client| client.disconnect());
+            return Err(match teardown {
+                Ok(()) => start_error,
+                Err(teardown_error) => {
+                    format!("{start_error}; teardown also failed: {teardown_error}")
+                }
+            });
+        }
+        Ok(())
+    }
+
+    /// Stop the worker, then disconnect (waiting for FEAGI's deregistration ack).
+    pub fn disconnect(&self) -> Result<(), String> {
+        let mut lifecycle = self.lock_lifecycle()?;
+        Self::stop_worker(&mut lifecycle);
+        self.lock_inner()?.disconnect()
+    }
+
+    /// Stop the worker, rebuild the session, then restart the worker.
+    ///
+    /// The worker is restarted whatever the rebuild outcome: the caller retries a failed
+    /// reconnect, and the worker does nothing while the client is not registered.
+    pub fn reconnect(&self, reason: &str) -> Result<(), String> {
+        let mut lifecycle = self.lock_lifecycle()?;
+        Self::stop_worker(&mut lifecycle);
+        let rebuilt = self
+            .lock_inner()
+            .and_then(|mut client| client.rebuild(reason).map_err(|e| e.to_string()));
+        let restarted = self.ensure_worker(&mut lifecycle);
+        rebuilt.and(restarted)
+    }
+
+    /// Stop the heartbeat worker without touching the session (it restarts on the next
+    /// `connect`/`reconnect`). Used to prove that the worker is what keeps a session alive.
+    #[doc(hidden)]
+    pub fn stop_heartbeat_worker(&self) -> Result<(), String> {
+        let mut lifecycle = self.lock_lifecycle()?;
+        Self::stop_worker(&mut lifecycle);
+        Ok(())
+    }
+
+    /// Whether a heartbeat worker thread is currently alive.
+    pub fn heartbeat_worker_running(&self) -> bool {
+        self.lock_lifecycle()
+            .map(|lifecycle| {
+                lifecycle
+                    .worker
+                    .as_ref()
+                    .is_some_and(HeartbeatWorker::is_running)
+            })
+            .unwrap_or(false)
+    }
+
+    /// How many heartbeat workers this client has started so far.
+    pub fn heartbeat_workers_started(&self) -> usize {
+        self.lock_lifecycle()
+            .map(|lifecycle| lifecycle.workers_started)
+            .unwrap_or(0)
+    }
+
+    /// Number of heartbeats sent so far (worker and piggybacked).
+    pub fn heartbeats_sent(&self) -> Result<u64, String> {
+        Ok(self.lock_inner()?.heartbeats_sent)
+    }
+
+    /// The last background heartbeat error that has not been raised yet (does not clear it).
+    pub fn last_heartbeat_error(&self) -> Result<Option<String>, String> {
+        Ok(self.lock_inner()?.last_heartbeat_error.clone())
+    }
+
+    /// Encode vision `(neuron_id, potential)` pairs and send them as sensory data.
+    pub fn send_sensory_pairs(&self, pairs: &[(i32, f64)]) -> Result<(), String> {
+        let mut client = self.lock_inner()?;
+        let container = client.encode_sensory_pairs_to_container(pairs)?;
+        client.send_sensory_bytes(container.get_byte_ref())
+    }
+
+    /// Send pre-encoded sensory bytes.
+    pub fn send_sensory_bytes(&self, bytes: &[u8]) -> Result<(), String> {
+        self.lock_inner()?.send_sensory_bytes(bytes)
+    }
+
+    /// Poll the motor socket and return the data as JSON text.
+    pub fn receive_motor_data(&self) -> Result<Option<String>, String> {
+        self.lock_inner()?.receive_motor_data()
+    }
+
+    /// Poll the motor socket and return the raw verified FEAGI bytes.
+    pub fn receive_motor_data_raw(&self) -> Result<Option<Vec<u8>>, String> {
+        self.lock_inner()?.receive_motor_data_raw()
+    }
+
+    /// Whether the client is registered (piggybacks a rate-limited heartbeat, as before).
+    pub fn is_registered(&self) -> Result<bool, String> {
+        let mut client = self.lock_inner()?;
+        client.maybe_send_heartbeat()?;
+        Ok(client.registered)
+    }
+
+    /// AgentID (base64) assigned at registration, or `None` when not connected.
+    pub fn registration_agent_id_b64(&self) -> Result<Option<String>, String> {
+        Ok(self.lock_inner()?.registration_agent_id_b64.clone())
+    }
+
+    /// Send the device registrations JSON over command/control.
+    pub fn send_device_configuration(&self, device_registrations_json: &str) -> Result<(), String> {
+        self.lock_inner()?
+            .send_device_configuration(device_registrations_json)
+    }
+
+    /// Whether a device registrations payload is cached for replay on reconnect.
+    pub fn has_cached_device_registrations(&self) -> Result<bool, String> {
+        Ok(self.lock_inner()?.has_cached_device_registrations())
+    }
+}
+
+/// Convert a Rust-level error message into the `RuntimeError` Python callers already see.
+fn runtime_error(message: String) -> PyErr {
+    PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(message)
+}
+
 #[pyclass(name = "PyAgentClient")]
 pub struct PyAgentClient {
-    inner: Arc<Mutex<AgentClientCompat>>,
+    handle: AgentClientHandle,
 }
 
 #[pymethods]
@@ -861,9 +1144,9 @@ impl PyAgentClient {
     fn new(config: &PyAgentConfig) -> PyResult<Self> {
         config
             .validate_internal()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e))?;
+            .map_err(PyErr::new::<pyo3::exceptions::PyValueError, _>)?;
         Ok(PyAgentClient {
-            inner: Arc::new(Mutex::new(AgentClientCompat::new(config.inner().clone()))),
+            handle: AgentClientHandle::new(config.inner().clone()),
         })
     }
 
@@ -871,21 +1154,17 @@ impl PyAgentClient {
     ///
     /// This blocks for up to `connection_timeout_ms * registration_retries`
     /// (per `AgentConfigCompat`) while polling the control socket. That work
-    /// is dispatched via [`Python::allow_threads`] so the GIL is released for
+    /// is dispatched via [`Python::detach`] so the GIL is released for
     /// its duration: without this, no other Python thread in the process
     /// (e.g. a controller's manual-control HTTP server thread) can run while
     /// `connect()` is polling, which previously froze concurrent Python
     /// threads for the full connection deadline on every attempt.
+    ///
+    /// On success a background worker keeps heartbeats flowing, paced by
+    /// `heartbeat_interval_secs`, until `disconnect()` or the client is dropped.
     fn connect(&mut self, py: Python<'_>) -> PyResult<()> {
-        let inner = self.inner.clone();
-        py.allow_threads(move || {
-            let mut client = inner.lock().map_err(|e| {
-                PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-            })?;
-            client
-                .connect()
-                .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
-        })
+        let handle = &self.handle;
+        py.detach(|| handle.connect()).map_err(runtime_error)
     }
 
     fn send_sensory_data(&self, _py: Python, neuron_pairs: Bound<'_, PyAny>) -> PyResult<()> {
@@ -903,35 +1182,21 @@ impl PyAgentClient {
             pairs.push((neuron_id, potential));
         }
 
-        let mut client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        let container = client
-            .encode_sensory_pairs_to_container(&pairs)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))?;
-        client
-            .send_sensory_bytes(container.get_byte_ref())
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
+        self.handle
+            .send_sensory_pairs(&pairs)
+            .map_err(runtime_error)
     }
 
     fn send_sensory_bytes(&self, _py: Python, payload: Bound<'_, PyAny>) -> PyResult<()> {
         let py_bytes = payload.cast::<PyBytes>()?;
         let bytes = py_bytes.as_bytes().to_vec();
-        let mut client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        client
+        self.handle
             .send_sensory_bytes(&bytes)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
+            .map_err(runtime_error)
     }
 
     fn receive_motor_data(&self, _py: Python) -> PyResult<Option<String>> {
-        let mut client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        client
-            .receive_motor_data()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
+        self.handle.receive_motor_data().map_err(runtime_error)
     }
 
     /// Polls the motor socket and returns the raw verified FEAGI byte payload, or
@@ -942,58 +1207,39 @@ impl PyAgentClient {
         &self,
         py: Python<'py>,
     ) -> PyResult<Option<Bound<'py, PyBytes>>> {
-        let mut client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        let maybe_bytes = client
+        let maybe_bytes = self
+            .handle
             .receive_motor_data_raw()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))?;
+            .map_err(runtime_error)?;
         Ok(maybe_bytes.map(|bytes| PyBytes::new(py, &bytes)))
     }
 
     fn is_registered(&self) -> PyResult<bool> {
-        let mut client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        client
-            .maybe_send_heartbeat()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))?;
-        Ok(client.registered)
+        self.handle.is_registered().map_err(runtime_error)
     }
 
     /// Return AgentID (base64) assigned at registration, or None if not connected.
     fn get_registration_agent_id_b64(&self) -> PyResult<Option<String>> {
-        let client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        Ok(client.registration_agent_id_b64.clone())
+        self.handle
+            .registration_agent_id_b64()
+            .map_err(runtime_error)
     }
 
     /// Send device registrations to FEAGI over ZMQ (AgentConfiguration message).
     /// Call after connect() when the agent has motors. Replaces HTTP device_registrations import.
     fn send_device_configuration(&self, device_registrations_json: &str) -> PyResult<()> {
-        let mut client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        client
+        self.handle
             .send_device_configuration(device_registrations_json)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
+            .map_err(runtime_error)
     }
 
     /// Disconnect from FEAGI, waiting (up to `connection_timeout_ms`) for the
-    /// deregistration ack. Dispatched via [`Python::allow_threads`] for the
+    /// deregistration ack. Dispatched via [`Python::detach`] for the
     /// same reason as `connect()`: it polls in a loop and must not hold the
-    /// GIL for that duration.
+    /// GIL for that duration. Stops the background heartbeat worker first.
     fn disconnect(&mut self, py: Python<'_>) -> PyResult<()> {
-        let inner = self.inner.clone();
-        py.allow_threads(move || {
-            let mut client = inner.lock().map_err(|e| {
-                PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-            })?;
-            client
-                .disconnect()
-                .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
-        })
+        let handle = &self.handle;
+        py.detach(|| handle.disconnect()).map_err(runtime_error)
     }
 
     /// Force a fresh registration cycle: disconnect (best-effort), connect,
@@ -1012,29 +1258,29 @@ impl PyAgentClient {
     ///
     /// Like `connect()`/`disconnect()`, `rebuild()` polls in a loop for up to
     /// `connection_timeout_ms * registration_retries`; dispatched via
-    /// [`Python::allow_threads`] so it does not hold the GIL for that
-    /// duration.
+    /// [`Python::detach`] so it does not hold the GIL for that
+    /// duration. The heartbeat worker is stopped before the rebuild and
+    /// restarted after it.
     #[pyo3(signature = (reason=None))]
     fn reconnect(&self, py: Python<'_>, reason: Option<&str>) -> PyResult<()> {
-        let inner = self.inner.clone();
+        let handle = &self.handle;
         let reason_text = reason.unwrap_or("python-sdk reconnect").to_string();
-        py.allow_threads(move || {
-            let mut client = inner.lock().map_err(|e| {
-                PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-            })?;
-            client
-                .rebuild(&reason_text)
-                .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
-        })
+        py.detach(|| handle.reconnect(&reason_text))
+            .map_err(runtime_error)
     }
 
     /// Whether the most recent successful `send_device_configuration` is
     /// cached and will be replayed on the next `reconnect()`.
     fn has_cached_device_registrations(&self) -> PyResult<bool> {
-        let client = self.inner.lock().map_err(|e| {
-            PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Lock poisoned: {}", e))
-        })?;
-        Ok(client.has_cached_device_registrations())
+        self.handle
+            .has_cached_device_registrations()
+            .map_err(runtime_error)
+    }
+
+    /// The last error raised by the background heartbeat worker that no call has
+    /// raised yet, or `None`. Read-only: the next send/receive call raises it once.
+    fn last_heartbeat_error(&self) -> PyResult<Option<String>> {
+        self.handle.last_heartbeat_error().map_err(runtime_error)
     }
 
     fn __repr__(&self) -> String {
@@ -1042,6 +1288,9 @@ impl PyAgentClient {
         format!("PyAgentClient(registered={})", registered)
     }
 }
+
+#[cfg(test)]
+mod heartbeat_tests;
 
 #[cfg(test)]
 mod tests {
@@ -1077,7 +1326,7 @@ mod tests {
     }
 
     /// `PyAgentClient::connect`/`disconnect`/`reconnect` dispatch their
-    /// blocking work through `Python::allow_threads`, which requires the
+    /// blocking work through `Python::detach`, which requires the
     /// closure (and everything it captures, including `AgentClientCompat`
     /// behind the shared `Arc<Mutex<_>>`) to be `Send`. This compile-time
     /// assertion guards that invariant: if a future change to

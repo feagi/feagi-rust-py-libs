@@ -7,7 +7,7 @@ mod feagi_data_structures;
 mod py_error;
 mod useful_macros;
 pub use feagi_data_serialization as feagi_serialization;
-mod feagi_agent_sdk;
+pub mod feagi_agent_sdk;
 mod feagi_connector_core;
 mod feagi_evo;
 
@@ -414,6 +414,9 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         feagi_connector_core::init_rust_logging,
         m
     )?)?;
+
+    // Percentage coder functions (decode / encode / target_to_z_bin), on the connector_core module
+    feagi_connector_core::percentage_coding::register_module(m)?;
 
     //endregion
 

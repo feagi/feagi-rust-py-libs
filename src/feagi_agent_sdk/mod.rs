@@ -4,6 +4,7 @@
  * Exposes the Rust AgentClient to Python as PyAgentClient
  */
 
+mod heartbeat_worker;
 pub mod py_agent_client;
 pub mod py_agent_config;
 pub mod py_agent_type;

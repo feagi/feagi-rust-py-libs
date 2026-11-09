@@ -53,7 +53,7 @@ pub struct AgentConfigCompat {
 }
 
 impl AgentConfigCompat {
-    pub(crate) fn new(agent_id: String, agent_type: AgentTypeCompat) -> Self {
+    pub fn new(agent_id: String, agent_type: AgentTypeCompat) -> Self {
         Self {
             agent_id,
             agent_type,
