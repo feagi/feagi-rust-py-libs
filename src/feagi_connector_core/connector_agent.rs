@@ -1623,8 +1623,9 @@ impl PyConnectorAgent {
 
     /// Reads every registered motor unit's latest decoded value as a flat snapshot.
     ///
-    /// Returns a list of `(group, channel, mode, value)` tuples where `mode` is
-    /// `"absolute"` or `"incremental"` and `value` is a scalar (`[0, 1]` for unsigned
+    /// Returns a list of `(unit, group, channel, mode, value)` tuples where `unit`
+    /// is the motor unit's snake_case name (e.g. `"positional_servo"`; a group index
+    /// is only unique within one unit type) and `mode` is `"absolute"` or `"incremental"` and `value` is a scalar (`[0, 1]` for unsigned
     /// types, `[-1, 1]` for signed types). Multi-axis units (e.g. SpatialPointer 3D)
     /// are flattened to one tuple per axis. This is the generic accessor used by the
     /// Python SDK to build its motor command map without per-unit typed reads.
@@ -1637,7 +1638,7 @@ impl PyConnectorAgent {
         &self,
         _py: Python<'_>,
         updated_only: bool,
-    ) -> PyResult<Vec<(u32, u32, String, f64)>> {
+    ) -> PyResult<Vec<(String, u32, u32, String, f64)>> {
         let motor_cache = self.get_motor_cache();
         let snapshot = if updated_only {
             motor_cache.read_decoded_motor_snapshot_updated_only()
@@ -1648,6 +1649,7 @@ impl PyConnectorAgent {
             .into_iter()
             .map(|entry| {
                 (
+                    entry.unit.get_snake_case_name().to_string(),
                     entry.group,
                     entry.channel,
                     entry.mode.to_string(),
