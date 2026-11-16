@@ -2,6 +2,7 @@ use crate::feagi_connector_core::data_types::descriptors::{
     PyImageFrameProperties, PyMiscDataDimensions, PySegmentedImageFrameProperties,
 };
 use crate::feagi_connector_core::data_types::PyAudioSpectrumProperties;
+use crate::feagi_connector_core::data_types::PyMidiProperties;
 use crate::feagi_connector_core::data_types::PyPoseEstimationProperties;
 use crate::{__base_py_class_shared, wrap_flat_enum};
 use feagi_sensorimotor::data_types::descriptors::{
@@ -159,6 +160,14 @@ impl PyWrappedIOType {
         let audio_properties = optional_audio_properties.map(|p| p.inner);
         PyWrappedIOType {
             inner: WrappedIOType::AudioSpectrumFrame(audio_properties),
+        }
+    }
+
+    #[staticmethod]
+    pub fn MidiFrame(optional_midi_properties: Option<PyMidiProperties>) -> Self {
+        let midi_properties = optional_midi_properties.map(|properties| properties.inner);
+        PyWrappedIOType {
+            inner: WrappedIOType::MidiFrame(midi_properties),
         }
     }
 

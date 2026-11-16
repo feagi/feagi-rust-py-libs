@@ -612,6 +612,48 @@ macro_rules! sensor_unit_functions {
 
         sensor_unit_functions!(@generate_similar_functions $sensory_unit, AudioSpectrumFrame);
     };
+
+    // Arm for WrappedIOType::MidiFrame
+    (@generate_functions
+        $sensory_unit:ident,
+        MidiFrame
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<sensor_ $sensory_unit _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    midi_properties: PyMidiProperties,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning,
+                ) -> PyResult<()> {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let midi_properties: MidiProperties = midi_properties.into();
+                    let percentage_neuron_positioning: PercentageNeuronPositioning =
+                        percentage_neuron_positioning.into();
+
+                    self.get_sensor_cache()
+                        .[<$sensory_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            midi_properties,
+                            percentage_neuron_positioning,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+            }
+        }
+
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, MidiFrame);
+    };
 }
 
 macro_rules! motor_unit_functions {
@@ -1341,6 +1383,48 @@ macro_rules! motor_unit_functions {
         }
 
         motor_unit_functions!(@generate_similar_functions $motor_unit, AudioSpectrumFrame);
+    };
+
+    // Arm for WrappedIOType::MidiFrame
+    (@generate_functions
+        $motor_unit:ident,
+        MidiFrame
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<motor_ $motor_unit:snake _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    midi_properties: PyMidiProperties,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning,
+                ) -> PyResult<()> {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount =
+                        number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let midi_properties: MidiProperties = midi_properties.into();
+                    let percentage_neuron_positioning: PercentageNeuronPositioning =
+                        percentage_neuron_positioning.into();
+
+                    self.get_motor_cache()
+                        .[<$motor_unit:snake _register>](
+                            group,
+                            number_channels,
+                            frame_change_handling,
+                            midi_properties,
+                            percentage_neuron_positioning,
+                        )
+                        .map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+            }
+        }
+
+        motor_unit_functions!(@generate_similar_functions $motor_unit, MidiFrame);
     };
 
     // Arm for WrappedIOType::PoseEstimationData
