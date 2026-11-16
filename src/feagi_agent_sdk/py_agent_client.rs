@@ -8,6 +8,9 @@ use super::py_agent_type::AgentTypeCompat;
 use feagi_agent::clients::recovery::session::RebuildableSession;
 use feagi_agent::clients::{AgentRegistrationStatus, CommandControlAgent};
 use feagi_agent::command_and_control::agent_embodiment_configuration_message::AgentEmbodimentConfigurationMessage;
+use feagi_agent::command_and_control::agent_registration_message::{
+    AgentRegistrationMessage, DeregistrationResponse,
+};
 use feagi_agent::command_and_control::FeagiMessage;
 use feagi_agent::{AgentCapabilities, AgentDescriptor, AuthToken, FeagiAgentError};
 use feagi_data_structures::genomic::cortical_area::CorticalID;
@@ -633,6 +636,10 @@ impl AgentClientCompat {
         // Consume the acks of earlier heartbeats before sending the next one, so they never
         // pile up in front of the deregistration ack that `disconnect_internal` waits for.
         self.drain_control_messages()?;
+        if !self.registered {
+            // FEAGI answered an earlier heartbeat with NotRegistered; nothing to keep alive.
+            return Ok(());
+        }
 
         let control = self
             .command_control
@@ -661,6 +668,21 @@ impl AgentClientCompat {
             match message {
                 None => return Ok(()),
                 Some(FeagiMessage::HeartBeat) => {}
+                Some(FeagiMessage::AgentRegistration(
+                    AgentRegistrationMessage::ServerRespondsDeregistration(
+                        DeregistrationResponse::NotRegistered,
+                    ),
+                )) => {
+                    // FEAGI no longer knows this session (for example a genome upload
+                    // force-deregistered every agent). Clear the local flag so
+                    // `is_registered()` reports false and the recovery driver's
+                    // `NotRegistered` trigger rebuilds the session.
+                    tracing::warn!(
+                        target: "feagi-rust-py-libs",
+                        "FEAGI answered NotRegistered; marking the client unregistered"
+                    );
+                    self.registered = false;
+                }
                 Some(other) => {
                     tracing::debug!(
                         target: "feagi-rust-py-libs",
