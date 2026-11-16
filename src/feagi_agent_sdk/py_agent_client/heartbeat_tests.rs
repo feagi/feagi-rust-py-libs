@@ -577,7 +577,7 @@ fn heartbeat_acks_do_not_accumulate_and_disconnect_completes_promptly() {
 }
 
 #[test]
-fn draining_consumes_unexpected_messages_without_blocking_the_heartbeat() {
+fn not_registered_reply_clears_the_registered_flag_and_stops_heartbeats() {
     let wire = SharedWire::default();
     let handle = handle_for(&wire);
     let unexpected = encode(&FeagiMessage::AgentRegistration(
@@ -591,19 +591,17 @@ fn draining_consumes_unexpected_messages_without_blocking_the_heartbeat() {
         w.incoming.push_back(encode(&FeagiMessage::HeartBeat));
     });
     std::thread::sleep(INTERVAL);
-    handle.is_registered().expect("heartbeat");
+    // The drain inside this call reads the NotRegistered reply, so no heartbeat goes out.
+    assert!(!handle.is_registered().expect("registered flag"));
     assert_eq!(with_wire(&wire, |w| w.incoming.len()), 0);
-    assert_eq!(heartbeats_on_wire(&wire), 1);
-    // A NotRegistered reply does not change the session state the disconnect relies on.
-    assert!(matches!(
-        handle
-            .lock_inner()
-            .expect("client lock")
-            .command_control
-            .as_ref()
-            .map(|c| c.registration_status().clone()),
-        Some(AgentRegistrationStatus::Registered(_, _))
-    ));
+    assert_eq!(heartbeats_on_wire(&wire), 0);
+    // FEAGI no longer knows this session: the client is no longer registered, so the
+    // recovery driver's `NotRegistered` trigger rebuilds it.
+    assert!(!handle.is_registered().expect("registered flag"));
+    // No further heartbeat is sent while unregistered.
+    std::thread::sleep(INTERVAL);
+    handle.is_registered().expect("heartbeat");
+    assert_eq!(heartbeats_on_wire(&wire), 0);
 }
 
 //endregion
