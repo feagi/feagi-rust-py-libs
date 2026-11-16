@@ -213,6 +213,18 @@ fn feagi_rust_py_libs(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         py,
         m,
         "connector_core.data_types",
+        feagi_connector_core::data_types::PyMidiFrame
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types",
+        feagi_connector_core::data_types::PyMidiProperties
+    );
+    add_python_class!(
+        py,
+        m,
+        "connector_core.data_types",
         feagi_connector_core::data_types::PyPoseEstimationData
     );
     add_python_class!(
