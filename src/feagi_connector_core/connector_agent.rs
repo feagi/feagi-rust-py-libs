@@ -1743,6 +1743,29 @@ impl PyConnectorAgent {
             .collect())
     }
 
+    /// True when `channel` of motor unit `(unit, group)` received data on the most recent
+    /// decode, false when that decode carried nothing for it (the cached value is older).
+    ///
+    /// `unit` is the motor unit's snake_case name, keyed like
+    /// [`Self::motors_read_decoded_snapshot`]. Raises when the unit is unknown or not
+    /// registered, or the channel is out of range.
+    pub fn motor_channel_updated_last_decode(
+        &self,
+        _py: Python<'_>,
+        unit: &str,
+        group: u32,
+        channel: u32,
+    ) -> PyResult<bool> {
+        let motor_unit = MotorCorticalUnit::from_snake_case_name(unit).ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err(format!("Unknown motor unit name '{unit}'"))
+        })?;
+        let group_index: CorticalUnitIndex = (group as u16).into();
+        let motor_cache = self.get_motor_cache();
+        Ok(motor_cache
+            .motor_channel_updated_last_decode(motor_unit, group_index, channel)
+            .map_err(PyFeagiError::from)?)
+    }
+
     /// Python SDK parity: route motor cache updates into a callable `(value, command_mode=None, ...)`.
     ///
     /// `motor_unit` is a [`crate::feagi_data_structures::genomic::PyMotorCorticalUnit`] or a length-1 tuple
