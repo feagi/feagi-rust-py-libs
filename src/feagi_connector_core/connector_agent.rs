@@ -365,6 +365,40 @@ macro_rules! sensor_unit_functions {
         sensor_unit_functions!(@generate_similar_functions $sensory_unit, SignedPercentage4D);
     };
 
+    // Arm for WrappedIOType::SignedPercentage (scalar in [-1, 1])
+    (@generate_functions
+        $sensory_unit:ident,
+        SignedPercentage
+    ) => {
+        ::paste::paste! {
+            #[pymethods]
+            impl PyConnectorAgent {
+                pub fn [<sensor_ $sensory_unit _register>](
+                    &mut self,
+                    _py: Python<'_>,
+                    group: u16,
+                    number_channels: u32,
+                    frame_change_handling: PyFrameChangeHandling,
+                    z_neuron_resolution: u32,
+                    percentage_neuron_positioning: PyPercentageNeuronPositioning
+                    ) -> PyResult<()>
+                {
+                    let group: CorticalUnitIndex = group.into();
+                    let number_channels: CorticalChannelCount = number_channels.try_into().map_err(PyFeagiError::from)?;
+                    let frame_change_handling: FrameChangeHandling = frame_change_handling.into();
+                    let z_neuron_resolution: NeuronDepth = z_neuron_resolution.try_into().map_err(PyFeagiError::from)?;
+                    let percentage_neuron_positioning: PercentageNeuronPositioning = percentage_neuron_positioning.into();
+
+                    self.get_sensor_cache().[<$sensory_unit:snake _register>](group, number_channels, frame_change_handling, z_neuron_resolution, percentage_neuron_positioning).map_err(PyFeagiError::from)?;
+                    Ok(())
+                }
+             }
+
+        }
+
+        sensor_unit_functions!(@generate_similar_functions $sensory_unit, SignedPercentage);
+    };
+
     // Arm for WrappedIOType::RawIMU
     //
     // Raw IMU is a composite, multi-sub-area sensor unit. Registration parameters
